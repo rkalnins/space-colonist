@@ -1,4 +1,10 @@
 .idea/
+cmake-build-debug/
+tmp/
+logs/
+
 *.o
+
 sc
-cmake-build-debug
+
+

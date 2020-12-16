@@ -1,36 +1,24 @@
-#include <ncurses.h>
+
+#include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
+#include "game.h"
+
+
 int main () {
-    initscr();
-    noecho();
-    keypad(stdscr, true);
+    auto logger = spdlog::basic_logger_mt("main",
+                                          "logs/space-colonist-log.log");
+    logger->set_level(spdlog::level::debug);
+    spdlog::flush_every(std::chrono::seconds(1));
 
-    box(stdscr, 0, 0);
+    using namespace sc;
+    logger->info("++++++++++++++++++++++++++++++++++++++++++++++");
+    logger->info("Starting game");
 
-    MEVENT mouse_event;
-    WINDOW *main;
-    int ch;
+    Game game;
+    game.Init();
 
-    mousemask(ALL_MOUSE_EVENTS, nullptr);
-    main = subwin(stdscr, LINES - 2, COLS - 2, 1, 1);
+    logger->info("Quit game");
 
-    if (!main) {
-        endwin();
-
-    }
-
-    do {
-        ch = getch();
-
-        if (ch == KEY_MOUSE) {
-            getmouse(&mouse_event);
-            mvaddch(mouse_event.y, mouse_event.x, '*');
-            refresh();
-        }
-    } while (ch != '\n');
-
-
-    endwin();
     return 0;
 }
