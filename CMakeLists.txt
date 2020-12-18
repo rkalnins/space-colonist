@@ -5,11 +5,14 @@ project(sc)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(spdlog REQUIRED)
-
+find_package(Catch2 REQUIRED)
 
 include_directories(/usr/local/opt/ncurses/include)
 
 link_directories(/usr/local/opt/ncurses/lib)
+
+set(TEST_FILES
+        src/test/test.cpp)
 
 set(SOURCE_FILES
         src/logging/logging.h
@@ -39,4 +42,7 @@ set(SOURCE_FILES
         src/play/spaceship_handler.h)
 
 add_executable(sc ${SOURCE_FILES})
+add_executable(sc_test ${TEST_FILES})
+
 target_link_libraries(sc spdlog::spdlog menu ncurses)
+target_link_libraries(sc_test spdlog::spdlog menu ncurses Catch2::Catch2)
