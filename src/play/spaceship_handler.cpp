@@ -50,6 +50,10 @@ GameState SpaceshipHandler::OnLoop () {
         PrintItems();
     }
 
+    if ( show_overflow_ ) {
+        PrintItemOverflow(mouse_event_.y);
+    }
+
     return GameState::RUNNING;
 }
 
@@ -75,8 +79,8 @@ void SpaceshipHandler::PrintCrew () {
 }
 
 void SpaceshipHandler::PrintItems () {
-    int item_y = spaceship_display_y_ + 3;
-    int item_x = spaceship_display_x_ + 20;
+    int item_y = item_init_y_;
+    int item_x = item_init_x_;
 
 
     std::stringstream items_disp;
@@ -112,6 +116,8 @@ void SpaceshipHandler::PrintItems () {
 
             if ( items_disp.str().length() > length ) {
                 mvwaddstr(main_, item_y, item_x + 10 + length, " ...");
+                item_overflow_[item_y] = std::make_unique< std::vector< Item >>(
+                        c.second);
             }
 
             ++item_y;
@@ -146,9 +152,22 @@ void SpaceshipHandler::ProcessInput () {
     switch ( listener_->GetCh()) {
         case KEY_MOUSE: {
             getmouse(&mouse_event_);
+            wmouse_trafo(main_, &mouse_event_.y, &mouse_event_.x, false);
 
+            logger_->debug("mouse: {} {}", mouse_event_.y, mouse_event_.x);
+
+            if ( item_overflow_.find(mouse_event_.y) !=
+                 item_overflow_.end() &&
+                 item_init_x_ < mouse_event_.x ) {
+
+                show_overflow_ = !show_overflow_;
+            }
+
+            break;
+        }
+        case 'r': {
             spaceship_->ResetFuel();
-            logger_->debug("Reset fuel", spaceship_->GetFuel());
+            logger_->debug("Reset fuel");
             break;
         }
         case 'i': {
@@ -167,34 +186,52 @@ void SpaceshipHandler::ProcessInput () {
             break;
         }
         case 'h': {
+            show_overflow_ = false;
             Item i("tools", "hammer", 10, 3);
             spaceship_->AddItem(i);
             break;
         }
         case 'f': {
+            show_overflow_ = false;
             Item i("food", "potato", 1, 1);
             spaceship_->AddItem(i);
             break;
         }
         case 'a': {
+            show_overflow_ = false;
             Item i("food", "apple", 1, 1);
             spaceship_->AddItem(i);
             break;
         }
         case 't': {
+            show_overflow_ = false;
             Item i("transport", "bike", 1, 10);
             spaceship_->AddItem(i);
             break;
         }
         case 'n': {
-            item_page_id_ = std::min(item_page_id_ + 1,
-                                     static_cast<int>(
-                                             spaceship_->GetItems().size() /
-                                             cat_per_page_));
+            if ( show_overflow_ ) {
+                overflow_page_id_ = std::min(overflow_page_id_ + 1,
+                                             static_cast<int> (
+                                                     item_overflow_[mouse_event_.y]->size() /
+                                                     ( rows_per_overflow_pg_ *
+                                                       items_per_overflow_row_ )));
+            } else {
+                item_overflow_ = std::map< int, std::unique_ptr< std::vector< Item >> >();
+                item_page_id_  = std::min(item_page_id_ + 1,
+                                          static_cast<int>(
+                                                  spaceship_->GetItems().size() /
+                                                  cat_per_page_));
+            }
             break;
         }
         case 'b': {
-            item_page_id_ = std::max(item_page_id_ - 1, 0);
+            if ( show_overflow_ ) {
+                overflow_page_id_ = std::max(overflow_page_id_ - 1, 0);
+            } else {
+                item_overflow_ = std::map< int, std::unique_ptr< std::vector< Item >> >();
+                item_page_id_  = std::max(item_page_id_ - 1, 0);
+            }
             break;
         }
         default: {
@@ -203,6 +240,58 @@ void SpaceshipHandler::ProcessInput () {
     }
 
     listener_->ResetCh();
+}
+
+void SpaceshipHandler::PrintItemOverflow ( int id ) {
+
+    if ( !item_overflow_[id] ) {
+        logger_->debug("No vector at {}", id);
+        return;
+    }
+
+    logger_->debug("Printing overflow for row {}", id);
+    int y = overflow_init_y_;
+
+    const std::vector< Item > &items = *item_overflow_[id];
+
+
+    bool done  = false;
+    int  index = overflow_page_id_ * ( rows_per_overflow_pg_ *
+                                       items_per_overflow_row_ );
+    int  end   = index + ( rows_per_overflow_pg_ *
+                           items_per_overflow_row_ );
+
+    std::stringstream row;
+
+    row << "All items in selected category (" << ( overflow_page_id_ + 1 )
+        << "/" <<
+        ( item_overflow_[mouse_event_.y]->size() /
+          ( rows_per_overflow_pg_ *
+            items_per_overflow_row_ ) + 1 ) << ")";
+
+    mvwaddstr(main_, y, overflow_init_x_, row.str().c_str());
+    y += 2;
+
+    row.str("");
+    for ( int r = 0; r < rows_per_overflow_pg_; ++r ) {
+        for ( int c = 0; c < items_per_overflow_row_; ++c ) {
+            if ( index < items.size() && index < end ) {
+                row << items[index].GetName() << " ";
+            } else {
+                done = true;
+                break;
+            }
+            ++index;
+        }
+
+        if ( done ) {
+            return;
+        }
+
+        mvwaddstr(main_, y, overflow_init_x_, row.str().c_str());
+        ++y;
+        row.str("");
+    }
 }
 
 }

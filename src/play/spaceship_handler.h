@@ -36,7 +36,11 @@ class SpaceshipHandler : public Task {
 
     void ProcessInput ();
 
+    void PrintItemOverflow ( int id );
+
   private:
+
+    std::map< int, std::unique_ptr< std::vector< Item >> > item_overflow_;
 
     std::shared_ptr< play::Spaceship > spaceship_ { nullptr };
 
@@ -49,13 +53,22 @@ class SpaceshipHandler : public Task {
 
     bool show_crew_ { false };
     bool show_items_ { false };
+    bool show_overflow_ { false };
 
-    int item_page_id_ { 0 };
-    int cat_per_page_ = 10;
+    int       item_page_id_ { 0 };
+    const int cat_per_page_ { 10 };
 
+    int       overflow_page_id_ { 0 };
+    const int rows_per_overflow_pg_ { 10 };
+    const int items_per_overflow_row_ { 4 };
 
-    const int spaceship_display_x_ = 10;
-    const int spaceship_display_y_ = 4;
+    const int spaceship_display_x_ { 10 };
+    const int spaceship_display_y_ { 4 };
+    const int item_init_y_ { 7 };
+    const int item_init_x_ { 30 };
+
+    const int overflow_init_y_ { 20 };
+    const int overflow_init_x_ { 30 };
 
     double fuel_use_ { 0.01 };
 
