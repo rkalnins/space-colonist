@@ -10,9 +10,10 @@
 namespace sc::play {
 
 Item::Item ( std::string category, std::string name, int value,
-             int weight ) : category_(std::move(category)),
-                            name_(std::move(name)),
-                            value_(value), weight_(weight) {}
+             int weight )
+        : category_(std::move(category)),
+          name_(std::move(name)),
+          value_(value), weight_(weight) {}
 
 const std::string &Item::GetCategory () const {
     return category_;

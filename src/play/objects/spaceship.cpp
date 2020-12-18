@@ -62,11 +62,11 @@ void Spaceship::UpdateWeight ( int change ) {
 }
 
 int Spaceship::GetMaxWeight () const {
-    return max_weight;
+    return max_weight_;
 }
 
 void Spaceship::SetMaxWeight ( int maxWeight ) {
-    max_weight = maxWeight;
+    max_weight_ = maxWeight;
 }
 
 int Spaceship::GetMoney () const {
@@ -79,6 +79,17 @@ void Spaceship::UpdateMoney ( int change ) {
 
 void Spaceship::SetMoney ( int money ) {
     money_ = money;
+}
+
+Spaceship::Spaceship () {
+    money_      = 1000;
+    weight_     = 0;
+    max_weight_ = 100;
+    fuel_       = 1000.0;
+    full_fuel_  = 1000.0;
+    hull_       = 100;
+    full_hull_  = 100;
+    max_crew_   = 5;
 }
 
 }

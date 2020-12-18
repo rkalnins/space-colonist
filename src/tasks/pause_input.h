@@ -18,8 +18,9 @@ namespace sc {
 class PauseInput : public Task {
   public:
     PauseInput ( const std::string &name, TaskType taskType,
-                 std::shared_ptr< InputListener > listener ) : Task(
-            name, taskType), listener_(std::move(listener)) {
+                 std::shared_ptr< InputListener > listener )
+            : Task(name, taskType),
+              listener_(std::move(listener)) {
         pause_menu_ = std::make_unique< PauseMenu >();
 
         logger_ = spdlog::basic_logger_mt("pause_input",
@@ -100,8 +101,10 @@ class PauseInput : public Task {
 
   private:
     std::shared_ptr< InputListener > listener_ { nullptr };
-    std::unique_ptr< PauseMenu >     pause_menu_ { nullptr };
-    logger_t                         logger_;
+
+    std::unique_ptr< PauseMenu > pause_menu_ { nullptr };
+
+    logger_t logger_;
 
     bool done_ { false };
 

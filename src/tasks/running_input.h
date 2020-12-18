@@ -21,7 +21,8 @@ class RunningInput : public Task {
     RunningInput ( const std::string &name, TaskType taskType,
                    std::shared_ptr< InputListener > listener,
                    WINDOW *main )
-            : Task(name, taskType), listener_(std::move(listener)),
+            : Task(name, taskType),
+              listener_(std::move(listener)),
               main_(main) {
 
         logger_ = spdlog::basic_logger_mt("running_input",

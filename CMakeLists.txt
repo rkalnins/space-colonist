@@ -40,7 +40,9 @@ set(SOURCE_FILES
         src/input_listener.h
         src/game_state.h
         src/play/spaceship_handler.cpp
-        src/play/spaceship_handler.h)
+        src/play/spaceship_handler.h
+        src/play/game_ui.cpp
+        src/play/game_ui.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

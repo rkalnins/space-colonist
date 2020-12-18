@@ -8,18 +8,20 @@
 
 #include "../game_state.h"
 
+
 namespace sc {
 
 enum class TaskType {
     RUNNING, PAUSE
 };
 
+
 class Task {
 
   public:
     Task ( std::string name, TaskType taskType );
 
-    virtual void Init() = 0;
+    virtual void Init () = 0;
 
     virtual GameState OnLoop () = 0;
 
@@ -29,11 +31,11 @@ class Task {
 
     virtual void OnExit () {};
 
-    virtual bool IsFinished() { return false; };
+    virtual bool IsFinished () { return false; };
 
-    virtual bool Exit() { return false; }
+    virtual bool Exit () { return false; }
 
-    std::string &GetName() {
+    std::string &GetName () {
         return name_;
     }
 

@@ -20,6 +20,8 @@ enum class SpaceshipState { MOVING, OTHER };
 class Spaceship {
   public:
 
+    Spaceship ();
+
     void AddCrewMember ( const CrewMember &crew_member );
 
     void AddItem ( Item &item );
@@ -63,13 +65,14 @@ class Spaceship {
 
     std::set< CrewMember > crew_;
 
-    int full_hull_ { 100 };
+    int    full_hull_ { 100 };
     double full_fuel_ { 1000.0 };
-    int hull_ { 0 };
+    int    hull_ { 0 };
     double fuel_ { 0 };
-    int weight_ { 0 };
-    int max_weight { 0 };
-    int money_ { 0 };
+    int    weight_ { 0 };
+    int    max_weight_ { 0 };
+    int    money_ { 0 };
+    int    max_crew_ { 0 };
 
     SpaceshipState state_ { SpaceshipState::MOVING };
 
