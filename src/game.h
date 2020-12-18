@@ -7,39 +7,33 @@
 #include <chrono>
 #include <memory>
 #include <thread>
-#include <functional>
-#include <vector>
+
 #include <atomic>
 #include <thread>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 #include <ncurses.h>
-#include <menu.h>
 
-#include "windows/pause_menu.h"
-#include "logging.h"
+#include "logging/logging.h"
+#include "loop_control/task_pool.h"
+#include "game_tasks.h"
+#include "game_state.h"
+
+#include "play/objects/spaceship.h"
+#include "play/spaceship_handler.h"
+
+#include "input_listener.h"
 
 
 namespace sc {
 
-
-enum class GameState {
-    RUNNING, PAUSED
-};
-
-enum class TaskType {
-    RUNNING_INPUT, PAUSE_INPUT
-};
-
 using freq60_t = std::chrono::duration< std::chrono::steady_clock::rep, std::ratio< 1, 60>>;
-using task_t = std::pair< TaskType, std::function< void ()>>;
-using task_pool_t = std::vector< task_t >;
 
 
 class Game {
   public:
-    Game ();
+    explicit Game ( std::shared_ptr< GameTasks > tasks, std::shared_ptr<InputListener> listener );
 
     virtual ~Game ();
 
@@ -48,38 +42,28 @@ class Game {
   private:
     void LoopController ();
 
-    void ProcessRunningInput ();
+    void OnPause ();
 
-    void ProcessPauseInput ();
-
-    void InputListener ();
-
-    void AddTask ( task_pool_t &tasks, TaskType task_type );
-
-    static void RemoveTask ( task_pool_t &tasks, TaskType task_type );
+    void OnRun ();
 
   private:
 
-    std::unique_ptr< PauseMenu > pause_menu_ { nullptr };
+    std::shared_ptr< GameTasks > tasks_;
+    std::shared_ptr< InputListener > input_listener_;
 
     std::atomic< bool > done_ { false };
 
+
+
     logger_t logger_ { nullptr };
 
-    MEVENT mouse_event {};
-
-    task_pool_t paused_tasks_;
-    task_pool_t running_tasks_;
-    task_pool_t always_tasks_;
+    TaskPool paused_tasks_ { "paused_tpool" };
+    TaskPool running_tasks_ { "running_tpool" };
+    TaskPool always_tasks_ { "always_tpool" };
 
     GameState state_ { GameState::RUNNING };
 
     WINDOW *main_;
-
-    std::thread input_listener;
-
-    std::mutex         ch_mtx_;
-    std::atomic< int > ch_{};
 };
 
 }

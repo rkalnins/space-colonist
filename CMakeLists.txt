@@ -12,10 +12,27 @@ include_directories(/usr/local/opt/ncurses/include)
 link_directories(/usr/local/opt/ncurses/lib)
 
 set(SOURCE_FILES
-        src/logging.h
+        src/logging/logging.h
         src/main.cpp
         src/game.cpp
-        src/windows/pause_menu.cpp)
+        src/game.h
+        src/windows/pause_menu.cpp
+        src/windows/pause_menu.h
+        src/loop_control/task_pool.cpp
+        src/loop_control/task_pool.h
+        src/windows/intro.cpp
+        src/windows/intro.h
+        src/play/objects/spaceship.cpp
+        src/play/objects/spaceship.h
+        src/play/items/item.cpp
+        src/play/items/item.h
+        src/play/objects/crew_member.cpp
+        src/play/objects/crew_member.h
+        src/loop_control/task.cpp
+        src/loop_control/task.h
+        src/tasks/running_input.h
+        src/tasks/pause_input.h
+        src/game_tasks.h src/input_listener.h src/game_state.h src/play/spaceship_handler.cpp src/play/spaceship_handler.h)
 
 add_executable(sc ${SOURCE_FILES})
 target_link_libraries(sc spdlog::spdlog menu ncurses)

@@ -6,39 +6,36 @@
 #include <thread>
 #include <ncurses.h>
 #include <menu.h>
+#include <functional>
+#include <sstream>
+#include <utility>
 
-#include "logging.h"
+#include "logging/logging.h"
 #include "game.h"
 
 
 namespace sc {
 
-Game::Game () {
+Game::Game ( std::shared_ptr< GameTasks > tasks,
+             std::shared_ptr< InputListener > listener ) : tasks_(
+        std::move(tasks)), input_listener_(std::move(listener)) {
     logger_ = spdlog::basic_logger_mt("game",
                                       "logs/space-colonist-log.log");
     logger_->set_level(spdlog::level::debug);
-    spdlog::flush_every(std::chrono::seconds { 1 });
 
-    initscr();
-    noecho();
-    keypad(stdscr, true);
-
-    mousemask(ALL_MOUSE_EVENTS, nullptr);
-
-    main_          = subwin(stdscr, LINES - 2, COLS - 42, 1, 41);
+    main_ = tasks_->GetMain();
     box(main_, 0, 0);
 
-    pause_menu_ = std::make_unique< PauseMenu >();
+    mousemask(ALL_MOUSE_EVENTS, nullptr);
 }
 
-Game::~Game () {
-    input_listener.join();
-    endwin();
-}
+Game::~Game () = default;
 
 void Game::LoopController () {
     using namespace std::chrono;
     auto next = steady_clock::now() + freq60_t { 1 };
+
+    GameState new_state { GameState::RUNNING };
 
     while ( !done_ ) {
         std::this_thread::sleep_until(next);
@@ -46,132 +43,75 @@ void Game::LoopController () {
 
         // loop control
         if ( state_ == GameState::RUNNING ) {
-            for ( const auto &f : running_tasks_ ) {
-                f.second();
+            for ( auto &f : running_tasks_ ) {
+                if ( !f->IsFinished() && new_state == state_ ) {
+                    new_state = f->OnLoop();
+                }
+
+                if ( f->Exit()) {
+                    return;
+                }
             }
             wrefresh(main_);
         } else if ( state_ == GameState::PAUSED ) {
-            for ( const auto &f : paused_tasks_ ) {
-                f.second();
+            for ( auto &f : paused_tasks_ ) {
+                if ( !f->IsFinished() && new_state == state_ ) {
+                    new_state = f->OnLoop();
+                }
+
+                if ( f->Exit()) {
+                    return;
+                }
             }
-            pause_menu_->Refresh();
         }
 
-        for ( const auto &f : always_tasks_ ) {
-            f.second();
+        for ( auto &f : always_tasks_ ) {
+            if ( !f->IsFinished() && new_state == state_ ) {
+                new_state = f->OnLoop();
+            }
+
+            if ( f->Exit()) {
+                return;
+            }
         }
         refresh();
 
-        std::lock_guard lg(ch_mtx_);
-        ch_ = 0;
+        if ( new_state != state_ ) {
+
+            switch ( new_state ) {
+                case GameState::RUNNING:
+                    OnRun();
+                    break;
+                case GameState::PAUSED:
+                    OnPause();
+                    break;
+                case GameState::EXITING:
+                    return;
+            }
+        }
+
+        input_listener_->ResetCh();
+        state_ = new_state;
     }
 }
 
 void Game::Init () {
-    AddTask(running_tasks_, TaskType::RUNNING_INPUT);
-    AddTask(paused_tasks_, TaskType::PAUSE_INPUT);
-    input_listener = std::thread([this] { InputListener(); });
-
+    running_tasks_.AddTask(tasks_->running_input_);
+    running_tasks_.AddTask(tasks_->spaceship_handler_);
+    paused_tasks_.AddTask(tasks_->pause_input_);
     LoopController();
 }
 
-void Game::ProcessRunningInput () {
-    switch ( ch_ ) {
-        case KEY_MOUSE: {
-            getmouse(&mouse_event);
-            logger_->debug("Mouse click at (y,x) = {}, {}", mouse_event.y,
-                           mouse_event.x);
-
-            if ( wmouse_trafo(main_, &mouse_event.y, &mouse_event.x,
-                              false)) {
-                mvwaddch(main_, mouse_event.y, mouse_event.x, '*');
-            }
-            break;
-        }
-        case KEY_F(1):
-        case 'p': {
-            logger_->debug("Pausing");
-            state_ = GameState::PAUSED;
-            pause_menu_->Show();
-            break;
-        }
-        case '\n': {
-            done_ = true;
-            logger_->debug("Return pressed. Game done.");
-            break;
-        }
-        default: {
-            return;
-        }
+void Game::OnPause () {
+    for ( auto &f : paused_tasks_ ) {
+        f->Init();
     }
 }
 
-void Game::ProcessPauseInput () {
-    switch ( ch_ ) {
-        case KEY_DOWN: {
-            pause_menu_->Navigate(REQ_DOWN_ITEM);
-            break;
-        }
-        case KEY_UP: {
-            pause_menu_->Navigate(REQ_UP_ITEM);
-            break;
-        }
-        case 10: {
-            int item = pause_menu_->Select();
-
-            if ( item == 4 ) {
-                done_ = true;
-            }
-            // fallthrough
-        }
-        case KEY_F(1):
-        case 'p': {
-            pause_menu_->Hide();
-            state_ = GameState::RUNNING;
-            logger_->debug("Unpausing");
-        }
-        default: {
-            return;
-        }
+void Game::OnRun () {
+    for ( auto &f : running_tasks_ ) {
+        f->Init();
     }
 }
-
-void Game::AddTask ( task_pool_t &tasks, TaskType task_type ) {
-    switch ( task_type ) {
-        case TaskType::RUNNING_INPUT:
-            logger_->debug("Added running listener");
-            tasks.emplace_back(std::make_pair(TaskType::RUNNING_INPUT,
-                                              [this] { ProcessRunningInput(); }));
-            break;
-        case TaskType::PAUSE_INPUT:
-            logger_->debug("Added pause listener");
-            tasks.emplace_back(std::make_pair(TaskType::PAUSE_INPUT,
-                                              [this] { ProcessPauseInput(); }));
-            break;
-    }
-}
-
-void Game::RemoveTask ( task_pool_t &tasks, TaskType task_type ) {
-    auto check_type = [&] ( const task_t &t ) {
-        return t.first == task_type;
-    };
-    auto task_it    = std::find_if(tasks.begin(), tasks.end(), check_type);
-    if ( task_it != tasks.end()) {
-        tasks.erase(task_it);
-    }
-}
-
-void Game::InputListener () {
-    int ch_tmp;
-    while ( !done_ ) {
-
-        ch_tmp = getch();
-
-        std::lock_guard lg(ch_mtx_);
-        ch_ = ch_tmp;
-    }
-
-}
-
 
 }

@@ -11,7 +11,6 @@ PauseMenu::PauseMenu () {
     logger_ = spdlog::basic_logger_mt("pmenu",
                                       "logs/space-colonist-log.log");
     logger_->set_level(spdlog::level::debug);
-    spdlog::flush_every(std::chrono::seconds { 1 });
 
     pause_menu_items_ = (ITEM **) calloc(choices_text_.size() + 1,
                                          sizeof(ITEM *));
@@ -34,21 +33,23 @@ PauseMenu::PauseMenu () {
     init_pair(1, COLOR_RED, COLOR_BLACK);
 }
 
-void PauseMenu::print_in_middle ( WINDOW *win, int startx, int width,
-                                  std::string &name, chtype color ) {
+void PauseMenu::print_in_middle ( int startx, int width, std::string &name,
+                                  chtype color ) {
     int    length, x, y;
     double temp;
 
-    getyx(win, y, x);
+    getyx(pause_menu_, y, x);
 
     length = name.length();
 
     temp = ( width - length ) / 2.0;
     x    = startx + (int) temp;
 
-    wattron(win, color);
-    mvwprintw(win, y, x, "%s", name.c_str());
-    wattroff(win, color);
+    logger_->debug("{} {}", y, x);
+
+    wattron(pause_menu_, color);
+    mvwprintw(pause_menu_, 0, x, "%s", name.c_str());
+    wattroff(pause_menu_, color);
 }
 
 void PauseMenu::Navigate ( int dir ) {
@@ -74,7 +75,7 @@ PauseMenu::~PauseMenu () {
 
 void PauseMenu::Show () {
     box(pause_menu_, 0, 0);
-    print_in_middle(pause_menu_, 0, k_menu_w, name_, COLOR_PAIR(1));
+    print_in_middle(0, k_menu_w, name_, COLOR_PAIR(1));
     post_menu(pause_);
 }
 

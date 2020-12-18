@@ -11,7 +11,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
-#include "../logging.h"
+#include "../logging/logging.h"
 
 
 namespace sc {
@@ -34,9 +34,9 @@ class PauseMenu {
     void Refresh () { wrefresh(pause_menu_); };
 
   private:
-    static void
-    print_in_middle ( WINDOW *win, int startx, int width,
-                      std::string &name, chtype color );
+    void
+    print_in_middle ( int startx, int width, std::string &name,
+                      chtype color );
 
   private:
     WINDOW *pause_menu_;
@@ -45,7 +45,6 @@ class PauseMenu {
 
     logger_t logger_;
 
-    std::string                      name_         = "Pause";
     const std::vector< std::string > choices_text_ = {
             "Resume",
             "Save",
@@ -53,12 +52,14 @@ class PauseMenu {
             "Exit",
     };
 
-    const int k_menu_h_ { 9 };
+    std::string name_ = "Pause";
+
+    const int k_menu_h_ { 12 };
     const int k_menu_w { 25 };
     const int k_menu_y_ { 4 };
     const int k_menu_x_ { 4 };
 
-    const int k_submenu_h_ { 6 };
+    const int k_submenu_h_ { 8 };
     const int k_submenu_w { 20 };
     const int k_submenu_y_ { 2 };
     const int k_submenu_x_ { 1 };
