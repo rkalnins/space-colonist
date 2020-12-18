@@ -95,6 +95,8 @@ void SpaceshipHandler::PrintItems () {
 
     items_disp.str("");
 
+    int length = 50;
+
     for ( auto &c : spaceship_->GetItems()) {
         if ( start <= counter && counter < end ) {
             mvwaddstr(main_, item_y, item_x, c.first.c_str());
@@ -105,8 +107,13 @@ void SpaceshipHandler::PrintItems () {
                 items_disp << i.GetName() << " ";
             }
 
-            mvwaddstr(main_, item_y, item_x + 10,
-                      items_disp.str().c_str());
+            mvwaddnstr(main_, item_y, item_x + 10,
+                       items_disp.str().c_str(), length);
+
+            if ( items_disp.str().length() > length ) {
+                mvwaddstr(main_, item_y, item_x + 10 + length, " ...");
+            }
+
             ++item_y;
         }
         ++counter;
