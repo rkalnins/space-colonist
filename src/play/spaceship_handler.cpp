@@ -6,6 +6,8 @@
 #include <ncurses.h>
 #include <cmath>
 
+#include <ncurses.h>
+
 #include "spaceship_handler.h"
 #include "objects/crew_member.h"
 
@@ -39,6 +41,16 @@ GameState SpaceshipHandler::OnLoop () {
         }
         case 'f': {
             Item i("food", "potato", 1);
+            spaceship_.AddItem(i);
+            break;
+        }
+        case 'a': {
+            Item i("food", "apple", 1);
+            spaceship_.AddItem(i);
+            break;
+        }
+        case 'b': {
+            Item i("transport", "bike", 1);
             spaceship_.AddItem(i);
             break;
         }
@@ -77,6 +89,7 @@ GameState SpaceshipHandler::OnLoop () {
     ++item_y;
     for ( auto &c : spaceship_.GetItems()) {
         mvwaddstr(main_, item_y, item_x, c.first.c_str());
+        wclrtoeol(main_);
         std::stringstream items;
         for ( auto        &i : c.second ) {
             items << i.GetName() << " ";
@@ -85,7 +98,6 @@ GameState SpaceshipHandler::OnLoop () {
         mvwaddstr(main_, item_y, item_x + 10, items.str().c_str());
         ++item_y;
     }
-
 
     listener_->ResetCh();
     return GameState::RUNNING;

@@ -89,6 +89,7 @@ void Game::LoopController () {
             }
         }
 
+        box(main_, 0, 0);
         wrefresh(main_);
         input_listener_->ResetCh();
         state_ = new_state;
