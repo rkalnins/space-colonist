@@ -14,9 +14,10 @@ link_directories(/usr/local/opt/ncurses/lib)
 set(TEST_FILES
         src/test/test.cpp)
 
+set(MAIN src/main.cpp)
+
 set(SOURCE_FILES
         src/logging/logging.h
-        src/main.cpp
         src/game.cpp
         src/game.h
         src/windows/pause_menu.cpp
@@ -41,8 +42,8 @@ set(SOURCE_FILES
         src/play/spaceship_handler.cpp
         src/play/spaceship_handler.h)
 
-add_executable(sc ${SOURCE_FILES})
-add_executable(sc_test ${TEST_FILES})
+add_executable(sc ${MAIN} ${SOURCE_FILES})
+add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})
 
 target_link_libraries(sc spdlog::spdlog menu ncurses)
 target_link_libraries(sc_test spdlog::spdlog menu ncurses Catch2::Catch2)

@@ -6,6 +6,7 @@
 #define SC_INPUTLISTENER_H
 
 #include <thread>
+#include <ncurses.h>
 
 #include "logging/logging.h"
 

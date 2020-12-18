@@ -6,15 +6,37 @@
 #define CATCH_CONFIG_MAIN
 
 #include <catch2/catch.hpp>
+#include "../play/spaceship_handler.h"
 
 
-unsigned int Factorial( unsigned int number ) {
-    return number <= 1 ? number : Factorial(number-1)*number;
+unsigned int Factorial ( unsigned int number ) {
+    return number <= 1 ? number : Factorial(number - 1) * number;
 }
 
-TEST_CASE( "Factorials are computed", "[factorial]" ) {
-    REQUIRE( Factorial(1) == 1 );
-    REQUIRE( Factorial(2) == 2 );
-    REQUIRE( Factorial(3) == 6 );
-    REQUIRE( Factorial(10) == 3628800 );
+TEST_CASE("Basic Spaceship", "[ss]") {
+    using namespace sc::play;
+
+    Spaceship spaceship;
+
+    REQUIRE(spaceship.GetItems().empty());
+}
+
+TEST_CASE("Use all fuel", "[ss]") {
+    using namespace sc::play;
+
+    Spaceship spaceship;
+    spaceship.UseFuel(spaceship.GetFuel());
+
+    REQUIRE(spaceship.GetFuel() == 0);
+}
+
+
+TEST_CASE("Reset fuel", "[ss]") {
+    using namespace sc::play;
+
+    Spaceship spaceship;
+    spaceship.UseFuel(spaceship.GetFuel());
+    spaceship.ResetFuel();
+
+    REQUIRE(spaceship.GetFuel() == spaceship.GetFullFuel());
 }
