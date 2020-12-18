@@ -49,6 +49,7 @@ void Game::LoopController () {
                 }
 
                 if ( f->Exit()) {
+                    OnExit();
                     return;
                 }
             }
@@ -60,6 +61,7 @@ void Game::LoopController () {
                 }
 
                 if ( f->Exit()) {
+                    OnExit();
                     return;
                 }
             }
@@ -71,6 +73,7 @@ void Game::LoopController () {
             }
 
             if ( f->Exit()) {
+                OnExit();
                 return;
             }
         }
@@ -102,15 +105,33 @@ void Game::Init () {
     LoopController();
 }
 
-void Game::OnPause () {
+void Game::OnExit () {
     for ( auto &f : paused_tasks_ ) {
-        f->Init();
+        f->OnExit();
+    }
+
+    for ( auto &f : running_tasks_ ) {
+        f->OnExit();
     }
 }
 
 void Game::OnRun () {
+    for ( auto &f : paused_tasks_ ) {
+        f->OnRun();
+    }
+
     for ( auto &f : running_tasks_ ) {
-        f->Init();
+        f->OnRun();
+    }
+}
+
+void Game::OnPause () {
+    for ( auto &f : running_tasks_ ) {
+        f->OnPause();
+    }
+
+    for ( auto &f : paused_tasks_ ) {
+        f->OnPause();
     }
 }
 

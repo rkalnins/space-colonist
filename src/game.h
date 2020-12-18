@@ -33,7 +33,8 @@ using freq60_t = std::chrono::duration< std::chrono::steady_clock::rep, std::rat
 
 class Game {
   public:
-    explicit Game ( std::shared_ptr< GameTasks > tasks, std::shared_ptr<InputListener> listener );
+    explicit Game ( std::shared_ptr< GameTasks > tasks,
+                    std::shared_ptr< InputListener > listener );
 
     virtual ~Game ();
 
@@ -46,13 +47,14 @@ class Game {
 
     void OnRun ();
 
+    void OnExit ();
+
   private:
 
-    std::shared_ptr< GameTasks > tasks_;
+    std::shared_ptr< GameTasks >     tasks_;
     std::shared_ptr< InputListener > input_listener_;
 
     std::atomic< bool > done_ { false };
-
 
 
     logger_t logger_ { nullptr };

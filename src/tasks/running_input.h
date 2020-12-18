@@ -31,7 +31,7 @@ class RunningInput : public Task {
 
   protected:
     void Init () override {
-        logger_->debug("Running");
+        logger_->debug("Running init");
         done_ = false;
     }
 
@@ -58,10 +58,6 @@ class RunningInput : public Task {
         }
 
         return ret_state;
-    }
-
-    bool IsFinished () override {
-        return done_;
     }
 
     bool Exit () override {

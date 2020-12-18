@@ -20,10 +20,8 @@ namespace sc {
 }
 
 void TaskPool::AddTask ( const std::shared_ptr< Task > &task ) {
-    logger_->debug("Adding task {}", task->GetName());
     pool_.push_back(task);
     task->Init();
-    logger_->debug("Added task {}", task->GetName());
 }
 
 }

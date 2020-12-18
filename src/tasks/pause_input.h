@@ -30,8 +30,19 @@ class PauseInput : public Task {
   protected:
     void Init () override {
         logger_->debug("Pause init");
+    }
+
+    void OnPause() override {
+        logger_->debug("Pausing");
         done_ = false;
         pause_menu_->Show();
+        pause_menu_->Refresh();
+    }
+
+    void OnRun() override {
+        logger_->debug("hiding menu");
+        pause_menu_->Hide();
+        pause_menu_->Refresh();
     }
 
     GameState OnLoop () override {
@@ -55,7 +66,6 @@ class PauseInput : public Task {
                     done_     = true;
                     ret_state = GameState::EXITING;
                     logger_->debug("Exiting from menu, and from game");
-                    pause_menu_->Hide();
                     break;
                 }
 
@@ -63,7 +73,6 @@ class PauseInput : public Task {
             }
             case KEY_F(1):
             case 'p': {
-                pause_menu_->Hide();
                 logger_->debug("Unpausing");
                 ret_state = GameState::RUNNING;
                 break;
@@ -74,17 +83,17 @@ class PauseInput : public Task {
             }
         }
 
-        listener_->ResetCh();
         pause_menu_->Refresh();
         return ret_state;
     }
 
-    bool IsFinished () override {
+    bool Exit () override {
         return done_;
     }
 
-    bool Exit () override {
-        return done_;
+    void OnExit() override {
+        pause_menu_->Hide();
+        pause_menu_->Refresh();
     }
 
   private:

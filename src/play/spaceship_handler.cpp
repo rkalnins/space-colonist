@@ -13,7 +13,7 @@
 namespace sc::play {
 
 void SpaceshipHandler::Init () {
-
+    logger_->debug("Spaceship init");
 }
 
 GameState SpaceshipHandler::OnLoop () {
@@ -31,7 +31,6 @@ GameState SpaceshipHandler::OnLoop () {
             break;
         }
     }
-
 
     std::stringstream display;
     display << "Crew: " << spaceship_.GetCrew().size()

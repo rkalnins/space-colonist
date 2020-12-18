@@ -23,7 +23,13 @@ class Task {
 
     virtual GameState OnLoop () = 0;
 
-    virtual bool IsFinished() = 0;
+    virtual void OnPause () {};
+
+    virtual void OnRun () {};
+
+    virtual void OnExit () {};
+
+    virtual bool IsFinished() { return false; };
 
     virtual bool Exit() { return false; }
 
