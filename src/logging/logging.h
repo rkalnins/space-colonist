@@ -8,8 +8,9 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
+
 namespace sc {
-    using logger_t = std::shared_ptr< spdlog::logger >;
+using logger_t = std::shared_ptr< spdlog::logger >;
 
 }
 

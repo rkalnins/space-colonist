@@ -13,7 +13,7 @@
 
 namespace sc {
 
-[[maybe_unused]] TaskPool::TaskPool (const std::string& name) {
+[[maybe_unused]] TaskPool::TaskPool ( const std::string &name ) {
     logger_ = spdlog::basic_logger_mt(name,
                                       "logs/space-colonist-log.log");
     logger_->set_level(spdlog::level::debug);
@@ -22,6 +22,31 @@ namespace sc {
 void TaskPool::AddTask ( const std::shared_ptr< Task > &task ) {
     pool_.push_back(task);
     task->Init();
+}
+
+GameState TaskPool::Loop ( GameState state ) {
+
+    for ( auto &f : pool_ ) {
+        // if state change occurs, end
+        if ( !f->IsFinished() && new_state_ == state ) {
+            new_state_ = f->OnLoop();
+
+            if ( new_state_ != state ) {
+                logger_->debug("{} changed state from {} to {}",
+                               f->GetName(), state, new_state_);
+            }
+        }
+
+        if ( f->Exit()) {
+            return GameState::EXITING;
+        }
+    }
+
+    return new_state_;
+}
+
+void TaskPool::SetNewState ( GameState newState ) {
+    new_state_ = newState;
 }
 
 }

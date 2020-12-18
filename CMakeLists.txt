@@ -32,7 +32,11 @@ set(SOURCE_FILES
         src/loop_control/task.h
         src/tasks/running_input.h
         src/tasks/pause_input.h
-        src/game_tasks.h src/input_listener.h src/game_state.h src/play/spaceship_handler.cpp src/play/spaceship_handler.h)
+        src/game_tasks.h
+        src/input_listener.h
+        src/game_state.h
+        src/play/spaceship_handler.cpp
+        src/play/spaceship_handler.h)
 
 add_executable(sc ${SOURCE_FILES})
 target_link_libraries(sc spdlog::spdlog menu ncurses)

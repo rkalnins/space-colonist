@@ -40,43 +40,13 @@ void Game::LoopController () {
 
         // loop control
         if ( state_ == GameState::RUNNING ) {
-            for ( auto &f : running_tasks_ ) {
-                if ( !f->IsFinished() && new_state == state_ ) {
-                    new_state = f->OnLoop();
-                }
-
-                if ( f->Exit()) {
-                    OnExit();
-                    return;
-                }
-            }
+            new_state = running_tasks_.Loop(state_);
         } else if ( state_ == GameState::PAUSED ) {
-            for ( auto &f : paused_tasks_ ) {
-                if ( !f->IsFinished() && new_state == state_ ) {
-                    new_state = f->OnLoop();
-                }
-
-                if ( f->Exit()) {
-                    OnExit();
-                    return;
-                }
-            }
+            new_state = paused_tasks_.Loop(state_);
         }
-
-        for ( auto &f : always_tasks_ ) {
-            if ( !f->IsFinished() && new_state == state_ ) {
-                new_state = f->OnLoop();
-            }
-
-            if ( f->Exit()) {
-                OnExit();
-                return;
-            }
-        }
-        refresh();
 
         if ( new_state != state_ ) {
-
+            logger_->debug("{} {}", new_state, state_);
             switch ( new_state ) {
                 case GameState::RUNNING:
                     OnRun();
@@ -85,14 +55,19 @@ void Game::LoopController () {
                     OnPause();
                     break;
                 case GameState::EXITING:
+                    OnExit();
                     return;
             }
         }
 
         box(main_, 0, 0);
+        refresh();
         wrefresh(main_);
         input_listener_->ResetCh();
         state_ = new_state;
+
+        paused_tasks_.SetNewState(state_);
+        running_tasks_.SetNewState(state_);
     }
 }
 

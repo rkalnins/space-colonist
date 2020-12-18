@@ -24,7 +24,9 @@ class GameTasks {
                 pause_input_name_,
                 TaskType::PAUSE,
                 listener);
-        spaceship_handler_ = std::make_shared< play::SpaceshipHandler >(spaceship_handler_name_, TaskType::RUNNING, listener, main);
+        spaceship_handler_ = std::make_shared< play::SpaceshipHandler >(
+                spaceship_handler_name_, TaskType::RUNNING, listener,
+                main);
     }
 
   public:
@@ -43,9 +45,9 @@ class GameTasks {
 
   private:
 
-    const std::string running_input_name_ = "process_running_input";
-    const std::string pause_input_name_   = "process_pause_input";
-    const std::string spaceship_handler_name_   = "ss_handler";
+    const std::string running_input_name_     = "process_running_input";
+    const std::string pause_input_name_       = "process_pause_input";
+    const std::string spaceship_handler_name_ = "ss_handler";
 };
 
 }

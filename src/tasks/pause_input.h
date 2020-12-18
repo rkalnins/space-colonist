@@ -32,14 +32,13 @@ class PauseInput : public Task {
         logger_->debug("Pause init");
     }
 
-    void OnPause() override {
+    void OnPause () override {
         logger_->debug("Pausing");
-        done_ = false;
         pause_menu_->Show();
         pause_menu_->Refresh();
     }
 
-    void OnRun() override {
+    void OnRun () override {
         logger_->debug("hiding menu");
         pause_menu_->Hide();
         pause_menu_->Refresh();
@@ -66,10 +65,13 @@ class PauseInput : public Task {
                     done_     = true;
                     ret_state = GameState::EXITING;
                     logger_->debug("Exiting from menu, and from game");
-                    break;
+                } else if ( item == 0 ) {
+                    ret_state = GameState::RUNNING;
+                    logger_->debug("Resuming game");
+
                 }
 
-                // fallthrough
+                break;
             }
             case KEY_F(1):
             case 'p': {
@@ -91,7 +93,7 @@ class PauseInput : public Task {
         return done_;
     }
 
-    void OnExit() override {
+    void OnExit () override {
         pause_menu_->Hide();
         pause_menu_->Refresh();
     }

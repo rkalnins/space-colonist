@@ -15,10 +15,11 @@ namespace sc::play {
 
 enum class SpaceshipState { MOVING, OTHER };
 
+
 class Spaceship {
   public:
 
-    void AddCrewMember (  const CrewMember& crew_member );
+    void AddCrewMember ( const CrewMember &crew_member );
 
     void AddItem ( Item &item );
 
@@ -26,23 +27,24 @@ class Spaceship {
 
     [[nodiscard]] double GetFuel () const;
 
-    void ResetFuel();
+    void ResetFuel ();
 
     void UseFuel ( double usage );
 
-    [[nodiscard]] const std::vector< CrewMember> &
+    [[nodiscard]] const std::vector< CrewMember > &
     GetCrew () const;
 
     [[nodiscard]] double GetFullFuel () const;
 
-    const std::map< std::string, std::vector< Item>> &GetItems () const;
+    [[nodiscard]] const std::map< std::string, std::vector< Item>> &
+    GetItems () const;
 
   private:
 
 
-    std::map< std::string, std::vector<  Item > > items_;
+    std::map< std::string, std::vector< Item > > items_;
 
-    std::vector< CrewMember> crew_;
+    std::vector< CrewMember > crew_;
 
     int    full_hull_ { 100 };
     double full_fuel_ { 1000.0 };

@@ -45,8 +45,6 @@ void PauseMenu::print_in_middle ( int startx, int width, std::string &name,
     temp = ( width - length ) / 2.0;
     x    = startx + (int) temp;
 
-    logger_->debug("{} {}", y, x);
-
     wattron(pause_menu_, color);
     mvwprintw(pause_menu_, 0, x, "%s", name.c_str());
     wattroff(pause_menu_, color);

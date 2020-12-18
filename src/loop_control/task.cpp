@@ -7,5 +7,6 @@
 #include <utility>
 
 
-sc::Task::Task ( std::string name, sc::TaskType taskType ) : name_(std::move(
-        name)), task_type_(taskType) {}
+sc::Task::Task ( std::string name, sc::TaskType taskType ) : name_(
+        std::move(
+                name)), task_type_(taskType) {}

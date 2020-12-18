@@ -23,12 +23,16 @@ class TaskPool {
 
   public:
 
-    [[maybe_unused]] TaskPool(const std::string& name);
+    [[maybe_unused]] TaskPool ( const std::string &name );
 
-    void AddTask ( const std::shared_ptr< Task >& task );
+    void AddTask ( const std::shared_ptr< Task > &task );
 
     using iterator = task_pool_t::iterator;
     using const_iterator = task_pool_t::const_iterator;
+
+    GameState Loop ( GameState state );
+
+    void SetNewState ( GameState newState );
 
 
     inline iterator begin () noexcept { return pool_.begin(); }
@@ -44,7 +48,8 @@ class TaskPool {
 
   private:
     task_pool_t pool_;
-    logger_t logger_;
+    logger_t    logger_;
+    GameState   new_state_ { GameState::RUNNING };
 
 };
 

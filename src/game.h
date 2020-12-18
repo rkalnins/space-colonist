@@ -60,7 +60,6 @@ class Game {
 
     TaskPool paused_tasks_ { "paused_tpool" };
     TaskPool running_tasks_ { "running_tpool" };
-    TaskPool always_tasks_ { "always_tpool" };
 
     GameState state_ { GameState::RUNNING };
 
