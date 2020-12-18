@@ -56,7 +56,6 @@ class Game {
 
     std::atomic< bool > done_ { false };
 
-
     logger_t logger_ { nullptr };
 
     TaskPool paused_tasks_ { "paused_tpool" };

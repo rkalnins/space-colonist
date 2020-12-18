@@ -20,7 +20,7 @@ class Spaceship {
 
     void AddCrewMember (  const CrewMember& crew_member );
 
-    void AddItem ( std::string &category, Item &item );
+    void AddItem ( Item &item );
 
     [[nodiscard]] int GetHull () const;
 
@@ -34,6 +34,8 @@ class Spaceship {
     GetCrew () const;
 
     [[nodiscard]] double GetFullFuel () const;
+
+    const std::map< std::string, std::vector< Item>> &GetItems () const;
 
   private:
 

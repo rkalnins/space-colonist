@@ -4,10 +4,7 @@
 
 #include <chrono>
 #include <thread>
-#include <ncurses.h>
-#include <menu.h>
 #include <functional>
-#include <sstream>
 #include <utility>
 
 #include "logging/logging.h"
@@ -53,7 +50,6 @@ void Game::LoopController () {
                     return;
                 }
             }
-            wrefresh(main_);
         } else if ( state_ == GameState::PAUSED ) {
             for ( auto &f : paused_tasks_ ) {
                 if ( !f->IsFinished() && new_state == state_ ) {
@@ -93,6 +89,7 @@ void Game::LoopController () {
             }
         }
 
+        wrefresh(main_);
         input_listener_->ResetCh();
         state_ = new_state;
     }

@@ -34,7 +34,6 @@ int main () {
 
     Game game(tasks, listener);
 
-
     logger->info("Game start");
     game.Init();
 

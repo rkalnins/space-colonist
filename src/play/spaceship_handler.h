@@ -35,8 +35,8 @@ class SpaceshipHandler : public Task {
 
     logger_t logger_;
 
-    int spaceship_display_x_ = 50;
-    int spaceship_display_y_ = 4;
+    const int spaceship_display_x_ = 10;
+    const int spaceship_display_y_ = 4;
 
     double fuel_use_ { 0.01 };
 

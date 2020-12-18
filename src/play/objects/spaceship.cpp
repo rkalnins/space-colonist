@@ -12,9 +12,8 @@ Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
     crew_.push_back(crew_member);
 }
 
-void Spaceship::AddItem ( std::string &category,
-                          Item &item ) {
-    items_[category].push_back(item);
+void Spaceship::AddItem ( Item &item ) {
+    items_[item.GetCategory()].push_back(item);
 
 }
 
@@ -43,6 +42,11 @@ void Spaceship::ResetFuel () {
 
 double Spaceship::GetFullFuel () const {
     return full_fuel_;
+}
+
+const std::map< std::string, std::vector< Item>> &
+Spaceship::GetItems () const {
+    return items_;
 }
 
 }
