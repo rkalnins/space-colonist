@@ -13,20 +13,21 @@ namespace sc::play {
 class Item {
   public:
 
-    Item ( std::string category, std::string name,
-           int value );
+    Item ( std::string category, std::string name, int value, int weight );
 
-    const std::string &GetCategory () const;
+    [[nodiscard]] const std::string &GetCategory () const;
 
-    const std::string &GetName () const;
+    [[nodiscard]] const std::string &GetName () const;
 
-    int GetValue () const;
+    [[nodiscard]] int GetValue () const;
 
+    [[nodiscard]] int GetWeight () const;
 
   private:
     std::string category_;
     std::string name_;
     int         value_;
+    int         weight_;
 
 
 };

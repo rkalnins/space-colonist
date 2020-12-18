@@ -26,6 +26,19 @@ class SpaceshipHandler : public Task {
     bool IsFinished () override;
 
   private:
+    void PrintCrew();
+
+    void PrintItems();
+
+    void PrintHUD();
+
+    void ProcessInput();
+
+  private:
+
+    bool show_crew_ {false};
+    bool show_items_ {false};
+
     play::Spaceship spaceship_ {};
 
     std::shared_ptr< InputListener > listener_ { nullptr };

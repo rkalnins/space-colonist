@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <vector>
+#include <set>
 #include <map>
+#include <vector>
 
 #include "crew_member.h"
 #include "../items/item.h"
@@ -31,7 +32,7 @@ class Spaceship {
 
     void UseFuel ( double usage );
 
-    [[nodiscard]] const std::vector< CrewMember > &
+    [[nodiscard]] const std::set< CrewMember > &
     GetCrew () const;
 
     [[nodiscard]] double GetFullFuel () const;
@@ -39,17 +40,36 @@ class Spaceship {
     [[nodiscard]] const std::map< std::string, std::vector< Item>> &
     GetItems () const;
 
+    int GetWeight () const;
+
+    void SetWeight ( int weight );
+
+    void UpdateWeight ( int change );
+
+    int GetMaxWeight () const;
+
+    void SetMaxWeight ( int maxWeight );
+
+    int GetMoney () const;
+
+    void UpdateMoney ( int change );
+
+    void SetMoney ( int money );
+
   private:
 
 
     std::map< std::string, std::vector< Item > > items_;
 
-    std::vector< CrewMember > crew_;
+    std::set< CrewMember > crew_;
 
-    int    full_hull_ { 100 };
+    int full_hull_ { 100 };
     double full_fuel_ { 1000.0 };
-    int    hull_ { 0 };
+    int hull_ { 0 };
     double fuel_ { 0 };
+    int weight_ { 0 };
+    int max_weight { 0 };
+    int money_ { 0 };
 
     SpaceshipState state_ { SpaceshipState::MOVING };
 

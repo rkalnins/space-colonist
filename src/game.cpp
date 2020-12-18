@@ -35,6 +35,8 @@ void Game::LoopController () {
     GameState new_state { GameState::RUNNING };
 
     while ( !done_ ) {
+        werase(main_);
+
         std::this_thread::sleep_until(next);
         next += freq60_t { 1 };
 

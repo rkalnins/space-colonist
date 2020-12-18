@@ -24,6 +24,14 @@ class CrewMember {
 
     [[nodiscard]] int GetMaxHealth () const;
 
+    bool operator< ( const CrewMember &rhs ) const {
+        return name_ < rhs.name_;
+    }
+
+    bool operator== ( const CrewMember &rhs ) const {
+        return name_ == rhs.name_;
+    }
+
   private:
     std::string name_;
     int         health_;

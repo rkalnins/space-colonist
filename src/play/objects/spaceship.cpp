@@ -9,12 +9,12 @@ namespace sc::play {
 
 void
 Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
-    crew_.push_back(crew_member);
+    crew_.insert(crew_member);
 }
 
 void Spaceship::AddItem ( Item &item ) {
+    weight_ += item.GetWeight();
     items_[item.GetCategory()].push_back(item);
-
 }
 
 int Spaceship::GetHull () const {
@@ -31,7 +31,7 @@ void Spaceship::UseFuel ( double usage ) {
     }
 }
 
-const std::vector< CrewMember > &
+const std::set< CrewMember > &
 Spaceship::GetCrew () const {
     return crew_;
 }
@@ -47,6 +47,38 @@ double Spaceship::GetFullFuel () const {
 const std::map< std::string, std::vector< Item>> &
 Spaceship::GetItems () const {
     return items_;
+}
+
+int Spaceship::GetWeight () const {
+    return weight_;
+}
+
+void Spaceship::SetWeight ( int weight ) {
+    weight_ = weight;
+}
+
+void Spaceship::UpdateWeight ( int change ) {
+    weight_ += change;
+}
+
+int Spaceship::GetMaxWeight () const {
+    return max_weight;
+}
+
+void Spaceship::SetMaxWeight ( int maxWeight ) {
+    max_weight = maxWeight;
+}
+
+int Spaceship::GetMoney () const {
+    return money_;
+}
+
+void Spaceship::UpdateMoney ( int change ) {
+    money_ += change;
+}
+
+void Spaceship::SetMoney ( int money ) {
+    money_ = money;
 }
 
 }
