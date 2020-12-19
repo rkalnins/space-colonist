@@ -6,7 +6,9 @@
 
 #include <ncurses.h>
 #include <vector>
+#include <unordered_map>
 #include <sstream>
+#include <stack>
 #include <effolkronium/random.hpp>
 
 
@@ -14,6 +16,8 @@
 
 
 namespace sc::play {
+
+using PlanetsMap = std::vector< std::vector< bool>>;
 
 
 class MapGenerator {
@@ -25,19 +29,36 @@ class MapGenerator {
 
     void PrintMap ();
 
+    void ToggleSelection ( int y, int x );
+
+    void AddRouteLeg ();
+
   private:
-    std::vector< std::vector< bool>> planets_;
-    std::vector< std::string >       planets_str_;
+    struct LocationSelected {
+        LocationSelected ( int y, int x ) : y(y), x(x) {}
+
+        int y;
+        int x;
+    };
+
+
+    PlanetsMap planets_;
+
+    std::stack< LocationSelected > route_;
+
+    std::vector< std::string > planets_str_;
 
     logger_t logger_;
 
     WINDOW *main_;
 
+    int          max_route_length_    = 0;
+    const double max_travel_distance_ = 30;
     const int    map_init_y_;
     const int    map_init_x_;
     const int    map_height_ { 20 };
     const int    map_width_ { 100 };
-    const double planet_probability_ { 0.01 };
+    const double planet_probability_ { 0.1 };
 };
 
 }

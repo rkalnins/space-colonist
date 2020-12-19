@@ -89,7 +89,7 @@ void SpaceshipHandler::PrintItems () {
     int start   = item_page_id_ * cat_per_page_;
     int end     = start + cat_per_page_;
     int counter = 0;
-    int length = 50;
+    int length  = 50;
 
     items_disp << "Items (" << ( 1 + item_page_id_ ) << "/"
                << ( spaceship_->GetItems().size() / cat_per_page_ + 1 )

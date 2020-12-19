@@ -47,8 +47,8 @@ class InputListener {
 
     void ResetCh () {
         std::lock_guard lg(ch_mtx_);
-        ch_ = 0;
-        mouse_pos_ = MousePosition{0, 0};
+        ch_        = 0;
+        mouse_pos_ = MousePosition { 0, 0 };
     }
 
   private:
@@ -65,7 +65,7 @@ class InputListener {
                 case KEY_MOUSE: {
                     getmouse(&mouse_event_);
                     std::lock_guard lg(ch_mtx_);
-                    ch_ = ch_tmp;
+                    ch_        = ch_tmp;
                     mouse_pos_ = MousePosition {
                             mouse_event_.y, mouse_event_.x
                     };

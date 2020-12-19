@@ -29,9 +29,10 @@ class Item {
 
     class NameComparator {
       public:
-        explicit NameComparator ( const std::string &compTo ) : comp_to_(compTo) {}
+        explicit NameComparator ( const std::string &compTo ) : comp_to_(
+                compTo) {}
 
-        bool operator() (const Item &rhs) const {
+        bool operator() ( const Item &rhs ) const {
             return rhs.name_ == comp_to_;
         }
 

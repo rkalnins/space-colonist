@@ -57,12 +57,12 @@ class CrewMemberFactory {
 
     int max_health_ { 10 };
     int min_health_ { 5 };
-    int min_skill_count_{2};
+    int min_skill_count_ { 2 };
 
-    int min_skill_range_{1};
-    int max_skill_range_{10};
+    int min_skill_range_ { 1 };
+    int max_skill_range_ { 10 };
 
-    int skill_count_ {3};
+    int skill_count_ { 3 };
 
 };
 

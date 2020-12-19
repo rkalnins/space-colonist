@@ -5,6 +5,7 @@
 #include "spaceship.h"
 #include "../items/item.h"
 
+
 namespace sc::play {
 
 void
@@ -15,13 +16,13 @@ Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
 void Spaceship::AddItem ( Item &item ) {
     weight_ += item.GetWeight();
 
-    std::vector<Item> &items = items_[item.GetCategory()];
+    std::vector< Item > &items = items_[item.GetCategory()];
 
     Item::NameComparator cmp(item.GetName());
 
     auto item_it = std::find_if(items.begin(), items.end(), cmp);
 
-    if (item_it != items.end()) {
+    if ( item_it != items.end()) {
         item_it->UpdateValue(item.GetValue());
         item_it->UpdateWeight(item.GetWeight());
     } else {

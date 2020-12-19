@@ -50,10 +50,9 @@ class GameUI : public Task {
 
     void ProcessMouseCheckboxInput ( MousePosition &mpos );
 
-    void DestinationSelection();
+    void DestinationSelection ();
 
-    void CrewSelection();
-
+    void CrewSelection ();
 
 
   private:
@@ -67,7 +66,7 @@ class GameUI : public Task {
 
     std::shared_ptr< InputListener > listener_ { nullptr };
 
-    std::unique_ptr<MapGenerator> map_generator_{nullptr};
+    std::unique_ptr< MapGenerator > map_generator_ { nullptr };
 
     WINDOW *main_;
 
@@ -79,14 +78,16 @@ class GameUI : public Task {
     };
 
     std::vector< Checkbox > selected_crew_;
-    std::queue<size_t>  select_order_;
+    std::queue< size_t >    select_order_;
 
-    UIState state_ { UIState::DESTINATION_SELECTION };
+    UIState state_ { UIState::SPACESHIP_SETUP };
 
     const int ui_init_y_          = 20;
     const int ui_init_x_          = 4;
     const int crew_choices_count_ = 5;
     const int crew_select_max_    = 3;
+
+    void ProcessMousePlanetSelect ( MousePosition &mpos );
 };
 
 }

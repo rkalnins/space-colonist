@@ -88,16 +88,27 @@ void GameUI::ProcessMouseCheckboxInput ( MousePosition &mpos ) {
     }
 }
 
+void GameUI::ProcessMousePlanetSelect ( MousePosition &mpos ) {
+    int map_y = mpos.y - ui_init_y_;
+    int map_x = mpos.x - ui_init_x_;
+
+    map_generator_->ToggleSelection(map_y, map_x);
+}
+
 GameState GameUI::OnLoop () {
 
     switch ( listener_->GetCh()) {
         case KEY_MOUSE: {
             MousePosition mpos = listener_->GetMousePos();
+
             wmouse_trafo(main_, &mpos.y, &mpos.x, false);
+
             switch ( state_ ) {
                 case UIState::CREW_SELECTION:
                     ProcessMouseCheckboxInput(mpos);
                     break;
+                case UIState::DESTINATION_SELECTION:
+                    ProcessMousePlanetSelect(mpos);
                 default:
                     break;
             }
@@ -105,6 +116,10 @@ GameState GameUI::OnLoop () {
         }
         case 10: {
             switch ( state_ ) {
+                case UIState::SPACESHIP_SETUP:
+                    state_ = UIState::DESTINATION_SELECTION;
+                    map_generator_->AddRouteLeg();
+                    break;
                 case UIState::DESTINATION_SELECTION:
                     state_ = UIState::CREW_SELECTION;
                     break;
@@ -120,6 +135,8 @@ GameState GameUI::OnLoop () {
     }
 
     switch ( state_ ) {
+        case UIState::SPACESHIP_SETUP:
+            break;
         case UIState::DESTINATION_SELECTION:
             DestinationSelection();
             break;
@@ -127,8 +144,6 @@ GameState GameUI::OnLoop () {
             CrewSelection();
             break;
         case UIState::INVENTORY_SELECTION:
-            break;
-        case UIState::SPACESHIP_SETUP:
             break;
         case UIState::TRADING:
             break;
