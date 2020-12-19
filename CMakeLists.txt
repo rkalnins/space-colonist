@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(spdlog REQUIRED)
 find_package(Catch2 REQUIRED)
+find_package(effolkronium_random REQUIRED)
 
 include_directories(/usr/local/opt/ncurses/include)
 
@@ -17,6 +18,7 @@ set(TEST_FILES
 set(MAIN src/main.cpp)
 
 set(SOURCE_FILES
+        src/loop_control/watchdog.h
         src/logging/logging.h
         src/game.cpp
         src/game.h
@@ -42,10 +44,10 @@ set(SOURCE_FILES
         src/play/spaceship_handler.cpp
         src/play/spaceship_handler.h
         src/play/game_ui.cpp
-        src/play/game_ui.h)
+        src/play/game_ui.h src/play/objects/crew_factory.h src/play/objects/crew_factory.cpp)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})
 
-target_link_libraries(sc spdlog::spdlog menu ncurses)
-target_link_libraries(sc_test spdlog::spdlog menu ncurses Catch2::Catch2)
+target_link_libraries(sc spdlog::spdlog menu ncurses effolkronium_random)
+target_link_libraries(sc_test spdlog::spdlog menu ncurses Catch2::Catch2 effolkronium_random)

@@ -58,8 +58,11 @@ class Spaceship {
 
     void SetMoney ( int money );
 
-  private:
+    void StartMoving () { state_ = SpaceshipState::MOVING; }
 
+    void StopMoving () { state_ = SpaceshipState::OTHER; }
+
+  private:
 
     std::map< std::string, std::vector< Item > > items_;
 
@@ -74,7 +77,7 @@ class Spaceship {
     int    money_ { 0 };
     int    max_crew_ { 0 };
 
-    SpaceshipState state_ { SpaceshipState::MOVING };
+    SpaceshipState state_ { SpaceshipState::OTHER };
 
 };
 

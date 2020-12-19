@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "logging/logging.h"
+#include "loop_control/watchdog.h"
 #include "game.h"
 
 
@@ -58,6 +59,7 @@ void Game::LoopController () {
                     OnPause();
                     break;
                 case GameState::EXITING:
+                    logger_->debug("Preparing to exit");
                     OnExit();
                     return;
             }
@@ -71,10 +73,13 @@ void Game::LoopController () {
 
         paused_tasks_.SetNewState(state_);
         running_tasks_.SetNewState(state_);
+
+        watchdog_.Notify();
     }
 }
 
 void Game::Init () {
+    running_tasks_.AddTask(tasks_->ui_);
     running_tasks_.AddTask(tasks_->running_input_);
     running_tasks_.AddTask(tasks_->spaceship_handler_);
     paused_tasks_.AddTask(tasks_->pause_input_);

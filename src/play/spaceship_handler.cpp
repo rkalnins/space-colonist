@@ -89,6 +89,7 @@ void SpaceshipHandler::PrintItems () {
     int start   = item_page_id_ * cat_per_page_;
     int end     = start + cat_per_page_;
     int counter = 0;
+    int length = 50;
 
     items_disp << "Items (" << ( 1 + item_page_id_ ) << "/"
                << ( spaceship_->GetItems().size() / cat_per_page_ + 1 )
@@ -99,7 +100,6 @@ void SpaceshipHandler::PrintItems () {
 
     items_disp.str("");
 
-    int length = 50;
 
     for ( auto &c : spaceship_->GetItems()) {
         if ( start <= counter && counter < end ) {
@@ -108,7 +108,7 @@ void SpaceshipHandler::PrintItems () {
             items_disp.str("");
 
             for ( auto &i : c.second ) {
-                items_disp << i.GetName() << " ";
+                items_disp << i.GetName() << "(" << i.GetValue() << ") ";
             }
 
             mvwaddnstr(main_, item_y, item_x + 10,
@@ -151,14 +151,13 @@ void SpaceshipHandler::PrintHUD () {
 void SpaceshipHandler::ProcessInput () {
     switch ( listener_->GetCh()) {
         case KEY_MOUSE: {
-            getmouse(&mouse_event_);
-            wmouse_trafo(main_, &mouse_event_.y, &mouse_event_.x, false);
+            MousePosition mpos = listener_->GetMousePos();
 
-            logger_->debug("mouse: {} {}", mouse_event_.y, mouse_event_.x);
+            wmouse_trafo(main_, &mpos.y, &mpos.x, false);
 
-            if ( item_overflow_.find(mouse_event_.y) !=
+            if ( item_overflow_.find(mpos.y) !=
                  item_overflow_.end() &&
-                 item_init_x_ < mouse_event_.x ) {
+                 item_init_x_ < mpos.x ) {
 
                 show_overflow_ = !show_overflow_;
             }
@@ -178,35 +177,6 @@ void SpaceshipHandler::ProcessInput () {
         case 'c': {
             show_crew_ = !show_crew_;
             logger_->debug("toggle crew to {}", show_crew_);
-            break;
-        }
-        case 'j': {
-            CrewMember c("Joe", 10, 10, std::map< std::string, int >());
-            spaceship_->AddCrewMember(c);
-            break;
-        }
-        case 'h': {
-            show_overflow_ = false;
-            Item i("tools", "hammer", 10, 3);
-            spaceship_->AddItem(i);
-            break;
-        }
-        case 'f': {
-            show_overflow_ = false;
-            Item i("food", "potato", 1, 1);
-            spaceship_->AddItem(i);
-            break;
-        }
-        case 'a': {
-            show_overflow_ = false;
-            Item i("food", "apple", 1, 1);
-            spaceship_->AddItem(i);
-            break;
-        }
-        case 't': {
-            show_overflow_ = false;
-            Item i("transport", "bike", 1, 10);
-            spaceship_->AddItem(i);
             break;
         }
         case 'n': {
@@ -238,8 +208,6 @@ void SpaceshipHandler::ProcessInput () {
             break;
         }
     }
-
-    listener_->ResetCh();
 }
 
 void SpaceshipHandler::PrintItemOverflow ( int id ) {

@@ -32,8 +32,11 @@ class CrewMember {
         return name_ == rhs.name_;
     }
 
+    const std::string &GetCode ();
+
   private:
     std::string name_;
+    std::string appearance_code_;
     int         health_;
     int         max_health_;
 

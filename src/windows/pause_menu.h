@@ -47,8 +47,6 @@ class PauseMenu {
 
     const std::vector< std::string > choices_text_ = {
             "Resume",
-            "Save",
-            "Help",
             "Exit",
     };
 

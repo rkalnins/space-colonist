@@ -13,16 +13,23 @@
 
 namespace sc {
 
+struct MousePosition {
+    MousePosition ( int y, int x ) : y(y), x(x) {}
+
+    int y { 0 };
+    int x { 0 };
+};
+
+
 class InputListener {
   public:
     InputListener () {
-        input_listener_ = std::thread([this] { Listen(); });
-
         logger_ = spdlog::basic_logger_mt("input_listener",
                                           "logs/space-colonist-log.log");
         logger_->set_level(spdlog::level::debug);
-
         logger_->debug("listener active");
+
+        input_listener_ = std::thread([this] { Listen(); });
     }
 
     void Stop () {
@@ -34,9 +41,14 @@ class InputListener {
         return ch_;
     }
 
+    const MousePosition &GetMousePos () const {
+        return mouse_pos_;
+    }
+
     void ResetCh () {
         std::lock_guard lg(ch_mtx_);
         ch_ = 0;
+        mouse_pos_ = MousePosition{0, 0};
     }
 
   private:
@@ -49,16 +61,33 @@ class InputListener {
 
             logger_->debug(ch_tmp);
 
-            std::lock_guard lg(ch_mtx_);
-            ch_ = ch_tmp;
+            switch ( ch_tmp ) {
+                case KEY_MOUSE: {
+                    getmouse(&mouse_event_);
+                    std::lock_guard lg(ch_mtx_);
+                    ch_ = ch_tmp;
+                    mouse_pos_ = MousePosition {
+                            mouse_event_.y, mouse_event_.x
+                    };
+                    break;
+                }
+                default: {
+                    std::lock_guard lg(ch_mtx_);
+                    ch_ = ch_tmp;
+                    break;
+                }
+            }
         }
     }
 
   private:
     logger_t logger_;
 
+    MEVENT mouse_event_;
+
     std::thread         input_listener_;
     std::atomic< bool > done_ { false };
+    MousePosition       mouse_pos_ { 0, 0 };
 
     std::recursive_mutex ch_mtx_;
     std::atomic< int >   ch_ {};

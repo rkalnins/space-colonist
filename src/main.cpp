@@ -30,6 +30,14 @@ int main () {
     std::shared_ptr< GameTasks >     tasks    = std::make_shared< GameTasks >(
             main, listener);
 
+
+    mvaddstr(18, 3, "How to play");
+    mvaddstr(20, 3, "1. Choose destination");
+    mvaddstr(21, 3, "2. Choose spaceship");
+    mvaddstr(22, 3, "3. Choose crew");
+    mvaddstr(23, 3, "4. Choose inventory");
+    mvaddstr(24, 3, "5. Cross fingers & don't die");
+
     logger->info("Creating game");
 
     Game game(tasks, listener);

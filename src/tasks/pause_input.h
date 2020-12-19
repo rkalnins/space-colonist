@@ -59,14 +59,14 @@ class PauseInput : public Task {
                 ret_state = GameState::PAUSED;
                 break;
             }
-            case 10: {
+            case 32: {
                 int item = pause_menu_->Select();
 
-                if ( item == 3 ) {
+                if ( item == exit_option_ ) {
                     done_     = true;
                     ret_state = GameState::EXITING;
                     logger_->debug("Exiting from menu, and from game");
-                } else if ( item == 0 ) {
+                } else if ( item == resume_option_ ) {
                     ret_state = GameState::RUNNING;
                     logger_->debug("Resuming game");
 
@@ -105,6 +105,9 @@ class PauseInput : public Task {
     std::unique_ptr< PauseMenu > pause_menu_ { nullptr };
 
     logger_t logger_;
+
+    const int resume_option_ { 0 };
+    const int exit_option_ = { 1 };
 
     bool done_ { false };
 

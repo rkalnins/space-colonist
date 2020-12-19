@@ -30,4 +30,14 @@ int Item::GetValue () const {
 int Item::GetWeight () const {
     return weight_;
 }
+
+void Item::UpdateValue ( int value ) {
+    value_ += value;
+}
+
+void Item::UpdateWeight ( int weight ) {
+    weight_ += weight;
+}
+
+
 }

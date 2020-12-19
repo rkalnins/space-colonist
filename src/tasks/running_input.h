@@ -46,12 +46,6 @@ class RunningInput : public Task {
                 ret_state = GameState::PAUSED;
                 break;
             }
-            case '\n': {
-                done_ = true;
-                logger_->debug("Return pressed. Game done.");
-                ret_state = GameState::EXITING;
-                break;
-            }
             default: {
                 ret_state = GameState::RUNNING;
                 break;

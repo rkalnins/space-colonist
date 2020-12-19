@@ -22,6 +22,7 @@
 
 #include "play/objects/spaceship.h"
 #include "play/spaceship_handler.h"
+#include "loop_control/watchdog.h"
 
 #include "input_listener.h"
 
@@ -53,6 +54,8 @@ class Game {
 
     std::shared_ptr< GameTasks >     tasks_;
     std::shared_ptr< InputListener > input_listener_;
+
+    Watchdog watchdog_;
 
     std::atomic< bool > done_ { false };
 

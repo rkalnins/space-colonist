@@ -3,7 +3,7 @@
 //
 
 #include "spaceship.h"
-
+#include "../items/item.h"
 
 namespace sc::play {
 
@@ -14,7 +14,19 @@ Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
 
 void Spaceship::AddItem ( Item &item ) {
     weight_ += item.GetWeight();
-    items_[item.GetCategory()].push_back(item);
+
+    std::vector<Item> &items = items_[item.GetCategory()];
+
+    Item::NameComparator cmp(item.GetName());
+
+    auto item_it = std::find_if(items.begin(), items.end(), cmp);
+
+    if (item_it != items.end()) {
+        item_it->UpdateValue(item.GetValue());
+        item_it->UpdateWeight(item.GetWeight());
+    } else {
+        items.push_back(item);
+    }
 }
 
 int Spaceship::GetHull () const {
@@ -84,12 +96,12 @@ void Spaceship::SetMoney ( int money ) {
 Spaceship::Spaceship () {
     money_      = 1000;
     weight_     = 0;
-    max_weight_ = 100;
-    fuel_       = 1000.0;
-    full_fuel_  = 1000.0;
-    hull_       = 100;
-    full_hull_  = 100;
-    max_crew_   = 5;
+    max_weight_ = 0;
+    fuel_       = 0;
+    full_fuel_  = 0;
+    hull_       = 0;
+    full_hull_  = 0;
+    max_crew_   = 0;
 }
 
 }
