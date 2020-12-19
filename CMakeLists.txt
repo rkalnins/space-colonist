@@ -44,7 +44,11 @@ set(SOURCE_FILES
         src/play/spaceship_handler.cpp
         src/play/spaceship_handler.h
         src/play/game_ui.cpp
-        src/play/game_ui.h src/play/objects/crew_factory.h src/play/objects/crew_factory.cpp)
+        src/play/game_ui.h
+        src/play/objects/crew_factory.h
+        src/play/objects/crew_factory.cpp
+        src/play/map_generator.cpp
+        src/play/map_generator.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

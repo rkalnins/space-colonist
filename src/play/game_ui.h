@@ -15,6 +15,7 @@
 #include "../logging/logging.h"
 #include "../loop_control/task.h"
 #include "objects/crew_factory.h"
+#include "map_generator.h"
 
 
 namespace sc::play {
@@ -66,8 +67,9 @@ class GameUI : public Task {
 
     std::shared_ptr< InputListener > listener_ { nullptr };
 
+    std::unique_ptr<MapGenerator> map_generator_{nullptr};
+
     WINDOW *main_;
-    MEVENT mouse_event_ {};
 
     struct Checkbox {
         int  y;

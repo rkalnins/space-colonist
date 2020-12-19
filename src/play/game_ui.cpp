@@ -24,6 +24,9 @@ GameUI::GameUI ( const std::string &name, TaskType taskType,
     logger_ = spdlog::basic_logger_mt("ui",
                                       "logs/space-colonist-log.log");
     logger_->set_level(spdlog::level::debug);
+
+    map_generator_ = std::make_unique< MapGenerator >(main, ui_init_y_,
+                                                      ui_init_x_);
 }
 
 void GameUI::Init () {
@@ -45,6 +48,9 @@ void GameUI::Init () {
     }
 
     logger_->debug("Created crew choices");
+
+    map_generator_->SeedMap();
+    logger_->debug("Created map");
 }
 
 
@@ -184,6 +190,7 @@ void GameUI::CrewSelection () {
 }
 
 void GameUI::DestinationSelection () {
+    map_generator_->PrintMap();
 }
 
 }
