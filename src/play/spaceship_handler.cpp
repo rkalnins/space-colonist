@@ -46,8 +46,8 @@ GameState SpaceshipHandler::OnLoop ( GameState state ) {
             PrintItems();
         }
 
-        if ( show_overflow_ ) {
-            PrintItemOverflow();
+        if ( show_items_ && show_details_ ) {
+            PrintCategoruDetails();
         }
     }
 
@@ -108,14 +108,14 @@ void SpaceshipHandler::PrintItems () {
                 items_disp << i.GetName() << "(" << i.GetValue() << ") ";
             }
 
-            mvwaddnstr(main_, item_y, item_x + 10,
+            mvwaddnstr(main_, item_y, item_x + 13,
                        items_disp.str().c_str(), length);
 
             if ( items_disp.str().length() > length ) {
-                mvwaddstr(main_, item_y, item_x + 10 + length, " ...");
-                item_overflow_[item_y] = std::make_unique< std::vector< Item >>(
-                        c.second);
+                mvwaddstr(main_, item_y, item_x + 13 + length, " ...");
             }
+
+            cat_details_[item_y] = c.first;
 
             ++item_y;
         }
@@ -152,13 +152,13 @@ void SpaceshipHandler::ProcessInput () {
 
             wmouse_trafo(main_, &mpos.y, &mpos.x, false);
 
-            if ( item_overflow_.find(mpos.y) !=
-                 item_overflow_.end() &&
+            if ( cat_details_.find(mpos.y) !=
+                 cat_details_.end() &&
                  item_init_x_ < mpos.x ) {
 
                 mpos_ = mpos;
 
-                show_overflow_ = !show_overflow_;
+                show_details_ = !show_details_;
             }
 
             break;
@@ -174,27 +174,30 @@ void SpaceshipHandler::ProcessInput () {
             break;
         }
         case 'n': {
-            if ( show_overflow_ ) {
-                overflow_page_id_ = std::min(overflow_page_id_ + 1,
-                                             static_cast<int> (
-                                                     item_overflow_[mpos_.y]->size() /
-                                                     ( rows_per_overflow_pg_ *
-                                                       items_per_overflow_row_ )));
+            if ( show_details_ ) {
+
+                std::string               category = cat_details_[mpos_.y];
+                const std::vector< Item > &items   = spaceship_->GetItems()[category];
+
+                details_page_id_ = std::min(details_page_id_ + 1,
+                                            static_cast<int> (
+                                                    items.size() /
+                                                    ( rows_per_details_pg_ )));
             } else {
-                item_overflow_ = std::map< int, std::unique_ptr< std::vector< Item >> >();
-                item_page_id_  = std::min(item_page_id_ + 1,
-                                          static_cast<int>(
-                                                  spaceship_->GetItems().size() /
-                                                  cat_per_page_));
+                cat_details_  = std::map< int, std::string >();
+                item_page_id_ = std::min(item_page_id_ + 1,
+                                         static_cast<int>(
+                                                 spaceship_->GetItems().size() /
+                                                 cat_per_page_));
             }
             break;
         }
         case 'b': {
-            if ( show_overflow_ ) {
-                overflow_page_id_ = std::max(overflow_page_id_ - 1, 0);
+            if ( show_details_ ) {
+                details_page_id_ = std::max(details_page_id_ - 1, 0);
             } else {
-                item_overflow_ = std::map< int, std::unique_ptr< std::vector< Item >> >();
-                item_page_id_  = std::max(item_page_id_ - 1, 0);
+                cat_details_  = std::map< int, std::string >();
+                item_page_id_ = std::max(item_page_id_ - 1, 0);
             }
             break;
         }
@@ -204,52 +207,40 @@ void SpaceshipHandler::ProcessInput () {
     }
 }
 
-void SpaceshipHandler::PrintItemOverflow () {
-    if ( !item_overflow_[mpos_.y] ) {
-        logger_->debug("No vector at {}", mpos_.y);
+void SpaceshipHandler::PrintCategoruDetails () {
+
+
+    if ( cat_details_[mpos_.y].empty()) {
+        logger_->debug("No category at {}", mpos_.y);
         return;
     }
 
-    logger_->debug("Printing overflow for row {}", mpos_.y);
-    int y = overflow_init_y_;
+    int y = details_init_y_;
 
-    const std::vector< Item > &items = *item_overflow_[mpos_.y];
+    std::string               category = cat_details_[mpos_.y];
+    const std::vector< Item > &items   = spaceship_->GetItems()[category];
 
 
-    bool done  = false;
-    int  index = overflow_page_id_ * ( rows_per_overflow_pg_ *
-                                       items_per_overflow_row_ );
-    int  end   = index + ( rows_per_overflow_pg_ *
-                           items_per_overflow_row_ );
+    int index = details_page_id_ * ( rows_per_details_pg_ );
+    int end   = index + ( rows_per_details_pg_ );
 
     std::stringstream row;
 
-    row << "All items in selected category (" << ( overflow_page_id_ + 1 )
+    row << "All items in selected category (" << ( details_page_id_ + 1 )
         << "/" <<
-        ( item_overflow_[mpos_.y]->size() /
-          ( rows_per_overflow_pg_ *
-            items_per_overflow_row_ ) + 1 ) << ")";
+        ( items.size() /
+          ( rows_per_details_pg_ ) + 1 ) << ")";
 
-    mvwaddstr(main_, y, overflow_init_x_, row.str().c_str());
+    mvwaddstr(main_, y, details_init_x_, row.str().c_str());
     y += 2;
 
     row.str("");
-    for ( int r = 0; r < rows_per_overflow_pg_; ++r ) {
-        for ( int c = 0; c < items_per_overflow_row_; ++c ) {
-            if ( index < items.size() && index < end ) {
-                row << items[index].GetName() << " ";
-            } else {
-                done = true;
-                break;
-            }
-            ++index;
-        }
+    for ( int r = index; r < end; ++r ) {
 
-        if ( done ) {
-            return;
-        }
+        if ( r >= items.size()) { return; }
 
-        mvwaddstr(main_, y, overflow_init_x_, row.str().c_str());
+        row << items[r].GetValue() << "x\t" << items[r].GetName();
+        mvwaddstr(main_, y, details_init_x_, row.str().c_str());
         ++y;
         row.str("");
     }

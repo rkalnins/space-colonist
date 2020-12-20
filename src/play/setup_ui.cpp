@@ -17,10 +17,12 @@ namespace sc::play {
 SetupUI::SetupUI ( const std::string &name, TaskType taskType,
                    std::shared_ptr< SpaceshipHandler > spaceship_handler,
                    std::shared_ptr< InputListener > listener,
+                   std::shared_ptr< SpaceshipFactory > spaceship_factory,
                    WINDOW *main )
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),
           listener_(std::move(listener)),
+          spaceship_factory_(std::move(spaceship_factory)),
           main_(main) {
     logger_ = spdlog::basic_logger_mt("ui",
                                       "logs/space-colonist-log.log");
@@ -56,7 +58,8 @@ void SetupUI::Init () {
     spaceship_choices_.reserve(2);
 
     for ( int i = 0; i < spaceship_choice_count_; ++i ) {
-        spaceship_choices_.push_back(spaceship_factory_.CreateSpaceship());
+        spaceship_choices_.push_back(
+                spaceship_factory_->CreateSpaceship());
     }
 
     logger_->debug("Created spaceship choices");
@@ -150,8 +153,9 @@ GameState SetupUI::OnLoop ( GameState state ) {
                 case SetupState::INVENTORY_SELECTION: {
                     current_selected_item_ = std::min(
                             current_selected_item_ + 1,
-                            static_cast<int>(items_for_sale_.at(
-                                    current_category_).size() - 1));
+                            static_cast<int>(
+                                    items_for_sale_[current_category_].size() -
+                                    1));
                     break;
                 }
                 default:
@@ -174,27 +178,23 @@ GameState SetupUI::OnLoop ( GameState state ) {
             }
             break;
         case KEY_RIGHT: {
-            Item item = *items_for_sale_.at(
-                    current_category_)[current_selected_item_];
+            Item item = *items_for_sale_[current_category_][current_selected_item_];
             item.SetValue(1);
             bool success = spaceship_handler_->GetSpaceship()->AddItem(
                     item);
             if ( success ) {
-                items_for_sale_.at(
-                        current_category_)[current_selected_item_]->UpdateValue(
+                items_for_sale_[current_category_][current_selected_item_]->UpdateValue(
                         -1);
             }
             break;
         }
         case KEY_LEFT: {
-            Item item = *items_for_sale_.at(
-                    current_category_)[current_selected_item_];
+            Item item = *items_for_sale_[current_category_][current_selected_item_];
             item.SetValue(1);
             bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
                     item);
             if ( success ) {
-                items_for_sale_.at(
-                        current_category_)[current_selected_item_]->UpdateValue(
+                items_for_sale_[current_category_][current_selected_item_]->UpdateValue(
                         1);
             }
             break;
@@ -225,7 +225,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
         case '0': {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_ = TradingPostCategory::ALL;
+                    trading_post_view_     = TradingPostCategory::ALL;
                     current_selected_item_ = 0;
                     break;
                 default:
@@ -236,8 +236,8 @@ GameState SetupUI::OnLoop ( GameState state ) {
         case '1': {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_ = TradingPostCategory::FOOD;
-                    current_category_  = GetCategoryStr(
+                    trading_post_view_     = TradingPostCategory::FOOD;
+                    current_category_      = GetCategoryStr(
                             trading_post_view_);
                     current_selected_item_ = 0;
                     break;
@@ -249,8 +249,8 @@ GameState SetupUI::OnLoop ( GameState state ) {
         case '2': {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_ = TradingPostCategory::FUEL;
-                    current_category_  = GetCategoryStr(
+                    trading_post_view_     = TradingPostCategory::FUEL;
+                    current_category_      = GetCategoryStr(
                             trading_post_view_);
                     current_selected_item_ = 0;
                     break;
@@ -262,8 +262,8 @@ GameState SetupUI::OnLoop ( GameState state ) {
         case '3': {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_ = TradingPostCategory::INFRASTRUCTURE;
-                    current_category_  = GetCategoryStr(
+                    trading_post_view_     = TradingPostCategory::INFRASTRUCTURE;
+                    current_category_      = GetCategoryStr(
                             trading_post_view_);
                     current_selected_item_ = 0;
                     break;
@@ -275,8 +275,8 @@ GameState SetupUI::OnLoop ( GameState state ) {
         case '4': {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_ = TradingPostCategory::SPARE_PARTS;
-                    current_category_  = GetCategoryStr(
+                    trading_post_view_     = TradingPostCategory::SPARE_PARTS;
+                    current_category_      = GetCategoryStr(
                             trading_post_view_);
                     current_selected_item_ = 0;
                     break;
@@ -288,8 +288,8 @@ GameState SetupUI::OnLoop ( GameState state ) {
         case '5': {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_ = TradingPostCategory::SUPPLIES;
-                    current_category_  = GetCategoryStr(
+                    trading_post_view_     = TradingPostCategory::SUPPLIES;
+                    current_category_      = GetCategoryStr(
                             trading_post_view_);
                     current_selected_item_ = 0;
                     break;
@@ -301,8 +301,8 @@ GameState SetupUI::OnLoop ( GameState state ) {
         case '6': {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_ = TradingPostCategory::TOOLS;
-                    current_category_  = GetCategoryStr(
+                    trading_post_view_     = TradingPostCategory::TOOLS;
+                    current_category_      = GetCategoryStr(
                             trading_post_view_);
                     current_selected_item_ = 0;
                     break;
@@ -314,8 +314,8 @@ GameState SetupUI::OnLoop ( GameState state ) {
         case '7': {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_ = TradingPostCategory::WEAPONS;
-                    current_category_  = GetCategoryStr(
+                    trading_post_view_     = TradingPostCategory::WEAPONS;
+                    current_category_      = GetCategoryStr(
                             trading_post_view_);
                     current_selected_item_ = 0;
                     break;
@@ -345,11 +345,11 @@ void SetupUI::SpaceshipSelection () {
     mvwaddstr(main_, y - 2, x, disp.str().c_str());
     disp.str("");
 
-    disp << "\tCost\tMax Fuel\tMax Cargo\tMax Crew";
+    disp << "\tCost\tMax Fuel\tMax Cargo\tMax Crew\tHull";
     mvwaddstr(main_, y, x, disp.str().c_str());
     disp.str("");
     mvwaddstr(main_, y + 1, x,
-              "-------------------------------------------------------------------------------");
+              "-----------------------------------------------------------------------------------------");
     y += 4;
 
     for ( const auto &s : spaceship_choices_ ) {
@@ -358,17 +358,18 @@ void SetupUI::SpaceshipSelection () {
         } else {
             disp << " " << i;
         }
-        disp << "\t" << s->GetCost() << "\t"
-             << s->GetFullFuel() << "\t\t"
-             << s->GetMaxWeight() << "\t\t" << s->GetMaxCrew();
+        disp << "\t" << s->GetCost() << "\t" << s->GetFullFuel() << "\t\t"
+             << s->GetMaxWeight() << "\t\t" << s->GetMaxCrew() << "\t\t"
+             << s->GetFullHull();
+
         mvwaddstr(main_, y, x, disp.str().c_str());
         disp.str("");
 
-        spaceship_factory_.PrintSpaceship(main_, y - 1, x + 55,
-                                          s->GetAppearanceCode());
+        spaceship_factory_->PrintSpaceship(main_, y - 1, x + 70,
+                                           s->GetAppearanceCode());
 
         mvwaddstr(main_, y + 3, x,
-                  "-------------------------------------------------------------------------------");
+                  "-----------------------------------------------------------------------------------------");
         y += 6;
         ++i;
     }
@@ -460,7 +461,7 @@ void SetupUI::InventorySelection () {
 
     ++y;
 
-    for ( auto &item : items_for_sale_.at(current_category_)) {
+    for ( auto &item : items_for_sale_[current_category_] ) {
         if ( current_selected_item_ == i ) {
             row << "> ";
         } else {

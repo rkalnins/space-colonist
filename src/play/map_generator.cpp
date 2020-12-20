@@ -27,26 +27,30 @@ MapGenerator::MapGenerator ( WINDOW *main, int map_init_y, int map_init_x )
 
 void MapGenerator::SeedMap () {
     double r = map_height_ / 2.0;
-    double c = -map_width_ / 2.0;
+    double c = -map_width_ / 2.0 + 1.0;
 
     for ( auto &row : planets_ ) {
-        for ( auto &&i : row ) {
+        for ( int i = 1; i < row.size() - 1; ++i ) {
 
 //            double z = ( std::sin(
 //                    0.8 / map_height_ * (( r ) * ( r ) + ( c / 3.0 ) * ( c / 3.0))) +
 //                         1.0 ) / 2.0;
 
+
             double z = ((( r * 3.5 ) * ( r * 3.5 ) + ( c ) * ( c )) /
                         3.0 ) /
                        (( map_width_ ) * ( map_height_ ));
 
-
-            i = Random::get< bool >(z * planet_probability_);
-
             c += 1.0;
+
+            if ( !row[i - 1] && !row[i + 1] ) {
+                row[i] = Random::get< bool >(z * planet_probability_);
+            }
+
+
         }
         r -= 1.0;
-        c = -map_width_ / 2.0;
+        c           = -map_width_ / 2.0;
     }
 
     std::stringstream line;
@@ -104,7 +108,7 @@ void MapGenerator::ToggleSelection ( int y, int x ) {
         return;
     }
 
-    if (toggle_end_) { return; }
+    if ( toggle_end_ ) { return; }
 
     if ( !route_.empty() && route_.top().x == x && route_.top().y == y ) {
         planets_str_[y][x - 1] = ' ';

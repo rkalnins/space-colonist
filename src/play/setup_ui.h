@@ -11,7 +11,6 @@
 
 #include "items/item.h"
 #include "objects/crew_member.h"
-#include "objects/spaceship.h"
 #include "spaceship_handler.h"
 #include "../input_listener.h"
 #include "../logging/logging.h"
@@ -51,6 +50,7 @@ class SetupUI : public Task {
     SetupUI ( const std::string &name, TaskType taskType,
               std::shared_ptr< SpaceshipHandler > spaceship_handler,
               std::shared_ptr< InputListener > listener,
+              std::shared_ptr< SpaceshipFactory > spaceship_factory,
               WINDOW *main );
 
     void Init () override;
@@ -73,13 +73,13 @@ class SetupUI : public Task {
 
     void ProcessMousePlanetSelect ( MousePosition &mpos );
 
-    static std::string GetCategoryStr(TradingPostCategory category);
+    static std::string GetCategoryStr ( TradingPostCategory category );
 
   private:
     logger_t logger_;
 
     CrewMemberFactory crew_member_factory_;
-    SpaceshipFactory  spaceship_factory_;
+    std::shared_ptr<SpaceshipFactory>  spaceship_factory_;
 
     std::vector< CrewMember > crew_choices_;
 
@@ -99,10 +99,10 @@ class SetupUI : public Task {
     TradingPostCategory trading_post_view_ { TradingPostCategory::ALL };
 
     std::string current_category_;
-    int current_selected_item_;
+    int         current_selected_item_{};
 
     // FIXME
-    const std::map< std::string, std::vector< std::shared_ptr< Item > > > items_for_sale_ = {
+    std::map< std::string, std::vector< std::shared_ptr< Item > > > items_for_sale_ = {
             {
                     "Tools",          {
                                               std::make_shared< Item >(
@@ -253,7 +253,7 @@ class SetupUI : public Task {
             }
     };
 
-    const int ui_init_y_          = 20;
+    const int ui_init_y_          = 17;
     const int ui_init_x_          = 4;
     const int crew_choices_count_ = 5;
 

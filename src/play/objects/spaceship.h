@@ -41,8 +41,8 @@ class Spaceship {
 
     [[nodiscard]] double GetFullFuel () const;
 
-    [[nodiscard]] const std::map< std::string, std::vector< Item>> &
-    GetItems () const;
+    [[nodiscard]] std::map< std::string, std::vector< Item>> &
+    GetItems ();
 
     [[nodiscard]] int GetWeight () const;
 
@@ -52,7 +52,7 @@ class Spaceship {
 
     [[nodiscard]] int GetMaxWeight () const;
 
-    void SetMaxWeight ( int maxWeight );
+    void SetMaxWeight ( int max_weight );
 
     [[nodiscard]] int GetMoney () const;
 
@@ -66,11 +66,11 @@ class Spaceship {
 
     [[nodiscard]] const std::string &GetAppearanceCode () const;
 
-    void SetFullHull ( int fullHull );
+    void SetFullHull ( int hull );
 
-    void SetFullFuel ( double fullFuel );
+    void SetFullFuel ( double fuel );
 
-    void SetMaxCrew ( int maxCrew );
+    void SetMaxCrew ( int max_crew );
 
     [[nodiscard]] int GetCost () const;
 

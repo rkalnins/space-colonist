@@ -96,8 +96,7 @@ double Spaceship::GetFullFuel () const {
     return full_fuel_;
 }
 
-const std::map< std::string, std::vector< Item>> &
-Spaceship::GetItems () const {
+std::map< std::string, std::vector< Item>> &Spaceship::GetItems () {
     return items_;
 }
 
@@ -117,8 +116,8 @@ int Spaceship::GetMaxWeight () const {
     return max_weight_;
 }
 
-void Spaceship::SetMaxWeight ( int maxWeight ) {
-    max_weight_ = maxWeight;
+void Spaceship::SetMaxWeight ( int max_weight ) {
+    max_weight_ = max_weight;
 }
 
 int Spaceship::GetMoney () const {
@@ -137,16 +136,17 @@ const std::string &Spaceship::GetAppearanceCode () const {
     return appearance_code_;
 }
 
-void Spaceship::SetFullHull ( int fullHull ) {
-    full_hull_ = fullHull;
+void Spaceship::SetFullHull ( int hull ) {
+    full_hull_ = hull;
+    hull_ = hull;
 }
 
-void Spaceship::SetFullFuel ( double fullFuel ) {
-    full_fuel_ = fullFuel;
+void Spaceship::SetFullFuel ( double fuel ) {
+    full_fuel_ = fuel;
 }
 
-void Spaceship::SetMaxCrew ( int maxCrew ) {
-    max_crew_ = maxCrew;
+void Spaceship::SetMaxCrew ( int max_crew ) {
+    max_crew_ = max_crew;
 }
 
 int Spaceship::GetCost () const {

@@ -34,7 +34,7 @@ set(SOURCE_FILES
         src/play/objects/crew_member.h
         src/loop_control/task.cpp
         src/loop_control/task.h
-        src/game_tasks.h
+        src/game_deps.h
         src/input_listener.h
         src/game_state.h
         src/play/spaceship_handler.cpp
@@ -46,7 +46,7 @@ set(SOURCE_FILES
         src/play/map_generator.cpp
         src/play/map_generator.h
         src/play/spaceship_factory.cpp
-        src/play/spaceship_factory.h)
+        src/play/spaceship_factory.h src/play/running_ui.cpp src/play/running_ui.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

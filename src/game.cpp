@@ -14,15 +14,15 @@
 
 namespace sc {
 
-Game::Game ( std::shared_ptr< GameTasks > tasks,
+Game::Game ( std::shared_ptr< GameDependencies > deps,
              std::shared_ptr< InputListener > listener )
-        : tasks_(std::move(tasks)),
+        : deps_(std::move(deps)),
           input_listener_(std::move(listener)) {
     logger_ = spdlog::basic_logger_mt("game",
                                       "logs/space-colonist-log.log");
     logger_->set_level(spdlog::level::debug);
 
-    main_ = tasks_->GetMain();
+    main_ = deps_->GetMain();
     box(main_, 0, 0);
 
     mousemask(ALL_MOUSE_EVENTS, nullptr);
@@ -80,10 +80,10 @@ void Game::LoopController () {
 }
 
 void Game::Init () {
-    setup_tasks_.AddTask(tasks_->setup_ui_);
-    setup_tasks_.AddTask(tasks_->spaceship_handler_);
+    setup_tasks_.AddTask(deps_->setup_ui_);
+    setup_tasks_.AddTask(deps_->spaceship_handler_);
 
-    running_tasks_.AddTask(tasks_->spaceship_handler_);
+    running_tasks_.AddTask(deps_->spaceship_handler_);
 
     LoopController();
 }
