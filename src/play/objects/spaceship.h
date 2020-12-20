@@ -20,7 +20,7 @@ enum class SpaceshipState { MOVING, OTHER };
 class Spaceship {
   public:
 
-    Spaceship ();
+    explicit Spaceship (std::string &appearance_code);
 
     void AddCrewMember ( const CrewMember &crew_member );
 
@@ -42,17 +42,17 @@ class Spaceship {
     [[nodiscard]] const std::map< std::string, std::vector< Item>> &
     GetItems () const;
 
-    int GetWeight () const;
+    [[nodiscard]] int GetWeight () const;
 
     void SetWeight ( int weight );
 
     void UpdateWeight ( int change );
 
-    int GetMaxWeight () const;
+    [[nodiscard]] int GetMaxWeight () const;
 
     void SetMaxWeight ( int maxWeight );
 
-    int GetMoney () const;
+    [[nodiscard]] int GetMoney () const;
 
     void UpdateMoney ( int change );
 
@@ -62,20 +62,39 @@ class Spaceship {
 
     void StopMoving () { state_ = SpaceshipState::OTHER; }
 
+    [[nodiscard]] const std::string &GetAppearanceCode () const;
+
+    void SetFullHull ( int fullHull );
+
+    void SetFullFuel ( double fullFuel );
+
+    void SetMaxCrew ( int maxCrew );
+
+    [[nodiscard]] int GetCost () const;
+
+    void SetCost ( int cost );
+
+    [[nodiscard]] int GetFullHull () const;
+
+    int GetMaxCrew () const;
+
   private:
 
     std::map< std::string, std::vector< Item > > items_;
 
     std::set< CrewMember > crew_;
+    std::string            appearance_code_;
 
-    int    full_hull_ { 100 };
-    double full_fuel_ { 1000.0 };
+    int    full_hull_ { 0 };
+    double full_fuel_ { 0 };
     int    hull_ { 0 };
     double fuel_ { 0 };
     int    weight_ { 0 };
     int    max_weight_ { 0 };
     int    money_ { 0 };
     int    max_crew_ { 0 };
+    int    cost_ { 0 };
+
 
     SpaceshipState state_ { SpaceshipState::OTHER };
 

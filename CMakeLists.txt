@@ -48,7 +48,7 @@ set(SOURCE_FILES
         src/play/objects/crew_factory.h
         src/play/objects/crew_factory.cpp
         src/play/map_generator.cpp
-        src/play/map_generator.h)
+        src/play/map_generator.h src/play/spaceship_factory.cpp src/play/spaceship_factory.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

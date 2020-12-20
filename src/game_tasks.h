@@ -28,14 +28,13 @@ class GameTasks {
                 TaskType::PAUSE,
                 listener);
 
-        spaceship_ = std::make_shared< play::Spaceship >();
 
         spaceship_handler_ = std::make_shared< play::SpaceshipHandler >(
                 spaceship_handler_name_, TaskType::RUNNING, listener,
-                main, spaceship_);
+                main);
 
         ui_ = std::make_shared< play::GameUI >(ui_name_, TaskType::RUNNING,
-                                               spaceship_, listener, main);
+                                               spaceship_handler_, listener, main);
     }
 
   public:
@@ -47,7 +46,6 @@ class GameTasks {
             nullptr
     };
 
-    std::shared_ptr< play::Spaceship > spaceship_ { nullptr };
     std::shared_ptr< play::GameUI >    ui_ { nullptr };
 
 

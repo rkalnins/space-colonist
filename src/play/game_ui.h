@@ -11,10 +11,12 @@
 #include "items/item.h"
 #include "objects/crew_member.h"
 #include "objects/spaceship.h"
+#include "spaceship_handler.h"
 #include "../input_listener.h"
 #include "../logging/logging.h"
 #include "../loop_control/task.h"
 #include "objects/crew_factory.h"
+#include "spaceship_factory.h"
 #include "map_generator.h"
 
 
@@ -38,7 +40,7 @@ class GameUI : public Task {
   public:
 
     GameUI ( const std::string &name, TaskType taskType,
-             std::shared_ptr< Spaceship > spaceship,
+             std::shared_ptr< SpaceshipHandler > spaceship_handler,
              std::shared_ptr< InputListener > listener,
              WINDOW *main );
 
@@ -54,15 +56,19 @@ class GameUI : public Task {
 
     void CrewSelection ();
 
+    void SpaceshipSelection ();
+
 
   private:
     logger_t logger_;
 
     CrewMemberFactory crew_member_factory_;
+    SpaceshipFactory  spaceship_factory_;
 
-    std::vector< CrewMember > crew_choices_;
+    std::vector< CrewMember >                   crew_choices_;
+    std::vector< std::shared_ptr< Spaceship > > spaceship_choices_;
 
-    std::shared_ptr< Spaceship > spaceship_ { nullptr };
+    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
 
     std::shared_ptr< InputListener > listener_ { nullptr };
 
@@ -86,6 +92,9 @@ class GameUI : public Task {
     const int ui_init_x_          = 4;
     const int crew_choices_count_ = 5;
     const int crew_select_max_    = 3;
+
+    const int spaceship_choice_count_ { 3 };
+    int       selected_spaceship_ { 0 };
 
     void ProcessMousePlanetSelect ( MousePosition &mpos );
 };

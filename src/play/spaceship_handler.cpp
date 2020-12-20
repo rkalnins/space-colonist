@@ -16,18 +16,14 @@ namespace sc::play {
 SpaceshipHandler::SpaceshipHandler ( const std::string &name,
                                      TaskType taskType,
                                      std::shared_ptr< InputListener > listener,
-                                     WINDOW *main,
-                                     std::shared_ptr< Spaceship > spaceship )
+                                     WINDOW *main )
         : Task(name, taskType),
-          spaceship_(std::move(spaceship)),
           listener_(std::move(listener)),
           main_(main) {
 
     logger_ = spdlog::basic_logger_mt("ss_handler",
                                       "logs/space-colonist-log.log");
     logger_->set_level(spdlog::level::debug);
-
-    spaceship_->ResetFuel();
 
 }
 
@@ -36,22 +32,23 @@ void SpaceshipHandler::Init () {
 }
 
 GameState SpaceshipHandler::OnLoop () {
-    spaceship_->UseFuel(fuel_use_);
-
     ProcessInput();
 
-    PrintHUD();
+    if ( spaceship_ ) {
 
-    if ( show_crew_ ) {
-        PrintCrew();
-    }
+        PrintHUD();
 
-    if ( show_items_ ) {
-        PrintItems();
-    }
+        if ( show_crew_ ) {
+            PrintCrew();
+        }
 
-    if ( show_overflow_ ) {
-        PrintItemOverflow(mouse_event_.y);
+        if ( show_items_ ) {
+            PrintItems();
+        }
+
+        if ( show_overflow_ ) {
+            PrintItemOverflow(mouse_event_.y);
+        }
     }
 
     return GameState::RUNNING;
@@ -164,11 +161,6 @@ void SpaceshipHandler::ProcessInput () {
 
             break;
         }
-        case 'r': {
-            spaceship_->ResetFuel();
-            logger_->debug("Reset fuel");
-            break;
-        }
         case 'i': {
             show_items_ = !show_items_;
             logger_->debug("toggle items to {}", show_items_);
@@ -260,6 +252,28 @@ void SpaceshipHandler::PrintItemOverflow ( int id ) {
         ++y;
         row.str("");
     }
+}
+
+const std::shared_ptr< play::Spaceship > &
+SpaceshipHandler::GetSpaceship () const {
+    return spaceship_;
+}
+
+void SpaceshipHandler::SetSpaceship (
+        const std::shared_ptr< play::Spaceship > &spaceship ) {
+    spaceship_ = spaceship;
+}
+
+void
+SpaceshipHandler::SetCrew ( const std::vector< CrewMember > &crew_choices,
+                            std::queue< size_t > &selected ) {
+
+    while ( !selected.empty()) {
+        size_t index = selected.front();
+        spaceship_->AddCrewMember(crew_choices[index]);
+        selected.pop();
+    }
+
 }
 
 }

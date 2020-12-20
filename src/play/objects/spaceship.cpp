@@ -3,10 +3,17 @@
 //
 
 #include "spaceship.h"
+
+#include <effolkronium/random.hpp>
+
 #include "../items/item.h"
 
 
 namespace sc::play {
+
+Spaceship::Spaceship (std::string &appearance_code) {
+    appearance_code_ = appearance_code;
+}
 
 void
 Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
@@ -94,15 +101,36 @@ void Spaceship::SetMoney ( int money ) {
     money_ = money;
 }
 
-Spaceship::Spaceship () {
-    money_      = 1000;
-    weight_     = 0;
-    max_weight_ = 0;
-    fuel_       = 0;
-    full_fuel_  = 0;
-    hull_       = 0;
-    full_hull_  = 0;
-    max_crew_   = 0;
+const std::string &Spaceship::GetAppearanceCode () const {
+    return appearance_code_;
+}
+
+void Spaceship::SetFullHull ( int fullHull ) {
+    full_hull_ = fullHull;
+}
+
+void Spaceship::SetFullFuel ( double fullFuel ) {
+    full_fuel_ = fullFuel;
+}
+
+void Spaceship::SetMaxCrew ( int maxCrew ) {
+    max_crew_ = maxCrew;
+}
+
+int Spaceship::GetCost () const {
+    return cost_;
+}
+
+void Spaceship::SetCost ( int cost ) {
+    cost_ = cost;
+}
+
+int Spaceship::GetFullHull () const {
+    return full_hull_;
+}
+
+int Spaceship::GetMaxCrew () const {
+    return max_crew_;
 }
 
 }

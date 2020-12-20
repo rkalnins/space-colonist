@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <queue>
+
 #include "../loop_control/task.h"
 #include "objects/spaceship.h"
 #include "../input_listener.h"
@@ -17,8 +19,7 @@ class SpaceshipHandler : public Task {
     SpaceshipHandler ( const std::string &name,
                        TaskType taskType,
                        std::shared_ptr< InputListener > listener,
-                       WINDOW *main,
-                       std::shared_ptr< Spaceship > spaceship );
+                       WINDOW *main );
 
   public:
     void Init () override;
@@ -27,7 +28,17 @@ class SpaceshipHandler : public Task {
 
     bool IsFinished () override;
 
+    void
+    SetSpaceship ( const std::shared_ptr< play::Spaceship > &spaceship );
+
+    [[nodiscard]] const std::shared_ptr< play::Spaceship > &
+    GetSpaceship () const;
+
+    void SetCrew ( const std::vector< CrewMember > &crew_choices,
+                   std::queue< size_t > &selected );
+
   private:
+
     void PrintCrew ();
 
     void PrintItems ();
@@ -69,8 +80,6 @@ class SpaceshipHandler : public Task {
 
     const int overflow_init_y_ { 20 };
     const int overflow_init_x_ { 30 };
-
-    double fuel_use_ { 0.01 };
 
 };
 
