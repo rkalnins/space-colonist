@@ -54,6 +54,7 @@ class SetupUI : public Task {
 
     void SpaceshipSelection ();
 
+    void InventorySelection ();
 
   private:
     logger_t logger_;
@@ -72,13 +73,6 @@ class SetupUI : public Task {
 
     WINDOW *main_;
 
-    struct Checkbox {
-        int  y;
-        int  left_x;
-        int  right_x;
-        bool checked;
-    };
-
     std::vector< Checkbox > selected_crew_;
     std::queue< size_t >    select_order_;
 
@@ -87,6 +81,7 @@ class SetupUI : public Task {
     const int ui_init_y_          = 20;
     const int ui_init_x_          = 4;
     const int crew_choices_count_ = 5;
+
 
     const int spaceship_choice_count_ { 3 };
     int       selected_spaceship_ { 0 };

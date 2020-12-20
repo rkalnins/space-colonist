@@ -172,7 +172,10 @@ GameState SetupUI::OnLoop () {
                 case SetupState::CREW_SELECTION:
                     state_ = SetupState::INVENTORY_SELECTION;
                     spaceship_handler_->SetCrew(crew_choices_,
-                                                select_order_);
+                                                selected_crew_);
+                    break;
+                case SetupState::INVENTORY_SELECTION:
+                    logger_->debug("Finished inventory selection");
                     break;
                 default:
                     break;
@@ -277,6 +280,10 @@ void SetupUI::CrewSelection () {
         ++i;
         x += 20;
     }
+}
+
+void SetupUI::InventorySelection () {
+
 }
 
 }

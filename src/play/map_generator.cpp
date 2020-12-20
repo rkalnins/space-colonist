@@ -62,6 +62,7 @@ void MapGenerator::SeedMap () {
 
 void MapGenerator::PrintMap () {
     int y = map_init_y_;
+
     std::stringstream disp;
     disp << "Distance: " << cost_;
 
@@ -91,22 +92,26 @@ void MapGenerator::ToggleSelection ( int y, int x ) {
          map_width_ / 2 ) {
         toggle_end_ = !toggle_end_;
 
-        if (toggle_end_) {
-            cost_ += std::hypot(route_.top().y - (map_height_ + 2), route_.top().x - (map_width_ / 2 - 6));
+        if ( toggle_end_ ) {
+            cost_ += std::hypot(route_.top().y - ( map_height_ + 2 ),
+                                route_.top().x - ( map_width_ / 2 - 6 ));
         } else {
-            cost_ -= std::hypot(route_.top().y - (map_height_ + 2), route_.top().x - (map_width_ / 2 - 6));
+            cost_ -= std::hypot(route_.top().y - ( map_height_ + 2 ),
+                                route_.top().x - ( map_width_ / 2 - 6 ));
         }
 
         logger_->debug("toggling end to {}", toggle_end_);
         return;
     }
 
+    if (toggle_end_) { return; }
+
     if ( !route_.empty() && route_.top().x == x && route_.top().y == y ) {
         planets_str_[y][x - 1] = ' ';
         planets_str_[y][x]     = '*';
         planets_str_[y][x + 1] = ' ';
         route_.pop();
-        if (route_.empty()) {
+        if ( route_.empty()) {
             cost_ = 0;
         } else {
             cost_ -= std::hypot(route_.top().x - x, route_.top().y - y);

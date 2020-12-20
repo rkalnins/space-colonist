@@ -267,14 +267,12 @@ void SpaceshipHandler::SetSpaceship (
 
 void
 SpaceshipHandler::SetCrew ( const std::vector< CrewMember > &crew_choices,
-                            std::queue< size_t > &selected ) {
-
-    while ( !selected.empty()) {
-        size_t index = selected.front();
-        spaceship_->AddCrewMember(crew_choices[index]);
-        selected.pop();
+                            std::vector< Checkbox > &selected ) {
+    for ( int i = 0; i < selected.size(); ++i ) {
+        if ( selected[i].checked ) {
+            spaceship_->AddCrewMember(crew_choices[i]);
+        }
     }
-
 }
 
 }

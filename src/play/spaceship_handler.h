@@ -14,6 +14,13 @@
 
 namespace sc::play {
 
+struct Checkbox {
+    int  y;
+    int  left_x;
+    int  right_x;
+    bool checked;
+};
+
 class SpaceshipHandler : public Task {
   public:
     SpaceshipHandler ( const std::string &name,
@@ -35,7 +42,7 @@ class SpaceshipHandler : public Task {
     GetSpaceship () const;
 
     void SetCrew ( const std::vector< CrewMember > &crew_choices,
-                   std::queue< size_t > &selected );
+                   std::vector< Checkbox > &selected );
 
   private:
 
