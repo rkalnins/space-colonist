@@ -226,6 +226,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION:
                     trading_post_view_ = TradingPostCategory::ALL;
+                    current_selected_item_ = 0;
                     break;
                 default:
                     break;
@@ -238,6 +239,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     trading_post_view_ = TradingPostCategory::FOOD;
                     current_category_  = GetCategoryStr(
                             trading_post_view_);
+                    current_selected_item_ = 0;
                     break;
                 default:
                     break;
@@ -250,6 +252,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     trading_post_view_ = TradingPostCategory::FUEL;
                     current_category_  = GetCategoryStr(
                             trading_post_view_);
+                    current_selected_item_ = 0;
                     break;
                 default:
                     break;
@@ -262,6 +265,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     trading_post_view_ = TradingPostCategory::INFRASTRUCTURE;
                     current_category_  = GetCategoryStr(
                             trading_post_view_);
+                    current_selected_item_ = 0;
                     break;
                 default:
                     break;
@@ -274,6 +278,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     trading_post_view_ = TradingPostCategory::SPARE_PARTS;
                     current_category_  = GetCategoryStr(
                             trading_post_view_);
+                    current_selected_item_ = 0;
                     break;
                 default:
                     break;
@@ -286,6 +291,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     trading_post_view_ = TradingPostCategory::SUPPLIES;
                     current_category_  = GetCategoryStr(
                             trading_post_view_);
+                    current_selected_item_ = 0;
                     break;
                 default:
                     break;
@@ -298,6 +304,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     trading_post_view_ = TradingPostCategory::TOOLS;
                     current_category_  = GetCategoryStr(
                             trading_post_view_);
+                    current_selected_item_ = 0;
                     break;
                 default:
                     break;
@@ -310,6 +317,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     trading_post_view_ = TradingPostCategory::WEAPONS;
                     current_category_  = GetCategoryStr(
                             trading_post_view_);
+                    current_selected_item_ = 0;
                     break;
                 default:
                     break;
@@ -378,14 +386,13 @@ void SetupUI::CrewSelection () {
     int name_y        = ui_init_y_ + 8;
     int health_y      = name_y + 1;
     int skills_init_y = health_y + 1;
-    int checkbox_y    = skills_init_y + 5;
 
     mvwaddstr(main_, y, x, "Choose your crew:");
     y += 2;
 
     std::stringstream stream;
 
-    int        i = 1;
+    int        i = 0;
     for ( auto &crew_choice : crew_choices_ ) {
         CrewMemberFactory::PrintCharacter(main_, y, x,
                                           crew_choice.GetCode());
@@ -407,9 +414,9 @@ void SetupUI::CrewSelection () {
         }
 
         if ( selected_crew_[i].checked ) {
-            mvwaddstr(main_, checkbox_y, x, "[*]");
+            mvwaddstr(main_, selected_crew_[i].y, x, "[*]");
         } else {
-            mvwaddstr(main_, checkbox_y, x, "[ ]");
+            mvwaddstr(main_, selected_crew_[i].y, x, "[ ]");
         }
 
         ++i;
