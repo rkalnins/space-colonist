@@ -7,8 +7,6 @@
 #include <map>
 
 #include "loop_control/task.h"
-#include "tasks/running_input.h"
-#include "tasks/pause_input.h"
 #include "play/spaceship_handler.h"
 #include "play/setup_ui.h"
 
@@ -21,32 +19,22 @@ class GameTasks {
                 std::shared_ptr< InputListener > &listener )
             : main_(main) {
 
-        running_input_ = std::make_shared< RunningInput >(
-                running_input_name_, TaskType::RUNNING, listener, main);
-        pause_input_   = std::make_shared< PauseInput >(
-                pause_input_name_,
-                TaskType::PAUSE,
-                listener);
-
 
         spaceship_handler_ = std::make_shared< play::SpaceshipHandler >(
                 spaceship_handler_name_, TaskType::RUNNING, listener,
                 main);
 
-        ui_ = std::make_shared< play::SetupUI >(ui_name_, TaskType::RUNNING,
-                                                spaceship_handler_, listener, main);
+        setup_ui_ = std::make_shared< play::SetupUI >(ui_name_, TaskType::RUNNING,
+                                                      spaceship_handler_, listener, main);
     }
 
   public:
-
-    std::shared_ptr< RunningInput > running_input_ { nullptr };
-    std::shared_ptr< PauseInput >   pause_input_ { nullptr };
 
     std::shared_ptr< play::SpaceshipHandler > spaceship_handler_ {
             nullptr
     };
 
-    std::shared_ptr< play::SetupUI > ui_ { nullptr };
+    std::shared_ptr< play::SetupUI > setup_ui_ { nullptr };
 
 
     [[nodiscard]] WINDOW *GetMain () const {

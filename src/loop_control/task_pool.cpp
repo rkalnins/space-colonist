@@ -3,11 +3,7 @@
 //
 
 #include "../game.h"
-#include "../logging/logging.h"
-#include <menu.h>
-#include <ncurses.h>
 #include <thread>
-#include <chrono>
 #include "task_pool.h"
 
 
@@ -25,11 +21,11 @@ void TaskPool::AddTask ( const std::shared_ptr< Task > &task ) {
 }
 
 GameState TaskPool::Loop ( GameState state ) {
-
+    new_state_ = state;
     for ( auto &f : pool_ ) {
         // if state change occurs, end
         if ( !f->IsFinished() && new_state_ == state ) {
-            new_state_ = f->OnLoop();
+            new_state_ = f->OnLoop(state);
 
             if ( new_state_ != state ) {
                 logger_->debug("{} changed state from {} to {}",

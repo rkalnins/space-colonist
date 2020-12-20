@@ -34,29 +34,30 @@ void Game::LoopController () {
     using namespace std::chrono;
     auto next = steady_clock::now() + freq60_t { 1 };
 
-    GameState new_state { GameState::RUNNING };
+    GameState new_state { GameState::SETUP };
+    logger_->debug(new_state);
+
 
     while ( !done_ ) {
-        werase(main_);
 
         std::this_thread::sleep_until(next);
         next += freq60_t { 1 };
 
+        werase(main_);
         // loop control
-        if ( state_ == GameState::RUNNING ) {
+        if ( state_ == GameState::SETUP ) {
+            new_state = setup_tasks_.Loop(state_);
+        } else if ( state_ == GameState::RUNNING ) {
             new_state = running_tasks_.Loop(state_);
-        } else if ( state_ == GameState::PAUSED ) {
-            new_state = paused_tasks_.Loop(state_);
         }
 
         if ( new_state != state_ ) {
             logger_->debug("{} {}", new_state, state_);
             switch ( new_state ) {
+                case GameState::SETUP:
+                    break;
                 case GameState::RUNNING:
                     OnRun();
-                    break;
-                case GameState::PAUSED:
-                    OnPause();
                     break;
                 case GameState::EXITING:
                     logger_->debug("Preparing to exit");
@@ -71,23 +72,24 @@ void Game::LoopController () {
         input_listener_->ResetCh();
         state_ = new_state;
 
-        paused_tasks_.SetNewState(state_);
         running_tasks_.SetNewState(state_);
+        setup_tasks_.SetNewState(state_);
 
         watchdog_.Notify();
     }
 }
 
 void Game::Init () {
-    running_tasks_.AddTask(tasks_->ui_);
-    running_tasks_.AddTask(tasks_->running_input_);
+    setup_tasks_.AddTask(tasks_->setup_ui_);
+    setup_tasks_.AddTask(tasks_->spaceship_handler_);
+
     running_tasks_.AddTask(tasks_->spaceship_handler_);
-    paused_tasks_.AddTask(tasks_->pause_input_);
+
     LoopController();
 }
 
 void Game::OnExit () {
-    for ( auto &f : paused_tasks_ ) {
+    for ( auto &f : setup_tasks_ ) {
         f->OnExit();
     }
 
@@ -97,22 +99,12 @@ void Game::OnExit () {
 }
 
 void Game::OnRun () {
-    for ( auto &f : paused_tasks_ ) {
+    for ( auto &f : setup_tasks_ ) {
         f->OnRun();
     }
 
     for ( auto &f : running_tasks_ ) {
         f->OnRun();
-    }
-}
-
-void Game::OnPause () {
-    for ( auto &f : running_tasks_ ) {
-        f->OnPause();
-    }
-
-    for ( auto &f : paused_tasks_ ) {
-        f->OnPause();
     }
 }
 

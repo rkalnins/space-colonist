@@ -9,7 +9,6 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
-#include "../windows/pause_menu.h"
 #include "../logging/logging.h"
 #include "task.h"
 
@@ -49,7 +48,7 @@ class TaskPool {
   private:
     task_pool_t pool_;
     logger_t    logger_;
-    GameState   new_state_ { GameState::RUNNING };
+    GameState   new_state_;
 
 };
 

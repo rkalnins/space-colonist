@@ -11,7 +11,7 @@
 
 namespace sc::play {
 
-Spaceship::Spaceship (std::string &appearance_code) {
+Spaceship::Spaceship ( std::string &appearance_code ) {
     appearance_code_ = appearance_code;
 }
 
@@ -20,8 +20,14 @@ Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
     crew_.insert(crew_member);
 }
 
-void Spaceship::AddItem ( Item &item ) {
+bool Spaceship::AddItem ( Item &item ) {
+    if ( weight_ + item.GetWeight() > max_weight_ ||
+         money_ - item.GetCost() < 0 ) {
+        return false;
+    }
+
     weight_ += item.GetWeight();
+    money_ -= item.GetCost();
 
     std::vector< Item > &items = items_[item.GetCategory()];
 
@@ -30,11 +36,37 @@ void Spaceship::AddItem ( Item &item ) {
     auto item_it = std::find_if(items.begin(), items.end(), cmp);
 
     if ( item_it != items.end()) {
-        item_it->UpdateValue(item.GetValue());
         item_it->UpdateWeight(item.GetWeight());
+        item_it->UpdateValue(item.GetValue());
     } else {
         items.push_back(item);
     }
+
+    return true;
+}
+
+bool Spaceship::RemoveItem ( Item &item ) {
+
+    std::vector< Item > &items = items_[item.GetCategory()];
+
+    Item::NameComparator cmp(item.GetName());
+
+    auto item_it = std::find_if(items.begin(), items.end(), cmp);
+
+    if ( item_it != items.end()) {
+        if ( item_it->UpdateValue(-1)) {
+            weight_ -= item.GetWeight();
+            money_ += item.GetCost();
+
+            if ( item_it->GetValue() == 0 ) {
+                items.erase(item_it);
+            }
+
+            return true;
+        }
+    }
+
+    return false;
 }
 
 int Spaceship::GetHull () const {

@@ -23,7 +23,7 @@ class Task {
 
     virtual void Init () = 0;
 
-    virtual GameState OnLoop () = 0;
+    virtual GameState OnLoop ( GameState state ) = 0;
 
     virtual void OnPause () {};
 

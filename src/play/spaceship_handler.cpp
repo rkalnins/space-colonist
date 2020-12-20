@@ -31,7 +31,7 @@ void SpaceshipHandler::Init () {
     logger_->debug("Spaceship init");
 }
 
-GameState SpaceshipHandler::OnLoop () {
+GameState SpaceshipHandler::OnLoop ( GameState state ) {
     ProcessInput();
 
     if ( spaceship_ ) {
@@ -51,7 +51,7 @@ GameState SpaceshipHandler::OnLoop () {
         }
     }
 
-    return GameState::RUNNING;
+    return state;
 }
 
 bool SpaceshipHandler::IsFinished () {

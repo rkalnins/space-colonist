@@ -31,7 +31,7 @@ class SpaceshipHandler : public Task {
   public:
     void Init () override;
 
-    GameState OnLoop () override;
+    GameState OnLoop ( GameState state ) override;
 
     bool IsFinished () override;
 

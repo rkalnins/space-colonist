@@ -12,7 +12,8 @@ namespace sc::play {
 class Item {
   public:
 
-    Item ( std::string category, std::string name, int value, int weight );
+    Item ( std::string category, std::string name, int value, int weight,
+           int cost );
 
     [[nodiscard]] const std::string &GetCategory () const;
 
@@ -22,9 +23,13 @@ class Item {
 
     [[nodiscard]] int GetWeight () const;
 
-    void UpdateValue ( int value );
+    bool UpdateValue ( int value );
 
     void UpdateWeight ( int weight );
+
+    [[nodiscard]] int GetCost () const;
+
+    void SetValue ( int value );
 
 
     class NameComparator {
@@ -47,6 +52,7 @@ class Item {
     std::string name_;
     int         value_;
     int         weight_;
+    int cost_;
 };
 
 }

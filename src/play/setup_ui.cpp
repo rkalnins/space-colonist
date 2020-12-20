@@ -105,8 +105,7 @@ void SetupUI::ProcessMousePlanetSelect ( MousePosition &mpos ) {
     map_generator_->ToggleSelection(map_y, map_x);
 }
 
-GameState SetupUI::OnLoop () {
-
+GameState SetupUI::OnLoop ( GameState state ) {
     switch ( state_ ) {
         case SetupState::SPACESHIP_SETUP:
             SpaceshipSelection();
@@ -118,6 +117,9 @@ GameState SetupUI::OnLoop () {
             CrewSelection();
             break;
         case SetupState::INVENTORY_SELECTION:
+            InventorySelection();
+            break;
+        case SetupState::DONE:
             break;
     }
 
@@ -145,6 +147,13 @@ GameState SetupUI::OnLoop () {
                                                    spaceship_choice_count_ -
                                                    1);
                     break;
+                case SetupState::INVENTORY_SELECTION: {
+                    current_selected_item_ = std::min(
+                            current_selected_item_ + 1,
+                            static_cast<int>(items_for_sale_.at(
+                                    current_category_).size() - 1));
+                    break;
+                }
                 default:
                     break;
             }
@@ -155,10 +164,41 @@ GameState SetupUI::OnLoop () {
                     selected_spaceship_ = std::max(selected_spaceship_ - 1,
                                                    0);
                     break;
+                case SetupState::INVENTORY_SELECTION: {
+                    current_selected_item_ = std::max(
+                            current_selected_item_ - 1, 0);
+                    break;
+                }
                 default:
                     break;
             }
             break;
+        case KEY_RIGHT: {
+            Item item = *items_for_sale_.at(
+                    current_category_)[current_selected_item_];
+            item.SetValue(1);
+            bool success = spaceship_handler_->GetSpaceship()->AddItem(
+                    item);
+            if ( success ) {
+                items_for_sale_.at(
+                        current_category_)[current_selected_item_]->UpdateValue(
+                        -1);
+            }
+            break;
+        }
+        case KEY_LEFT: {
+            Item item = *items_for_sale_.at(
+                    current_category_)[current_selected_item_];
+            item.SetValue(1);
+            bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
+                    item);
+            if ( success ) {
+                items_for_sale_.at(
+                        current_category_)[current_selected_item_]->UpdateValue(
+                        1);
+            }
+            break;
+        }
         case 10: {
             switch ( state_ ) {
                 case SetupState::SPACESHIP_SETUP:
@@ -175,18 +215,113 @@ GameState SetupUI::OnLoop () {
                                                 selected_crew_);
                     break;
                 case SetupState::INVENTORY_SELECTION:
+                    state_ = SetupState::DONE;
                     logger_->debug("Finished inventory selection");
+                    return GameState::RUNNING;
+                default:
+                    break;
+            }
+        }
+        case '0': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION:
+                    trading_post_view_ = TradingPostCategory::ALL;
                     break;
                 default:
                     break;
             }
+            break;
+        }
+        case '1': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION:
+                    trading_post_view_ = TradingPostCategory::FOOD;
+                    current_category_  = GetCategoryStr(
+                            trading_post_view_);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case '2': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION:
+                    trading_post_view_ = TradingPostCategory::FUEL;
+                    current_category_  = GetCategoryStr(
+                            trading_post_view_);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case '3': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION:
+                    trading_post_view_ = TradingPostCategory::INFRASTRUCTURE;
+                    current_category_  = GetCategoryStr(
+                            trading_post_view_);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case '4': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION:
+                    trading_post_view_ = TradingPostCategory::SPARE_PARTS;
+                    current_category_  = GetCategoryStr(
+                            trading_post_view_);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case '5': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION:
+                    trading_post_view_ = TradingPostCategory::SUPPLIES;
+                    current_category_  = GetCategoryStr(
+                            trading_post_view_);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case '6': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION:
+                    trading_post_view_ = TradingPostCategory::TOOLS;
+                    current_category_  = GetCategoryStr(
+                            trading_post_view_);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case '7': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION:
+                    trading_post_view_ = TradingPostCategory::WEAPONS;
+                    current_category_  = GetCategoryStr(
+                            trading_post_view_);
+                    break;
+                default:
+                    break;
+            }
+            break;
         }
         default:
             break;
     }
 
 
-    return GameState::RUNNING;
+    return GameState::SETUP;
 }
 
 void SetupUI::SpaceshipSelection () {
@@ -250,7 +385,7 @@ void SetupUI::CrewSelection () {
 
     std::stringstream stream;
 
-    int        i = 0;
+    int        i = 1;
     for ( auto &crew_choice : crew_choices_ ) {
         CrewMemberFactory::PrintCharacter(main_, y, x,
                                           crew_choice.GetCode());
@@ -283,7 +418,93 @@ void SetupUI::CrewSelection () {
 }
 
 void SetupUI::InventorySelection () {
+    int y = ui_init_y_;
+    int x = ui_init_x_;
 
+    mvwaddstr(main_, y++, x,
+              "Trading Post (Use $ to buy supplies, 0 to go to categories)");
+
+
+    std::stringstream row;
+
+    int i = 1;
+
+    if ( trading_post_view_ == TradingPostCategory::ALL ) {
+        mvwaddstr(main_, y++, x, "Categories:");
+
+
+        for ( auto &c : items_for_sale_ ) {
+            row << i << ": " << c.first.c_str();
+            mvwaddstr(main_, y++, x, row.str().c_str());
+            row.str("");
+
+            ++i;
+        }
+        return;
+    }
+
+    i = 0;
+
+    mvwaddstr(main_, y++, x, current_category_.c_str());
+    mvwaddstr(main_, y, x + 4, "Item");
+    mvwaddstr(main_, y, x + 28, "Available");
+    mvwaddstr(main_, y, x + 39, "Weight");
+    mvwaddstr(main_, y, x + 46, "Cost");
+
+    ++y;
+
+    for ( auto &item : items_for_sale_.at(current_category_)) {
+        if ( current_selected_item_ == i ) {
+            row << "> ";
+        } else {
+            row << "  ";
+        }
+
+        row << i << ":\t" << item->GetName();
+        mvwaddstr(main_, y, x - 2, row.str().c_str());
+        row.str("");
+
+        row << item->GetValue();
+        mvwaddstr(main_, y, x + 28, row.str().c_str());
+        row.str("");
+
+        row << item->GetWeight();
+        mvwaddstr(main_, y, x + 39, row.str().c_str());
+        row.str("");
+
+        row << item->GetCost();
+        mvwaddstr(main_, y, x + 46, row.str().c_str());
+        row.str("");
+
+        ++y;
+        ++i;
+    }
+
+}
+
+bool SetupUI::IsFinished () {
+    return state_ == SetupState::DONE;
+}
+
+std::string SetupUI::GetCategoryStr ( TradingPostCategory category ) {
+    switch ( category ) {
+        case TradingPostCategory::ALL:
+            return "";
+        case TradingPostCategory::TOOLS:
+            return "Tools";
+        case TradingPostCategory::SPARE_PARTS:
+            return "Spare parts";
+        case TradingPostCategory::FUEL:
+            return "Fuel";
+        case TradingPostCategory::WEAPONS:
+            return "Weapons";
+        case TradingPostCategory::FOOD:
+            return "Food";
+        case TradingPostCategory::SUPPLIES:
+            return "Supplies";
+        case TradingPostCategory::INFRASTRUCTURE:
+            return "Infrastructure";
+    }
 }
 
 }

@@ -22,8 +22,6 @@ set(SOURCE_FILES
         src/logging/logging.h
         src/game.cpp
         src/game.h
-        src/windows/pause_menu.cpp
-        src/windows/pause_menu.h
         src/loop_control/task_pool.cpp
         src/loop_control/task_pool.h
         src/windows/intro.cpp
@@ -36,8 +34,6 @@ set(SOURCE_FILES
         src/play/objects/crew_member.h
         src/loop_control/task.cpp
         src/loop_control/task.h
-        src/tasks/running_input.h
-        src/tasks/pause_input.h
         src/game_tasks.h
         src/input_listener.h
         src/game_state.h
@@ -48,7 +44,9 @@ set(SOURCE_FILES
         src/play/objects/crew_factory.h
         src/play/objects/crew_factory.cpp
         src/play/map_generator.cpp
-        src/play/map_generator.h src/play/spaceship_factory.cpp src/play/spaceship_factory.h)
+        src/play/map_generator.h
+        src/play/spaceship_factory.cpp
+        src/play/spaceship_factory.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

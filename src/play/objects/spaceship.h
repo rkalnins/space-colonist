@@ -20,11 +20,13 @@ enum class SpaceshipState { MOVING, OTHER };
 class Spaceship {
   public:
 
-    explicit Spaceship (std::string &appearance_code);
+    explicit Spaceship ( std::string &appearance_code );
 
     void AddCrewMember ( const CrewMember &crew_member );
 
-    void AddItem ( Item &item );
+    bool AddItem ( Item &item );
+
+    bool RemoveItem ( Item &item );
 
     [[nodiscard]] int GetHull () const;
 
@@ -76,7 +78,7 @@ class Spaceship {
 
     [[nodiscard]] int GetFullHull () const;
 
-    int GetMaxCrew () const;
+    [[nodiscard]] int GetMaxCrew () const;
 
   private:
 

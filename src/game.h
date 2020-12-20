@@ -44,8 +44,6 @@ class Game {
   private:
     void LoopController ();
 
-    void OnPause ();
-
     void OnRun ();
 
     void OnExit ();
@@ -61,10 +59,10 @@ class Game {
 
     logger_t logger_ { nullptr };
 
-    TaskPool paused_tasks_ { "paused_tpool" };
+    TaskPool setup_tasks_ { "setup_tpool" };
     TaskPool running_tasks_ { "running_tpool" };
 
-    GameState state_ { GameState::RUNNING };
+    GameState state_ { GameState::SETUP };
 
     WINDOW *main_;
 };
