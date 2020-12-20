@@ -31,8 +31,6 @@ class MapGenerator {
 
     void ToggleSelection ( int y, int x );
 
-    void AddRouteLeg ();
-
   private:
     struct LocationSelected {
         LocationSelected ( int y, int x ) : y(y), x(x) {}
@@ -52,13 +50,17 @@ class MapGenerator {
 
     WINDOW *main_;
 
-    int          max_route_length_    = 0;
+    int          max_route_length_    = 5;
     const double max_travel_distance_ = 30;
     const int    map_init_y_;
     const int    map_init_x_;
     const int    map_height_ { 20 };
     const int    map_width_ { 100 };
     const double planet_probability_ { 0.1 };
+    double cost_ { 0 };
+
+    bool toggle_end_ { false };
+
 };
 
 }

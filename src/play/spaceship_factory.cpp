@@ -19,7 +19,7 @@ SpaceshipFactory::SpaceshipFactory () {
 std::shared_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
 
     std::string code = " ";
-    char         index;
+    char        index;
     do {
         index = effolkronium::random_static::get('a', 'c');
     } while ( ss_used_[index - 'a'] );
@@ -37,6 +37,7 @@ std::shared_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
     s->SetMaxCrew(Random::get(min_max_crew_, max_max_crew_));
     s->SetCost(( s->GetMaxCrew() * 3 ) + (int) s->GetMaxWeight() +
                s->GetFullFuel() + s->GetFullHull());
+    s->SetMoney(initial_money_);
 
     return s;
 }
@@ -61,6 +62,10 @@ void SpaceshipFactory::PrintSpaceship ( WINDOW *window, int y, int x,
             }
             break;
     }
+}
+
+int SpaceshipFactory::GetInitialMoney () {
+    return initial_money_;
 }
 
 }

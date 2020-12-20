@@ -23,6 +23,8 @@ class SpaceshipFactory {
     void PrintSpaceship ( WINDOW *window, int y, int x,
                                  const std::string &code );
 
+    static int GetInitialMoney ();
+
   private:
 
     const std::vector< const std::string > ss_a_ = {
@@ -59,6 +61,8 @@ class SpaceshipFactory {
 
     static const int min_max_crew_ { 2 };
     static const int max_max_crew_ { 3 };
+
+    static const int initial_money_ { 1000 };
 };
 
 }

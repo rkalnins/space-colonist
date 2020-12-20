@@ -262,6 +262,7 @@ SpaceshipHandler::GetSpaceship () const {
 void SpaceshipHandler::SetSpaceship (
         const std::shared_ptr< play::Spaceship > &spaceship ) {
     spaceship_ = spaceship;
+    spaceship_->UpdateMoney(-1 * spaceship->GetCost());
 }
 
 void

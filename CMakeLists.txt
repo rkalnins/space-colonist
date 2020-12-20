@@ -43,8 +43,8 @@ set(SOURCE_FILES
         src/game_state.h
         src/play/spaceship_handler.cpp
         src/play/spaceship_handler.h
-        src/play/game_ui.cpp
-        src/play/game_ui.h
+        src/play/setup_ui.cpp
+        src/play/setup_ui.h
         src/play/objects/crew_factory.h
         src/play/objects/crew_factory.cpp
         src/play/map_generator.cpp

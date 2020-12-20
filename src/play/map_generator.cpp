@@ -61,33 +61,44 @@ void MapGenerator::SeedMap () {
 }
 
 void MapGenerator::PrintMap () {
-
     int y = map_init_y_;
+    std::stringstream disp;
+    disp << "Distance: " << cost_;
 
-    mvwaddstr(main_, y - 2, map_init_x_ + map_width_ / 2 - 7,
-              "Start: (*)");
+    mvwaddstr(main_, y - 2, map_init_x_, disp.str().c_str());
+    mvwaddstr(main_, y - 2, map_init_x_ + map_width_ / 2 - 8,
+              "Start: (0)");
 
     for ( auto &row : planets_str_ ) {
         mvwaddstr(main_, y++, map_init_x_, row.c_str());
     }
 
-    mvwaddstr(main_, map_init_y_ + map_height_ + 2,
-              map_init_x_ + map_width_ / 2 - 5, "End: (*)");
+    if ( toggle_end_ ) {
+        mvwaddstr(main_, map_init_y_ + map_height_ + 2,
+                  map_init_x_ + map_width_ / 2 - 6, "End: (*)");
+    } else {
+        mvwaddstr(main_, map_init_y_ + map_height_ + 2,
+                  map_init_x_ + map_width_ / 2 - 6, "End:  *");
+    }
 
 
 }
 
 void MapGenerator::ToggleSelection ( int y, int x ) {
 
-    if ( route_.empty()) {
-        logger_->debug("{} {} {}", planets_str_[y][x],
-                       route_.size(),
-                       std::hypot(map_init_y_ - 2 - y,
-                                  map_init_x_ + map_width_ / 2 - x));
-    } else {
-        logger_->debug("{} {} {}", planets_str_[y][x],
-                       route_.size(),
-                       std::hypot(route_.top().x - x, route_.top().y));
+    if ( route_.size() == max_route_length_ &&
+         y == map_height_ + 2 &&
+         map_width_ / 2 ) {
+        toggle_end_ = !toggle_end_;
+
+        if (toggle_end_) {
+            cost_ += std::hypot(route_.top().y - (map_height_ + 2), route_.top().x - (map_width_ / 2 - 6));
+        } else {
+            cost_ -= std::hypot(route_.top().y - (map_height_ + 2), route_.top().x - (map_width_ / 2 - 6));
+        }
+
+        logger_->debug("toggling end to {}", toggle_end_);
+        return;
     }
 
     if ( !route_.empty() && route_.top().x == x && route_.top().y == y ) {
@@ -95,26 +106,36 @@ void MapGenerator::ToggleSelection ( int y, int x ) {
         planets_str_[y][x]     = '*';
         planets_str_[y][x + 1] = ' ';
         route_.pop();
+        if (route_.empty()) {
+            cost_ = 0;
+        } else {
+            cost_ -= std::hypot(route_.top().x - x, route_.top().y - y);
+        }
 
         logger_->debug("Deselected selection at {} {}", y, x);
     } else if ( planets_str_[y][x] == '*' &&
                 route_.size() < max_route_length_ ) {
 
+        double dist;
         if ( route_.empty()) {
-            if ( std::hypot(map_init_y_ - 2 - y,
-                            map_init_x_ + map_width_ / 2 - x) >
+            dist = std::hypot(map_init_y_ - 2 - y,
+                              map_init_x_ + map_width_ / 2 - x);
+            if ( dist >
                  max_travel_distance_ ) {
                 return;
             }
         } else {
-            if ( std::hypot(route_.top().x - x, route_.top().y - y) >
-                 max_travel_distance_ ) {
+            dist = std::hypot(route_.top().x - x, route_.top().y - y);
+
+            if ( dist > max_travel_distance_ ) {
                 return;
             }
         }
 
+        cost_ += dist;
+
         planets_str_[y][x - 1] = '(';
-        planets_str_[y][x]     = '0' + (char) route_.size();
+        planets_str_[y][x]     = '1' + (char) route_.size();
         planets_str_[y][x + 1] = ')';
         route_.emplace(y, x);
 
@@ -122,10 +143,5 @@ void MapGenerator::ToggleSelection ( int y, int x ) {
 
     }
 }
-
-void MapGenerator::AddRouteLeg () {
-    ++max_route_length_;
-}
-
 
 }

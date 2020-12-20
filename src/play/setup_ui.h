@@ -22,27 +22,23 @@
 
 namespace sc::play {
 
-enum class UIState {
+enum class SetupState {
+    SPACESHIP_SETUP,
     DESTINATION_SELECTION,
     CREW_SELECTION,
     INVENTORY_SELECTION,
-    SPACESHIP_SETUP,
-    TRADING,
-    FIGHTING,
-    MECHANICAL_FAILURE,
-    MAP
 };
 
 
-class GameUI : public Task {
+class SetupUI : public Task {
 
 
   public:
 
-    GameUI ( const std::string &name, TaskType taskType,
-             std::shared_ptr< SpaceshipHandler > spaceship_handler,
-             std::shared_ptr< InputListener > listener,
-             WINDOW *main );
+    SetupUI ( const std::string &name, TaskType taskType,
+              std::shared_ptr< SpaceshipHandler > spaceship_handler,
+              std::shared_ptr< InputListener > listener,
+              WINDOW *main );
 
     void Init () override;
 
@@ -86,12 +82,11 @@ class GameUI : public Task {
     std::vector< Checkbox > selected_crew_;
     std::queue< size_t >    select_order_;
 
-    UIState state_ { UIState::SPACESHIP_SETUP };
+    SetupState state_ { SetupState::SPACESHIP_SETUP };
 
     const int ui_init_y_          = 20;
     const int ui_init_x_          = 4;
     const int crew_choices_count_ = 5;
-    const int crew_select_max_    = 3;
 
     const int spaceship_choice_count_ { 3 };
     int       selected_spaceship_ { 0 };

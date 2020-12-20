@@ -2,7 +2,7 @@
 // Created by Roberts Kalnins on 18/12/2020.
 //
 
-#include "game_ui.h"
+#include "setup_ui.h"
 
 #include <utility>
 #include <sstream>
@@ -14,10 +14,10 @@
 namespace sc::play {
 
 
-GameUI::GameUI ( const std::string &name, TaskType taskType,
-                 std::shared_ptr< SpaceshipHandler > spaceship_handler,
-                 std::shared_ptr< InputListener > listener,
-                 WINDOW *main )
+SetupUI::SetupUI ( const std::string &name, TaskType taskType,
+                   std::shared_ptr< SpaceshipHandler > spaceship_handler,
+                   std::shared_ptr< InputListener > listener,
+                   WINDOW *main )
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),
           listener_(std::move(listener)),
@@ -30,7 +30,7 @@ GameUI::GameUI ( const std::string &name, TaskType taskType,
                                                       ui_init_x_);
 }
 
-void GameUI::Init () {
+void SetupUI::Init () {
     crew_choices_.reserve(crew_choices_count_);
     for ( int i = 0; i < crew_choices_count_; ++i ) {
         crew_choices_.push_back(crew_member_factory_.Create());
@@ -63,7 +63,7 @@ void GameUI::Init () {
 }
 
 
-void GameUI::ProcessMouseCheckboxInput ( MousePosition &mpos ) {
+void SetupUI::ProcessMouseCheckboxInput ( MousePosition &mpos ) {
     int checked_count = 0;
     int index         = 0;
 
@@ -98,14 +98,28 @@ void GameUI::ProcessMouseCheckboxInput ( MousePosition &mpos ) {
     }
 }
 
-void GameUI::ProcessMousePlanetSelect ( MousePosition &mpos ) {
+void SetupUI::ProcessMousePlanetSelect ( MousePosition &mpos ) {
     int map_y = mpos.y - ui_init_y_;
     int map_x = mpos.x - ui_init_x_;
 
     map_generator_->ToggleSelection(map_y, map_x);
 }
 
-GameState GameUI::OnLoop () {
+GameState SetupUI::OnLoop () {
+
+    switch ( state_ ) {
+        case SetupState::SPACESHIP_SETUP:
+            SpaceshipSelection();
+            break;
+        case SetupState::DESTINATION_SELECTION:
+            DestinationSelection();
+            break;
+        case SetupState::CREW_SELECTION:
+            CrewSelection();
+            break;
+        case SetupState::INVENTORY_SELECTION:
+            break;
+    }
 
     switch ( listener_->GetCh()) {
         case KEY_MOUSE: {
@@ -114,10 +128,10 @@ GameState GameUI::OnLoop () {
             wmouse_trafo(main_, &mpos.y, &mpos.x, false);
 
             switch ( state_ ) {
-                case UIState::CREW_SELECTION:
+                case SetupState::CREW_SELECTION:
                     ProcessMouseCheckboxInput(mpos);
                     break;
-                case UIState::DESTINATION_SELECTION:
+                case SetupState::DESTINATION_SELECTION:
                     ProcessMousePlanetSelect(mpos);
                 default:
                     break;
@@ -126,7 +140,7 @@ GameState GameUI::OnLoop () {
         }
         case KEY_DOWN:
             switch ( state_ ) {
-                case UIState::SPACESHIP_SETUP:
+                case SetupState::SPACESHIP_SETUP:
                     selected_spaceship_ = std::min(selected_spaceship_ + 1,
                                                    spaceship_choice_count_ -
                                                    1);
@@ -137,7 +151,7 @@ GameState GameUI::OnLoop () {
             break;
         case KEY_UP:
             switch ( state_ ) {
-                case UIState::SPACESHIP_SETUP:
+                case SetupState::SPACESHIP_SETUP:
                     selected_spaceship_ = std::max(selected_spaceship_ - 1,
                                                    0);
                     break;
@@ -147,17 +161,16 @@ GameState GameUI::OnLoop () {
             break;
         case 10: {
             switch ( state_ ) {
-                case UIState::SPACESHIP_SETUP:
-                    state_ = UIState::DESTINATION_SELECTION;
-                    map_generator_->AddRouteLeg();
+                case SetupState::SPACESHIP_SETUP:
+                    state_ = SetupState::DESTINATION_SELECTION;
                     spaceship_handler_->SetSpaceship(
                             spaceship_choices_[selected_spaceship_]);
                     break;
-                case UIState::DESTINATION_SELECTION:
-                    state_ = UIState::CREW_SELECTION;
+                case SetupState::DESTINATION_SELECTION:
+                    state_ = SetupState::CREW_SELECTION;
                     break;
-                case UIState::CREW_SELECTION:
-                    state_ = UIState::INVENTORY_SELECTION;
+                case SetupState::CREW_SELECTION:
+                    state_ = SetupState::INVENTORY_SELECTION;
                     spaceship_handler_->SetCrew(crew_choices_,
                                                 select_order_);
                     break;
@@ -169,38 +182,22 @@ GameState GameUI::OnLoop () {
             break;
     }
 
-    switch ( state_ ) {
-        case UIState::SPACESHIP_SETUP:
-            SpaceshipSelection();
-            break;
-        case UIState::DESTINATION_SELECTION:
-            DestinationSelection();
-            break;
-        case UIState::CREW_SELECTION:
-            CrewSelection();
-            break;
-        case UIState::INVENTORY_SELECTION:
-            break;
-        case UIState::TRADING:
-            break;
-        case UIState::FIGHTING:
-            break;
-        case UIState::MECHANICAL_FAILURE:
-            break;
-        case UIState::MAP:
-            break;
-    }
 
     return GameState::RUNNING;
 }
 
-void GameUI::SpaceshipSelection () {
+void SetupUI::SpaceshipSelection () {
     int y = ui_init_y_;
     int x = ui_init_x_;
 
     std::stringstream disp;
 
     int i = 1;
+
+    disp << "Money available: " << ( SpaceshipFactory::GetInitialMoney() -
+                                     spaceship_choices_[selected_spaceship_]->GetCost());
+    mvwaddstr(main_, y - 2, x, disp.str().c_str());
+    disp.str("");
 
     disp << "\tCost\tMax Fuel\tMax Cargo\tMax Crew";
     mvwaddstr(main_, y, x, disp.str().c_str());
@@ -231,12 +228,12 @@ void GameUI::SpaceshipSelection () {
     }
 }
 
-void GameUI::DestinationSelection () {
+void SetupUI::DestinationSelection () {
     map_generator_->PrintMap();
 }
 
 
-void GameUI::CrewSelection () {
+void SetupUI::CrewSelection () {
     int y = ui_init_y_;
     int x = ui_init_x_;
 
@@ -283,23 +280,3 @@ void GameUI::CrewSelection () {
 }
 
 }
-
-
-
-
-
-
-
-/*
-        case 'j': {
-            CrewMember c("Joe", 10, 10, std::map< std::string, int >());
-            spaceship_->AddCrewMember(c);
-            break;
-        }
-        case 'a': {
-            show_overflow_ = false;
-            Item i("tools", "hammer", 1, 3);
-            spaceship_->AddItem(i);
-            break;
-        }
- */

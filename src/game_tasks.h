@@ -10,7 +10,7 @@
 #include "tasks/running_input.h"
 #include "tasks/pause_input.h"
 #include "play/spaceship_handler.h"
-#include "play/game_ui.h"
+#include "play/setup_ui.h"
 
 
 namespace sc {
@@ -33,8 +33,8 @@ class GameTasks {
                 spaceship_handler_name_, TaskType::RUNNING, listener,
                 main);
 
-        ui_ = std::make_shared< play::GameUI >(ui_name_, TaskType::RUNNING,
-                                               spaceship_handler_, listener, main);
+        ui_ = std::make_shared< play::SetupUI >(ui_name_, TaskType::RUNNING,
+                                                spaceship_handler_, listener, main);
     }
 
   public:
@@ -46,7 +46,7 @@ class GameTasks {
             nullptr
     };
 
-    std::shared_ptr< play::GameUI >    ui_ { nullptr };
+    std::shared_ptr< play::SetupUI > ui_ { nullptr };
 
 
     [[nodiscard]] WINDOW *GetMain () const {
