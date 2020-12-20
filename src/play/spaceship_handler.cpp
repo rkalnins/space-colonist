@@ -47,7 +47,7 @@ GameState SpaceshipHandler::OnLoop ( GameState state ) {
         }
 
         if ( show_overflow_ ) {
-            PrintItemOverflow(mouse_event_.y);
+            PrintItemOverflow();
         }
     }
 
@@ -156,6 +156,8 @@ void SpaceshipHandler::ProcessInput () {
                  item_overflow_.end() &&
                  item_init_x_ < mpos.x ) {
 
+                mpos_ = mpos;
+
                 show_overflow_ = !show_overflow_;
             }
 
@@ -175,7 +177,7 @@ void SpaceshipHandler::ProcessInput () {
             if ( show_overflow_ ) {
                 overflow_page_id_ = std::min(overflow_page_id_ + 1,
                                              static_cast<int> (
-                                                     item_overflow_[mouse_event_.y]->size() /
+                                                     item_overflow_[mpos_.y]->size() /
                                                      ( rows_per_overflow_pg_ *
                                                        items_per_overflow_row_ )));
             } else {
@@ -202,17 +204,16 @@ void SpaceshipHandler::ProcessInput () {
     }
 }
 
-void SpaceshipHandler::PrintItemOverflow ( int id ) {
-
-    if ( !item_overflow_[id] ) {
-        logger_->debug("No vector at {}", id);
+void SpaceshipHandler::PrintItemOverflow () {
+    if ( !item_overflow_[mpos_.y] ) {
+        logger_->debug("No vector at {}", mpos_.y);
         return;
     }
 
-    logger_->debug("Printing overflow for row {}", id);
+    logger_->debug("Printing overflow for row {}", mpos_.y);
     int y = overflow_init_y_;
 
-    const std::vector< Item > &items = *item_overflow_[id];
+    const std::vector< Item > &items = *item_overflow_[mpos_.y];
 
 
     bool done  = false;
@@ -225,7 +226,7 @@ void SpaceshipHandler::PrintItemOverflow ( int id ) {
 
     row << "All items in selected category (" << ( overflow_page_id_ + 1 )
         << "/" <<
-        ( item_overflow_[mouse_event_.y]->size() /
+        ( item_overflow_[mpos_.y]->size() /
           ( rows_per_overflow_pg_ *
             items_per_overflow_row_ ) + 1 ) << ")";
 

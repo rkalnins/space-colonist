@@ -54,7 +54,7 @@ class SpaceshipHandler : public Task {
 
     void ProcessInput ();
 
-    void PrintItemOverflow ( int id );
+    void PrintItemOverflow ();
 
   private:
 
@@ -66,8 +66,9 @@ class SpaceshipHandler : public Task {
 
     WINDOW *main_;
 
-    MEVENT   mouse_event_ {};
     logger_t logger_;
+
+    MousePosition mpos_{0, 0};
 
     bool show_crew_ { false };
     bool show_items_ { false };
