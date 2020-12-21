@@ -50,19 +50,19 @@ class SpaceshipFactory {
 
     logger_t logger_;
 
-    static const int min_max_weight_ { 50 };
-    static const int max_max_weight_ { 100 };
+    static const int min_max_weight_ { 200 };
+    static const int max_max_weight_ { 250 };
 
-    static const int min_max_fuel_ { 50 };
-    static const int max_max_fuel_ { 100 };
+    static const int min_max_fuel_ { 25 };
+    static const int max_max_fuel_ { 50 };
 
-    static const int min_max_hull_ { 50 };
-    static const int max_max_hull_ { 100 };
+    static const int min_max_hull_ { 100 };
+    static const int max_max_hull_ { 150 };
 
     static const int min_max_crew_ { 2 };
     static const int max_max_crew_ { 3 };
 
-    static const int initial_money_ { 1000 };
+    static const int initial_money_ { 1500 };
 };
 
 }

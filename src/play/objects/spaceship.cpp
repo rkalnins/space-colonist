@@ -29,6 +29,11 @@ bool Spaceship::AddItem ( Item &item ) {
     weight_ += item.GetWeight();
     money_ -= item.GetCost();
 
+    if (item.GetCategory() == "Fuel") {
+        fuel_ += item.GetValue();
+        return true;
+    }
+
     std::vector< Item > &items = items_[item.GetCategory()];
 
     Item::NameComparator cmp(item.GetName());
@@ -46,6 +51,18 @@ bool Spaceship::AddItem ( Item &item ) {
 }
 
 bool Spaceship::RemoveItem ( Item &item ) {
+
+    if (item.GetCategory() == "Fuel") {
+
+        if (fuel_ - item.GetValue() < 0) {
+            return false;
+        }
+
+        weight_ -= item.GetWeight();
+        money_ += item.GetCost();
+        fuel_ -= item.GetValue();
+        return true;
+    }
 
     std::vector< Item > &items = items_[item.GetCategory()];
 

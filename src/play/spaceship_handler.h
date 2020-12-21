@@ -21,6 +21,7 @@ struct Checkbox {
     bool checked;
 };
 
+
 class SpaceshipHandler : public Task {
   public:
     SpaceshipHandler ( const std::string &name,
@@ -44,6 +45,16 @@ class SpaceshipHandler : public Task {
     void SetCrew ( const std::vector< CrewMember > &crew_choices,
                    std::vector< Checkbox > &selected );
 
+    [[nodiscard]] double GetDistanceRemaining () const;
+
+    void SetDistanceRemaining ( double distance_remaining );
+
+    [[nodiscard]] double GetInitialDistance () const;
+
+    void UpdateDistanceRemaining (double distance);
+
+    void SetInitialDistance ( double initial_distance );
+
   private:
 
     void PrintCrew ();
@@ -54,7 +65,7 @@ class SpaceshipHandler : public Task {
 
     void ProcessInput ();
 
-    void PrintCategoruDetails ();
+    void PrintCategoryDetails ();
 
   private:
 
@@ -68,7 +79,10 @@ class SpaceshipHandler : public Task {
 
     logger_t logger_;
 
-    MousePosition mpos_{0, 0};
+    MousePosition mpos_ { 0, 0 };
+
+    double distance_remaining_ { 0 };
+    double initial_distance_ { 0 };
 
     bool show_crew_ { false };
     bool show_items_ { false };

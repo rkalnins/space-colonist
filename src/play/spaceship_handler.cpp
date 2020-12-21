@@ -47,7 +47,7 @@ GameState SpaceshipHandler::OnLoop ( GameState state ) {
         }
 
         if ( show_items_ && show_details_ ) {
-            PrintCategoruDetails();
+            PrintCategoryDetails();
         }
     }
 
@@ -125,12 +125,12 @@ void SpaceshipHandler::PrintItems () {
 
 void SpaceshipHandler::PrintHUD () {
     std::stringstream display;
+    display.precision(2);
     display << "Crew: " << spaceship_->GetCrew().size()
             << "\tFuel: "
-            << std::round(
-                    spaceship_->GetFuel() / spaceship_->GetFullFuel() *
+            << (spaceship_->GetFuel() / spaceship_->GetFullFuel() *
                     100.0)
-            << "\tHull: " << spaceship_->GetHull();
+            << "%\tHull: " << spaceship_->GetHull();
 
     mvwaddstr(main_, spaceship_display_y_, spaceship_display_x_,
               display.str().c_str());
@@ -207,7 +207,7 @@ void SpaceshipHandler::ProcessInput () {
     }
 }
 
-void SpaceshipHandler::PrintCategoruDetails () {
+void SpaceshipHandler::PrintCategoryDetails () {
 
 
     if ( cat_details_[mpos_.y].empty()) {
@@ -265,6 +265,27 @@ SpaceshipHandler::SetCrew ( const std::vector< CrewMember > &crew_choices,
             spaceship_->AddCrewMember(crew_choices[i]);
         }
     }
+}
+
+double SpaceshipHandler::GetDistanceRemaining () const {
+    return distance_remaining_;
+}
+
+void SpaceshipHandler::SetDistanceRemaining ( double distance_remaining ) {
+    distance_remaining_ = distance_remaining;
+}
+
+double SpaceshipHandler::GetInitialDistance () const {
+    return initial_distance_;
+}
+
+void SpaceshipHandler::SetInitialDistance ( double initial_distance ) {
+    initial_distance_ = initial_distance;
+    distance_remaining_ = initial_distance;
+}
+
+void SpaceshipHandler::UpdateDistanceRemaining ( double distance ) {
+    distance_remaining_ += distance;
 }
 
 }

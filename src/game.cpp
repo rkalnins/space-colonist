@@ -99,6 +99,7 @@ void Game::OnExit () {
 }
 
 void Game::OnRun () {
+
     for ( auto &f : setup_tasks_ ) {
         f->OnRun();
     }
@@ -106,6 +107,8 @@ void Game::OnRun () {
     for ( auto &f : running_tasks_ ) {
         f->OnRun();
     }
+
+    running_tasks_.AddTask(deps_->running_ui_);
 }
 
 }

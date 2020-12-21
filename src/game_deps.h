@@ -10,6 +10,7 @@
 #include "play/spaceship_handler.h"
 #include "play/spaceship_factory.h"
 #include "play/setup_ui.h"
+#include "play/running_ui.h"
 
 
 namespace sc {
@@ -33,6 +34,13 @@ class GameDependencies {
                                                       listener,
                                                       spaceship_factory_,
                                                       main);
+
+        running_ui_ = std::make_shared< play::RunningUI >(ui_name_,
+                                                      TaskType::RUNNING,
+                                                      spaceship_handler_,
+                                                      listener,
+                                                      spaceship_factory_,
+                                                      main);
     }
 
   public:
@@ -46,6 +54,7 @@ class GameDependencies {
     };
 
     std::shared_ptr< play::SetupUI > setup_ui_ { nullptr };
+    std::shared_ptr< play::RunningUI > running_ui_{ nullptr };
 
 
     [[nodiscard]] WINDOW *GetMain () const {

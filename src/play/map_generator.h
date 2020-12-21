@@ -50,6 +50,11 @@ class MapGenerator {
 
     WINDOW *main_;
 
+  public:
+    [[nodiscard]] double GetCost () const;
+
+  private:
+
     int          max_route_length_    = 5;
     const double max_travel_distance_ = 30;
     const int    map_init_y_;

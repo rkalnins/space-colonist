@@ -89,6 +89,8 @@ void MapGenerator::PrintMap () {
 
 }
 
+
+
 void MapGenerator::ToggleSelection ( int y, int x ) {
 
     if ( route_.size() == max_route_length_ &&
@@ -151,6 +153,10 @@ void MapGenerator::ToggleSelection ( int y, int x ) {
         logger_->debug("Selected selection at {} {}", y, x);
 
     }
+}
+
+double MapGenerator::GetCost () const {
+    return cost_;
 }
 
 }

@@ -123,7 +123,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
             InventorySelection();
             break;
         case SetupState::DONE:
-            break;
+            return GameState::RUNNING;
     }
 
     switch ( listener_->GetCh()) {
@@ -208,6 +208,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     break;
                 case SetupState::DESTINATION_SELECTION:
                     state_ = SetupState::CREW_SELECTION;
+                    spaceship_handler_->SetInitialDistance(map_generator_->GetCost());
                     break;
                 case SetupState::CREW_SELECTION:
                     state_ = SetupState::INVENTORY_SELECTION;

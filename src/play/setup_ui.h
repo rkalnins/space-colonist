@@ -245,7 +245,7 @@ class SetupUI : public Task {
             {
                     "Supplies",       {
                                               std::make_shared< Item >(
-                                                      "Food",
+                                                      "Supplies",
                                                       "Medical supplies",
                                                       10, 3, 10)
 
