@@ -66,12 +66,14 @@ void SpaceshipHandler::PrintCrew () {
     ++crew_y;
 
     for ( auto &c : spaceship_->GetCrew()) {
-        std::stringstream crew_member;
-        crew_member << c.GetName() << " " << c.GetHealth() << "/"
-                    << c.GetMaxHealth();
-        mvwaddstr(main_, crew_y, spaceship_display_x_,
-                  crew_member.str().c_str());
-        ++crew_y;
+        if (!c.IsDead()) {
+            std::stringstream crew_member;
+            crew_member << c.GetName() << " " << c.GetHealth() << "/"
+                        << c.GetMaxHealth();
+            mvwaddstr(main_, crew_y, spaceship_display_x_,
+                      crew_member.str().c_str());
+            ++crew_y;
+        }
     }
 }
 
@@ -99,27 +101,30 @@ void SpaceshipHandler::PrintItems () {
 
 
     for ( auto &c : spaceship_->GetItems()) {
-        if ( start <= counter && counter < end ) {
-            mvwaddstr(main_, item_y, item_x, c.first.c_str());
+        if (!c.second.empty()) {
+            if ( start <= counter && counter < end ) {
+                mvwaddstr(main_, item_y, item_x, c.first.c_str());
 
-            items_disp.str("");
+                items_disp.str("");
 
-            for ( auto &i : c.second ) {
-                items_disp << i.GetName() << "(" << i.GetValue() << ") ";
+                for ( auto &i : c.second ) {
+                    items_disp << i.GetName() << "(" << i.GetValue()
+                               << ") ";
+                }
+
+                mvwaddnstr(main_, item_y, item_x + 13,
+                           items_disp.str().c_str(), length);
+
+                if ( items_disp.str().length() > length ) {
+                    mvwaddstr(main_, item_y, item_x + 13 + length, " ...");
+                }
+
+                cat_details_[item_y] = c.first;
+
+                ++item_y;
             }
-
-            mvwaddnstr(main_, item_y, item_x + 13,
-                       items_disp.str().c_str(), length);
-
-            if ( items_disp.str().length() > length ) {
-                mvwaddstr(main_, item_y, item_x + 13 + length, " ...");
-            }
-
-            cat_details_[item_y] = c.first;
-
-            ++item_y;
+            ++counter;
         }
-        ++counter;
     }
 }
 

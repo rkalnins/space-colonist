@@ -42,11 +42,14 @@ void RunningUI::ProcessInput () {
     switch ( listener_->GetCh()) {
         case 32: {
             if ( running_state_ == RunningState::FLYING ) {
-                running_state_ = RunningState::PAUSED;
-                spaceship_handler_->GetSpaceship()->StopMoving();
+                Pause();
             } else if ( running_state_ == RunningState::PAUSED ) {
                 spaceship_handler_->GetSpaceship()->StartMoving();
                 running_state_ = RunningState::FLYING;
+
+                if ( !notifications_.empty()) {
+                    notifications_.pop();
+                }
             }
         }
 
@@ -79,6 +82,10 @@ GameState RunningUI::OnLoop ( GameState state ) {
     }
     spaceship_factory_->PrintSpaceship(main_, ss_pos_y_, ss_pos_x_,
                                        appearance_code_);
+
+    if ( !notifications_.empty()) {
+        Pause();
+    }
 
     return GameState::RUNNING;
 }
@@ -134,8 +141,17 @@ void RunningUI::UpdateSpaceshipState () {
 }
 
 void RunningUI::ShowPauseOptions () {
+    int y = pause_y_;
+    int x = pause_x_;
 
-
+    mvwaddstr(main_, y++, x - 3, "Paused");
+    mvwaddstr(main_, y++, x - 23,
+              "---------------------------------------------");
+    mvwaddstr(main_, y++, x - notifications_.front().length() / 2,
+              notifications_.front().c_str());
+    mvwaddstr(main_, y++, x - 23,
+              "---------------------------------------------");
+    mvwaddstr(main_, y++, x - 12, "Hit [Space] to continue.");
 }
 
 void RunningUI::UpdateCrew () {
@@ -148,15 +164,21 @@ void RunningUI::UpdateCrew () {
                 c.UpdateHealth(-1);
 
                 if ( c.IsDead()) {
-                    spaceship_handler_->GetSpaceship()->RemoveCrewMember(
-                            c);
+                    notifications_.push(
+                            c.GetName() + " has starved to death :(");
                 }
             }
-        }
 
+            spaceship_handler_->GetSpaceship()->RemoveDeadCrew();
+        }
 
         health_update_counter_ = 0;
     }
+}
+
+void RunningUI::Pause () {
+    running_state_ = RunningState::PAUSED;
+    spaceship_handler_->GetSpaceship()->StopMoving();
 }
 
 

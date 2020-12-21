@@ -29,6 +29,8 @@ class Spaceship {
 
     void RemoveCrewMember ( const CrewMember &crew_member );
 
+    void RemoveDeadCrew();
+
     bool AddItem ( Item &item );
 
     bool RemoveItem ( Item &item );
@@ -87,6 +89,15 @@ class Spaceship {
     [[nodiscard]] int GetFood () const;
 
     void SetFood ( int food );
+
+  private:
+
+    class RemoveDeadComp {
+      public:
+        bool operator() (CrewMember &c) const {
+            return c.IsDead();
+        }
+    };
 
   private:
 

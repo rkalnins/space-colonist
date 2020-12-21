@@ -38,6 +38,19 @@ class CrewMember {
 
     [[nodiscard]] bool IsDead () const { return health_ == 0; };
 
+    class NameComparator {
+      public:
+        explicit NameComparator ( const std::string &compTo ) : comp_to_(
+                compTo) {}
+
+        bool operator() ( const CrewMember &rhs ) const {
+            return rhs.name_ == comp_to_;
+        }
+
+      private:
+        const std::string &comp_to_;
+    };
+
   private:
     std::string name_;
     std::string appearance_code_;

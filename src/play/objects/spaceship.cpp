@@ -5,6 +5,7 @@
 #include "spaceship.h"
 
 #include <effolkronium/random.hpp>
+#include <algorithm>
 
 #include "../items/item.h"
 
@@ -28,8 +29,17 @@ Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
 }
 
 void Spaceship::RemoveCrewMember ( const CrewMember &crew_member ) {
-    auto crew_it = std::find(crew_.begin(), crew_.end(), crew_member);
-    crew_.erase(crew_it);
+    CrewMember::NameComparator cmp(crew_member.GetName());
+
+    auto crew_it = std::find_if(crew_.begin(),
+                                crew_.end(), cmp);
+
+    if ( crew_it != crew_.end()) {
+        crew_.erase(crew_it);
+        logger_->debug("Removed {}", crew_member.GetName());
+    } else {
+        logger_->debug("Unable to remove {}", crew_member.GetName());
+    }
 }
 
 bool Spaceship::AddItem ( Item &item ) {
@@ -147,7 +157,7 @@ void Spaceship::UseFuel ( double usage ) {
     }
 }
 
-std::vector< CrewMember > & Spaceship::GetCrew () {
+std::vector< CrewMember > &Spaceship::GetCrew () {
     return crew_;
 }
 
@@ -236,6 +246,10 @@ int Spaceship::GetFood () const {
 
 void Spaceship::SetFood ( int food ) {
     food_ = food;
+}
+
+void Spaceship::RemoveDeadCrew () {
+    crew_.erase(std::remove_if(crew_.begin(), crew_.end(), RemoveDeadComp()), crew_.end());
 }
 
 }

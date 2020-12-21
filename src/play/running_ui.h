@@ -57,6 +57,8 @@ class RunningUI : public Task {
 
     void ShowPauseOptions ();
 
+    void Pause ();
+
   private:
 
     logger_t logger_;
@@ -72,21 +74,21 @@ class RunningUI : public Task {
     std::string appearance_code_ {};
 
     const std::string distance_remaining_ = "Distance remaining: ";
-    const int dist_disp_y_ { 20 };
-    const int dist_disp_x_ { 4 };
+    const int         dist_disp_y_ { 20 };
+    const int         dist_disp_x_ { 4 };
 
     const int health_update_period_ { 200 };
-    int health_update_counter_ { 0 };
+    int       health_update_counter_ { 0 };
 
     const int ss_mvmt_period_ { 80 };
-    const int ss_food_usage_period_{ 120 };
+    const int ss_food_usage_period_ { 120 };
 
     int ss_food_usage_counter_ { 0 };
 
-    int       ss_mvmt_counter_ { 0 };
+    int ss_mvmt_counter_ { 0 };
 
-    double    ss_mvmt_x_prob_ { 0.75 };
-    double    ss_mvmt_y_prob_ { 0.75 };
+    double ss_mvmt_x_prob_ { 0.75 };
+    double ss_mvmt_y_prob_ { 0.75 };
 
     double fuel_usage_        = 0.001;
     double distance_traveled_ = 0.001;
@@ -98,6 +100,11 @@ class RunningUI : public Task {
 
     int ss_pos_y_ { 25 };
     int ss_pos_x_ { 50 };
+
+    std::queue< std::string > notifications_;
+
+    const int pause_y_ { 35 };
+    const int pause_x_ { 30 };
 
     RunningState  running_state_ { RunningState::FLYING };
     SituationType situation_type_ { SituationType::NONE };
