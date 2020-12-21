@@ -53,6 +53,8 @@ class RunningUI : public Task {
 
     void UpdateSpaceshipState ();
 
+    void UpdateCrew ();
+
     void ShowPauseOptions ();
 
   private:
@@ -72,6 +74,9 @@ class RunningUI : public Task {
     const std::string distance_remaining_ = "Distance remaining: ";
     const int dist_disp_y_ { 20 };
     const int dist_disp_x_ { 4 };
+
+    const int health_update_period_ { 200 };
+    int health_update_counter_ { 0 };
 
     const int ss_mvmt_period_ { 80 };
     const int ss_food_usage_period_{ 120 };

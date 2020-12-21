@@ -34,6 +34,10 @@ class CrewMember {
 
     const std::string &GetCode ();
 
+    void UpdateHealth ( int change );
+
+    [[nodiscard]] bool IsDead () const { return health_ == 0; };
+
   private:
     std::string name_;
     std::string appearance_code_;

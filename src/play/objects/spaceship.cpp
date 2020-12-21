@@ -24,7 +24,12 @@ void Spaceship::LoggingInit () {
 
 void
 Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
-    crew_.insert(crew_member);
+    crew_.push_back(crew_member);
+}
+
+void Spaceship::RemoveCrewMember ( const CrewMember &crew_member ) {
+    auto crew_it = std::find(crew_.begin(), crew_.end(), crew_member);
+    crew_.erase(crew_it);
 }
 
 bool Spaceship::AddItem ( Item &item ) {
@@ -142,8 +147,7 @@ void Spaceship::UseFuel ( double usage ) {
     }
 }
 
-const std::set< CrewMember > &
-Spaceship::GetCrew () const {
+std::vector< CrewMember > & Spaceship::GetCrew () {
     return crew_;
 }
 

@@ -43,4 +43,16 @@ const std::string &CrewMember::GetCode () {
     return appearance_code_;
 }
 
+void CrewMember::UpdateHealth (int change) {
+    if (health_ + change > max_health_) {
+        return;
+    }
+
+    if (health_ + change < 0) {
+        health_ = 0;
+    }
+
+    health_ += change;
+}
+
 }

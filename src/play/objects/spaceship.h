@@ -23,9 +23,11 @@ class Spaceship {
 
     explicit Spaceship ( std::string &appearance_code );
 
-    void LoggingInit();
+    void LoggingInit ();
 
     void AddCrewMember ( const CrewMember &crew_member );
+
+    void RemoveCrewMember ( const CrewMember &crew_member );
 
     bool AddItem ( Item &item );
 
@@ -39,8 +41,7 @@ class Spaceship {
 
     void UseFuel ( double usage );
 
-    [[nodiscard]] const std::set< CrewMember > &
-    GetCrew () const;
+    [[nodiscard]] std::vector< CrewMember > & GetCrew ();
 
     [[nodiscard]] double GetFullFuel () const;
 
@@ -91,7 +92,7 @@ class Spaceship {
 
     std::map< std::string, std::vector< Item > > items_;
 
-    std::set< CrewMember > crew_;
+    std::vector< CrewMember > crew_;
     std::string            appearance_code_;
 
     logger_t logger_;

@@ -69,6 +69,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
         case RunningState::FLYING:
             MoveSpaceship();
             UpdateSpaceshipState();
+            UpdateCrew();
             break;
         case RunningState::PAUSED:
             ShowPauseOptions();
@@ -135,6 +136,27 @@ void RunningUI::UpdateSpaceshipState () {
 void RunningUI::ShowPauseOptions () {
 
 
+}
+
+void RunningUI::UpdateCrew () {
+    if ( health_update_counter_++ > health_update_period_ ) {
+
+        if ( spaceship_handler_->GetSpaceship()->GetFood() == 0 ) {
+            std::vector< CrewMember > &crew = spaceship_handler_->GetSpaceship()->GetCrew();
+
+            for ( auto &c : crew ) {
+                c.UpdateHealth(-1);
+
+                if ( c.IsDead()) {
+                    spaceship_handler_->GetSpaceship()->RemoveCrewMember(
+                            c);
+                }
+            }
+        }
+
+
+        health_update_counter_ = 0;
+    }
 }
 
 
