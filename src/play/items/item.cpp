@@ -27,7 +27,7 @@ int Item::GetValue () const {
     return value_;
 }
 
-int Item::GetWeight () const {
+double Item::GetWeight () const {
     return weight_;
 }
 
@@ -42,7 +42,7 @@ bool Item::UpdateValue ( int value ) {
     }
 }
 
-void Item::UpdateWeight ( int weight ) {
+void Item::UpdateWeight ( double weight ) {
     weight_ += weight;
 }
 

@@ -205,6 +205,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     state_ = SetupState::DESTINATION_SELECTION;
                     spaceship_handler_->SetSpaceship(
                             spaceship_choices_[selected_spaceship_]);
+                    spaceship_handler_->GetSpaceship()->LoggingInit();
                     break;
                 case SetupState::DESTINATION_SELECTION:
                     state_ = SetupState::CREW_SELECTION;

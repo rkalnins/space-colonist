@@ -9,10 +9,17 @@
 #include "../items/item.h"
 
 
+using Random = effolkronium::random_static;
+
 namespace sc::play {
 
 Spaceship::Spaceship ( std::string &appearance_code ) {
     appearance_code_ = appearance_code;
+}
+
+void Spaceship::LoggingInit () {
+    logger_ = spdlog::basic_logger_mt("ss", "logs/space-colonist-log.log");
+    logger_->set_level(spdlog::level::debug);
 }
 
 void
@@ -21,17 +28,23 @@ Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
 }
 
 bool Spaceship::AddItem ( Item &item ) {
-    if ( weight_ + item.GetWeight() > max_weight_ ||
-         money_ - item.GetCost() < 0 ) {
+
+    logger_->debug("Adding {}", item.GetName());
+
+    if ( !UpdateWeight(item.GetWeight())) {
+        logger_->debug("Unable to add item because of weight");
         return false;
     }
 
-    weight_ += item.GetWeight();
     money_ -= item.GetCost();
 
-    if (item.GetCategory() == "Fuel") {
+    if ( item.GetCategory() == "Fuel" ) {
         fuel_ += item.GetValue();
         return true;
+    }
+
+    if ( item.GetCategory() == "Food" ) {
+        food_ += item.GetValue();
     }
 
     std::vector< Item > &items = items_[item.GetCategory()];
@@ -41,7 +54,6 @@ bool Spaceship::AddItem ( Item &item ) {
     auto item_it = std::find_if(items.begin(), items.end(), cmp);
 
     if ( item_it != items.end()) {
-        item_it->UpdateWeight(item.GetWeight());
         item_it->UpdateValue(item.GetValue());
     } else {
         items.push_back(item);
@@ -52,13 +64,15 @@ bool Spaceship::AddItem ( Item &item ) {
 
 bool Spaceship::RemoveItem ( Item &item ) {
 
-    if (item.GetCategory() == "Fuel") {
+    logger_->debug("Removing {}", item.GetName());
 
-        if (fuel_ - item.GetValue() < 0) {
+    if ( item.GetCategory() == "Fuel" ) {
+
+        if ( fuel_ - item.GetValue() < 0 ) {
             return false;
         }
 
-        weight_ -= item.GetWeight();
+        UpdateWeight(-1 * item.GetWeight());
         money_ += item.GetCost();
         fuel_ -= item.GetValue();
         return true;
@@ -72,8 +86,12 @@ bool Spaceship::RemoveItem ( Item &item ) {
 
     if ( item_it != items.end()) {
         if ( item_it->UpdateValue(-1)) {
-            weight_ -= item.GetWeight();
+            UpdateWeight(-1 * item.GetWeight());
             money_ += item.GetCost();
+
+            if ( item.GetCategory() == "Food" ) {
+                food_ -= item.GetValue();
+            }
 
             if ( item_it->GetValue() == 0 ) {
                 items.erase(item_it);
@@ -86,6 +104,25 @@ bool Spaceship::RemoveItem ( Item &item ) {
     return false;
 }
 
+void Spaceship::UseFood () {
+    if ( food_ == 0 ) {
+        return;
+    }
+
+    --food_;
+
+    auto food = Random::get(items_["Food"]);
+
+    if ( food->UpdateValue(-1)) {
+        UpdateWeight(-1 * food->GetWeight());
+        if ( food->GetValue() == 0 ) {
+            items_["Food"].erase(food);
+        }
+    }
+
+}
+
+
 int Spaceship::GetHull () const {
     return hull_;
 }
@@ -96,7 +133,12 @@ double Spaceship::GetFuel () const {
 
 void Spaceship::UseFuel ( double usage ) {
     if ( state_ == SpaceshipState::MOVING ) {
-        fuel_ -= usage;
+
+        if ( fuel_ - usage > 0 ) {
+
+            fuel_ -= usage;
+            UpdateWeight(-10 * usage); // FIXME 10 is weight of fuel
+        }
     }
 }
 
@@ -117,19 +159,21 @@ std::map< std::string, std::vector< Item>> &Spaceship::GetItems () {
     return items_;
 }
 
-int Spaceship::GetWeight () const {
+double Spaceship::GetWeight () const {
     return weight_;
 }
 
-void Spaceship::SetWeight ( int weight ) {
-    weight_ = weight;
-}
-
-void Spaceship::UpdateWeight ( int change ) {
+bool Spaceship::UpdateWeight ( double change ) {
+    if (( change < 0 && weight_ + change < 0 ) ||
+        ( change > 0 && weight_ + change > max_weight_ )) {
+        logger_->debug("unable to change weight");
+        return false;
+    }
     weight_ += change;
+    return true;
 }
 
-int Spaceship::GetMaxWeight () const {
+double Spaceship::GetMaxWeight () const {
     return max_weight_;
 }
 
@@ -155,7 +199,7 @@ const std::string &Spaceship::GetAppearanceCode () const {
 
 void Spaceship::SetFullHull ( int hull ) {
     full_hull_ = hull;
-    hull_ = hull;
+    hull_      = hull;
 }
 
 void Spaceship::SetFullFuel ( double fuel ) {
@@ -180,6 +224,14 @@ int Spaceship::GetFullHull () const {
 
 int Spaceship::GetMaxCrew () const {
     return max_crew_;
+}
+
+int Spaceship::GetFood () const {
+    return food_;
+}
+
+void Spaceship::SetFood ( int food ) {
+    food_ = food;
 }
 
 }

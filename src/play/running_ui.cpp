@@ -55,6 +55,8 @@ void RunningUI::ProcessInput () {
 
 GameState RunningUI::OnLoop ( GameState state ) {
 
+    ProcessInput();
+
     std::stringstream disp;
     disp.precision(3);
     disp << distance_remaining_
@@ -69,6 +71,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
             UpdateSpaceshipState();
             break;
         case RunningState::PAUSED:
+            ShowPauseOptions();
             break;
         case RunningState::SITUATION:
             break;
@@ -80,7 +83,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
 }
 
 void RunningUI::MoveSpaceship () {
-    if ( ss_mvmt_counter_++ > ss_mvmt_counter_max_ ) {
+    if ( ss_mvmt_counter_++ > ss_mvmt_period_ ) {
 
         bool move_x = Random::get< bool >(ss_mvmt_x_prob_);
         bool move_y = Random::get< bool >(ss_mvmt_y_prob_);
@@ -108,18 +111,29 @@ void RunningUI::BoundSpaceshipPosition () {
         ss_pos_x_ = ss_min_x_;
     }
 
-    if ( ss_pos_x_ > ss_max_x_ ) {
-        ss_pos_x_ = ss_max_x_;
+    if ( ss_pos_y_ > ss_max_y_ ) {
+        ss_pos_y_ = ss_max_y_;
     }
 
-    if ( ss_pos_x_ < ss_min_x_ ) {
-        ss_pos_x_ = ss_min_x_;
+    if ( ss_pos_y_ < ss_min_y_ ) {
+        ss_pos_y_ = ss_min_y_;
     }
 }
 
 void RunningUI::UpdateSpaceshipState () {
     spaceship_handler_->GetSpaceship()->UseFuel(fuel_usage_);
     spaceship_handler_->UpdateDistanceRemaining(-1 * distance_traveled_);
+
+
+    if ( ss_food_usage_counter_++ > ss_food_usage_period_ ) {
+        spaceship_handler_->GetSpaceship()->UseFood();
+        ss_food_usage_counter_ = 0;
+    }
+
+}
+
+void RunningUI::ShowPauseOptions () {
+
 
 }
 

@@ -10,6 +10,7 @@
 
 #include "crew_member.h"
 #include "../items/item.h"
+#include "../../logging/logging.h"
 
 
 namespace sc::play {
@@ -21,6 +22,8 @@ class Spaceship {
   public:
 
     explicit Spaceship ( std::string &appearance_code );
+
+    void LoggingInit();
 
     void AddCrewMember ( const CrewMember &crew_member );
 
@@ -44,13 +47,11 @@ class Spaceship {
     [[nodiscard]] std::map< std::string, std::vector< Item>> &
     GetItems ();
 
-    [[nodiscard]] int GetWeight () const;
+    [[nodiscard]] double GetWeight () const;
 
-    void SetWeight ( int weight );
+    bool UpdateWeight ( double change );
 
-    void UpdateWeight ( int change );
-
-    [[nodiscard]] int GetMaxWeight () const;
+    [[nodiscard]] double GetMaxWeight () const;
 
     void SetMaxWeight ( int max_weight );
 
@@ -80,6 +81,12 @@ class Spaceship {
 
     [[nodiscard]] int GetMaxCrew () const;
 
+    void UseFood ();
+
+    [[nodiscard]] int GetFood () const;
+
+    void SetFood ( int food );
+
   private:
 
     std::map< std::string, std::vector< Item > > items_;
@@ -87,15 +94,18 @@ class Spaceship {
     std::set< CrewMember > crew_;
     std::string            appearance_code_;
 
+    logger_t logger_;
+
     int    full_hull_ { 0 };
     double full_fuel_ { 0 };
     int    hull_ { 0 };
     double fuel_ { 0 };
-    int    weight_ { 0 };
-    int    max_weight_ { 0 };
+    double weight_ { 0 };
+    double max_weight_ { 0 };
     int    money_ { 0 };
     int    max_crew_ { 0 };
     int    cost_ { 0 };
+    int    food_ { 0 };
 
 
     SpaceshipState state_ { SpaceshipState::OTHER };

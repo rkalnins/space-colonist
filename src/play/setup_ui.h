@@ -78,8 +78,8 @@ class SetupUI : public Task {
   private:
     logger_t logger_;
 
-    CrewMemberFactory crew_member_factory_;
-    std::shared_ptr<SpaceshipFactory>  spaceship_factory_;
+    CrewMemberFactory                   crew_member_factory_;
+    std::shared_ptr< SpaceshipFactory > spaceship_factory_;
 
     std::vector< CrewMember > crew_choices_;
 
@@ -99,7 +99,7 @@ class SetupUI : public Task {
     TradingPostCategory trading_post_view_ { TradingPostCategory::ALL };
 
     std::string current_category_;
-    int         current_selected_item_{};
+    int         current_selected_item_ {};
 
     // FIXME
     std::map< std::string, std::vector< std::shared_ptr< Item > > > items_for_sale_ = {

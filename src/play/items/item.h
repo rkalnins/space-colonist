@@ -21,11 +21,11 @@ class Item {
 
     [[nodiscard]] int GetValue () const;
 
-    [[nodiscard]] int GetWeight () const;
+    [[nodiscard]] double GetWeight () const;
 
     bool UpdateValue ( int value );
 
-    void UpdateWeight ( int weight );
+    void UpdateWeight ( double weight );
 
     [[nodiscard]] int GetCost () const;
 
@@ -51,8 +51,8 @@ class Item {
     std::string category_;
     std::string name_;
     int         value_;
-    int         weight_;
-    int cost_;
+    double      weight_;
+    int         cost_;
 };
 
 }

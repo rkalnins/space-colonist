@@ -62,7 +62,7 @@ class MapGenerator {
     const int    map_height_ { 20 };
     const int    map_width_ { 100 };
     const double planet_probability_ { 0.12 };
-    double cost_ { 0 };
+    double       cost_ { 0 };
 
     bool toggle_end_ { false };
 

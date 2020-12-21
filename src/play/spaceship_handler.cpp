@@ -128,8 +128,8 @@ void SpaceshipHandler::PrintHUD () {
     display.precision(2);
     display << "Crew: " << spaceship_->GetCrew().size()
             << "\tFuel: "
-            << (spaceship_->GetFuel() / spaceship_->GetFullFuel() *
-                    100.0)
+            << ( spaceship_->GetFuel() / spaceship_->GetFullFuel() *
+                 100.0 )
             << "%\tHull: " << spaceship_->GetHull();
 
     mvwaddstr(main_, spaceship_display_y_, spaceship_display_x_,
@@ -137,9 +137,11 @@ void SpaceshipHandler::PrintHUD () {
 
     display.str("");
 
+    display.precision(3);
     display << "Storage: "
             << ( spaceship_->GetMaxWeight() - spaceship_->GetWeight())
-            << "\tMoney: " << spaceship_->GetMoney();
+            << "\tMoney: " << spaceship_->GetMoney() << "\tFood: "
+            << spaceship_->GetFood();
 
     mvwaddstr(main_, ( spaceship_display_y_ + 1 ), spaceship_display_x_,
               display.str().c_str());
@@ -280,7 +282,7 @@ double SpaceshipHandler::GetInitialDistance () const {
 }
 
 void SpaceshipHandler::SetInitialDistance ( double initial_distance ) {
-    initial_distance_ = initial_distance;
+    initial_distance_   = initial_distance;
     distance_remaining_ = initial_distance;
 }
 

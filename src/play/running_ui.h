@@ -53,6 +53,8 @@ class RunningUI : public Task {
 
     void UpdateSpaceshipState ();
 
+    void ShowPauseOptions ();
+
   private:
 
     logger_t logger_;
@@ -71,8 +73,13 @@ class RunningUI : public Task {
     const int dist_disp_y_ { 20 };
     const int dist_disp_x_ { 4 };
 
-    const int ss_mvmt_counter_max_ { 80 };
+    const int ss_mvmt_period_ { 80 };
+    const int ss_food_usage_period_{ 120 };
+
+    int ss_food_usage_counter_ { 0 };
+
     int       ss_mvmt_counter_ { 0 };
+
     double    ss_mvmt_x_prob_ { 0.75 };
     double    ss_mvmt_y_prob_ { 0.75 };
 

@@ -51,7 +51,7 @@ class SpaceshipHandler : public Task {
 
     [[nodiscard]] double GetInitialDistance () const;
 
-    void UpdateDistanceRemaining (double distance);
+    void UpdateDistanceRemaining ( double distance );
 
     void SetInitialDistance ( double initial_distance );
 
