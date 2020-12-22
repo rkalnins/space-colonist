@@ -66,7 +66,7 @@ void SpaceshipHandler::PrintCrew () {
     ++crew_y;
 
     for ( auto &c : spaceship_->GetCrew()) {
-        if (!c.IsDead()) {
+        if ( !c.IsDead()) {
             std::stringstream crew_member;
             crew_member << c.GetName() << " " << c.GetHealth() << "/"
                         << c.GetMaxHealth();
@@ -101,7 +101,7 @@ void SpaceshipHandler::PrintItems () {
 
 
     for ( auto &c : spaceship_->GetItems()) {
-        if (!c.second.empty()) {
+        if ( !c.second.empty()) {
             if ( start <= counter && counter < end ) {
                 mvwaddstr(main_, item_y, item_x, c.first.c_str());
 

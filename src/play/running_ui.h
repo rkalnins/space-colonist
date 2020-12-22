@@ -88,7 +88,9 @@ class RunningUI : public Task {
 
     bool UseGenericSpareParts ();
 
-    void WaitForHelp();
+    void WaitForHelp ();
+
+    void UpdateAllCrewHealth ();
 
   private:
 
@@ -104,16 +106,16 @@ class RunningUI : public Task {
 
     std::string appearance_code_ {};
 
-    const double minor_failure_prob_ { 0.0008 };
-    double       major_failure_prob_ { 0.0003 };
+    const double minor_failure_prob_ { 0.001 };
+    double       major_failure_prob_ { 0.0002 };
     const double unresponsive_engines_ { 0.0001 };
 
-    const double successful_distress_ { 0.00001 };
+    const double successful_distress_ { 0.008 };
     bool         waiting_for_help_ { false };
 
     int    ignored_minor_mech_failures_ { 0 };
     double minor_fix_prob_ { 0.01 };
-    double major_fix_prob_ { 0.01 };
+    double major_fix_prob_ { 0.003 };
 
     bool enough_spares_ { true };
 
@@ -127,6 +129,13 @@ class RunningUI : public Task {
 
     bool fixing_ { false };
     bool fixing_minor_ { false };
+
+    const int second_count_period_ { 60 };
+    int       situation_counter_ { 0 };
+
+    const int air_response_time_ = 8;
+
+    bool air_is_poisoned_ { false };
 
     std::map< SituationType, std::vector< std::string>> sitrep_options_ {
             { SituationType::MINOR,              { "1. Ignore", "2. Attempt fix" }},
@@ -186,7 +195,7 @@ class RunningUI : public Task {
     double ss_mvmt_x_prob_ { 0.75 };
     double ss_mvmt_y_prob_ { 0.75 };
 
-    double       fuel_trickle_    = 0.0001; // trickle
+    double       fuel_trickle_    = 0.0004; // trickle
     const double low_e_trickle_   = 0.00015; // trickle
     const double nominal_trickle_ = 0.0003; // trickle
     bool         trickle_nominal_ { true };

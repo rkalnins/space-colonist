@@ -34,7 +34,7 @@ double Item::GetWeight () const {
 bool Item::UpdateValue ( int value ) {
     value_ += value;
 
-    if (value_ < 0) {
+    if ( value_ < 0 ) {
         value_ = 0;
         return false;
     } else {

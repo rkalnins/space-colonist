@@ -159,7 +159,7 @@ void RunningUI::ProcessInput () {
                 case RunningState::PAUSED:
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN:
-                            if ( trickle_nominal_ ) {
+                            if ( !trickle_nominal_ ) {
                                 fuel_trickle_ = nominal_trickle_;
                             } else {
                                 fuel_trickle_ = low_e_trickle_;
@@ -288,6 +288,16 @@ GameState RunningUI::OnLoop ( GameState state ) {
             }
             break;
         case RunningState::SITUATION:
+            ++situation_counter_;
+
+            if ( situation_type_ == SituationType::AIR_FILTER_FAILURE &&
+                 !air_is_poisoned_ && air_response_time_ -
+                                      ( situation_counter_ /
+                                        second_count_period_ ) <= 0 ) {
+                logger_->debug("Air is poisoned");
+                air_is_poisoned_ = true;
+            }
+
             if ( velocity_ != stop_ ) {
                 MoveSpaceship();
             }
@@ -319,9 +329,12 @@ GameState RunningUI::OnLoop ( GameState state ) {
 void RunningUI::WaitForHelp () {
     if ( Random::get< bool >(successful_distress_)) {
         notifications_.push("Saved by friendly aliens.");
-        situation_type_   = SituationType::NONE;
-        running_state_    = RunningState::FLYING;
-        waiting_for_help_ = false;
+        situation_type_    = SituationType::NONE;
+        running_state_     = RunningState::FLYING;
+        waiting_for_help_  = false;
+        air_is_poisoned_   = false;
+        enough_spares_     = true;
+        situation_counter_ = 0;
 
         if ( !situations_.empty()) {
             situations_.pop();
@@ -349,7 +362,8 @@ void RunningUI::FixMinorIgnored () {
         logger_->debug("Fixed ignored issue");
         std::string fixed = "Fixed ignored minor issue";
         notifications_.push(fixed);
-        fixing_minor_ = false;
+        fixing_minor_  = false;
+        enough_spares_ = true;
 
         --ignored_minor_mech_failures_;
     }
@@ -376,9 +390,11 @@ void RunningUI::AttemptFix () {
         case SituationType::ENGINE_FAILURE: {
             if ( Random::get< bool >(major_fix_prob_)) {
                 notifications_.push("Fixed engine. Engine nominal.");
-                situation_type_ = SituationType::NONE;
-                running_state_  = RunningState::FLYING;
-                fixing_         = false;
+                situation_type_    = SituationType::NONE;
+                running_state_     = RunningState::FLYING;
+                situation_counter_ = 0;
+                fixing_            = false;
+                enough_spares_     = true;
 
                 if ( !situations_.empty()) {
                     situations_.pop();
@@ -389,9 +405,12 @@ void RunningUI::AttemptFix () {
         case SituationType::AIR_FILTER_FAILURE: {
             if ( Random::get< bool >(major_fix_prob_)) {
                 notifications_.push("Fixed air filter.");
-                situation_type_ = SituationType::NONE;
-                running_state_  = RunningState::FLYING;
-                fixing_         = false;
+                situation_type_    = SituationType::NONE;
+                running_state_     = RunningState::FLYING;
+                air_is_poisoned_   = false;
+                enough_spares_     = true;
+                situation_counter_ = 0;
+                fixing_            = false;
 
                 if ( !situations_.empty()) {
                     situations_.pop();
@@ -423,19 +442,33 @@ void RunningUI::ShowSituationReport () {
         mvwaddstr(main_, y++, x - 12, o.c_str());
     }
 
-    if ( !enough_spares_ ) {
+    y++;
+    if ( !waiting_for_help_ && !enough_spares_ ) {
         mvwaddstr(main_, y++, x - 12,
                   "Not enough spares. Issue distress signal (y/n)?");
         return;
     }
 
-    y++;
     if ( enough_spares_ && fixing_ ) {
-        mvwaddstr(main_, y, x - 12, "Current Action: Fixing");
-    } else if ( !enough_spares_ && waiting_for_help_ ) {
-        mvwaddstr(main_, y, x - 12, "Current Action: Waiting for help");
+        mvwaddstr(main_, y++, x - 12, "Current Action: Fixing");
     }
 
+    if ( waiting_for_help_ ) {
+        mvwaddstr(main_, y++, x - 12, "Current Action: Waiting for help");
+    }
+
+    if ( situation_type_ == SituationType::AIR_FILTER_FAILURE ) {
+        int seconds = air_response_time_ -
+                      ( situation_counter_ / second_count_period_ );
+        if ( seconds >= 0 ) {
+            std::stringstream disp;
+            disp << seconds << " before poisoning begins";
+            mvwaddstr(main_, y++, x - 12, disp.str().c_str());
+        } else {
+            mvwaddstr(main_, y++, x - 12,
+                      "Crew is dying of poisoned air.");
+        }
+    }
 }
 
 bool RunningUI::UpdateVelocity ( double new_velocity ) {
@@ -462,10 +495,10 @@ bool RunningUI::IsSituation () {
 
     double major_p_ = std::min(1.0,
                                major_failure_prob_ *
-                               ignored_minor_mech_failures_);
+                               ( ignored_minor_mech_failures_ + 1 ));
 
     if ( Random::get< bool >(major_p_)) {
-        char f = Random::get({ 'e', 'a' });
+        char f = Random::get({ 'a', 'e' });
         switch ( f ) {
             case 'e':
                 situation_type_ = SituationType::ENGINE_FAILURE;
@@ -617,6 +650,27 @@ void RunningUI::ShowPauseOptions () {
     mvwaddstr(main_, y++, x - 12, "Hit [Space] to continue.");
 }
 
+void RunningUI::UpdateAllCrewHealth () {
+    std::vector< CrewMember > &crew = spaceship_handler_->GetSpaceship()->GetCrew();
+
+    if ( air_is_poisoned_ ) {
+        for ( auto &c : crew ) {
+            c.UpdateHealth(-2);
+        }
+    }
+
+    for ( auto &c : crew ) {
+        if ( c.IsDead()) {
+            notifications_.push(
+                    c.GetName() +
+                    " has suffocated to death from poisoned air :(");
+        }
+    }
+
+    spaceship_handler_->GetSpaceship()->RemoveDeadCrew();
+
+}
+
 void RunningUI::UpdateCrew () {
 
     if ( ret_state == GameState::EXITING ) {
@@ -624,7 +678,9 @@ void RunningUI::UpdateCrew () {
     }
 
     if ( health_update_counter_++ > health_update_period_ ) {
+        UpdateAllCrewHealth();
         UpdateCrewFood();
+
         health_update_counter_ = 0;
     }
 }

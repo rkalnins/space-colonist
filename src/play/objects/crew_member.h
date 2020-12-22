@@ -36,7 +36,8 @@ class CrewMember {
 
     void UpdateHealth ( int change );
 
-    [[nodiscard]] bool IsDead () const { return health_ == 0; };
+    [[nodiscard]] bool IsDead () const { return health_ <= 0; };
+
 
     class NameComparator {
       public:
@@ -50,6 +51,7 @@ class CrewMember {
       private:
         const std::string &comp_to_;
     };
+
 
   private:
     std::string name_;

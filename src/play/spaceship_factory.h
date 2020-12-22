@@ -21,7 +21,7 @@ class SpaceshipFactory {
     std::shared_ptr< Spaceship > CreateSpaceship ();
 
     void PrintSpaceship ( WINDOW *window, int y, int x,
-                                 const std::string &code );
+                          const std::string &code );
 
     static int GetInitialMoney ();
 

@@ -29,7 +29,7 @@ class Spaceship {
 
     void RemoveCrewMember ( const CrewMember &crew_member );
 
-    void RemoveDeadCrew();
+    void RemoveDeadCrew ();
 
     bool AddItem ( Item &item );
 
@@ -43,7 +43,7 @@ class Spaceship {
 
     void UseFuel ( double usage );
 
-    [[nodiscard]] std::vector< CrewMember > & GetCrew ();
+    [[nodiscard]] std::vector< CrewMember > &GetCrew ();
 
     [[nodiscard]] double GetFullFuel () const;
 
@@ -96,17 +96,18 @@ class Spaceship {
 
     class RemoveDeadComp {
       public:
-        bool operator() (CrewMember &c) const {
+        bool operator() ( CrewMember &c ) const {
             return c.IsDead();
         }
     };
+
 
   private:
 
     std::map< std::string, std::vector< Item > > items_;
 
     std::vector< CrewMember > crew_;
-    std::string            appearance_code_;
+    std::string               appearance_code_;
 
     logger_t logger_;
 

@@ -276,7 +276,7 @@ bool Spaceship::UseSpareParts ( int cables, int components ) {
         return false;
     }
 
-    auto spares_v = spares->second;
+    auto &spares_v = spares->second;
 
     Item::NameComparator cables_cmp("Cables");
     Item::NameComparator comp_cmp("Electronic components");
@@ -298,8 +298,8 @@ bool Spaceship::UseSpareParts ( int cables, int components ) {
     }
 
 
-    cables_it->UpdateValue(cables);
-    comp_it->UpdateValue(components);
+    cables_it->UpdateValue(-1 * cables);
+    comp_it->UpdateValue(-1 * components);
 
     logger_->debug("Used spare parts");
 

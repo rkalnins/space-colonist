@@ -90,7 +90,6 @@ void MapGenerator::PrintMap () {
 }
 
 
-
 void MapGenerator::ToggleSelection ( int y, int x ) {
 
     if ( route_.size() == max_route_length_ &&
