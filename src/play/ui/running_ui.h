@@ -12,6 +12,7 @@
 #include "../spaceship_handler.h"
 #include "../spaceship_factory.h"
 #include "../nav_control_manager.h"
+#include "../flying_debris.h"
 
 
 namespace sc::play {
@@ -50,7 +51,6 @@ class RunningUI : public Task {
                 std::shared_ptr< SpaceshipHandler > spaceship_handler,
                 std::shared_ptr< play::NavigationControlManager > nav_manager,
                 std::shared_ptr< InputListener > listener,
-                std::shared_ptr< SpaceshipFactory > spaceship_factory,
                 WINDOW *main );
 
     void Init () override;
@@ -103,48 +103,19 @@ class RunningUI : public Task {
 
   private:
 
-
     logger_t logger_;
-
-    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
 
     std::shared_ptr< NavigationControlManager > nav_manager_ { nullptr };
 
-    std::shared_ptr< Spaceship > spaceship_ { nullptr };
-
-    std::shared_ptr< SpaceshipFactory > spaceship_factory_ { nullptr };
-
-    std::shared_ptr< InputListener > listener_ { nullptr };
+    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
+    std::shared_ptr< Spaceship >        spaceship_ { nullptr };
+    std::shared_ptr< InputListener >    listener_ { nullptr };
+    std::unique_ptr< FlyingDebris >     flying_debris_ { nullptr };
 
     WINDOW *main_;
 
+    const double flying_object_prob_ { 0.1 };
 
-    struct FlyingObject {
-        FlyingObject ( int min_y, int max_y ) {
-            appearance   = Random::get({ '*', '.', '`', 'o', 'x' });
-            x            = 0;
-            y            = Random::get< int >(min_y, max_y);
-            travel_speed = Random::get({ 2, 4, 6 });
-            end_pt       = Random::get< int >(90, 100);
-        }
-
-        FlyingObject () : x(0), y(0), travel_speed(0), appearance(' '),
-                          end_pt(0) {}
-
-        int  x;
-        int  y;
-        int  travel_speed;
-        int  end_pt;
-        int  counter { 0 };
-        char appearance;
-    };
-
-
-    const double                    flying_object_prob_ { 0.1 };
-    std::unique_ptr< FlyingObject > flying_object_ { nullptr };
-
-
-    std::string appearance_code_ {};
 
     const double minor_failure_prob_ { 0.001 };
     double       major_failure_prob_ { 0.0002 };
@@ -204,6 +175,8 @@ class RunningUI : public Task {
             "Air filter unresponsive. Cannot recycle Oxygen.",
     };
 
+    std::queue< std::string >       notifications_;
+    std::queue< const std::string > situations_;
 
     const std::string distance_remaining_ = "Distance remaining: ";
     const std::string velocity_name_      = "Velocity: ";
@@ -243,9 +216,6 @@ class RunningUI : public Task {
     int ss_pos_y_ { 25 };
     int ss_pos_x_ { 50 };
 
-    std::queue< std::string >       notifications_;
-    std::queue< const std::string > situations_;
-
     const int pause_y_ { 32 };
     const int pause_x_ { 30 };
 
@@ -255,8 +225,6 @@ class RunningUI : public Task {
     MenuOptions   menu_options_ { MenuOptions::MAIN };
     RunningState  running_state_ { RunningState::FLYING };
     SituationType situation_type_ { SituationType::NONE };
-
-
 };
 
 }

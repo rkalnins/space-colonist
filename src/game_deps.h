@@ -23,8 +23,9 @@ class GameDependencies {
                        std::shared_ptr< InputListener > &listener )
             : main_(main) {
 
+        spaceship_factory_ = std::make_shared< play::SpaceshipFactory >();
 
-        spaceship_handler_ = std::make_shared< play::SpaceshipHandler >();
+        spaceship_handler_ = std::make_shared< play::SpaceshipHandler >(spaceship_factory_);
 
         nav_manager_ = std::make_shared< play::NavigationControlManager >(
                 nav_manager_name_, TaskType::RUNNING,
@@ -37,7 +38,6 @@ class GameDependencies {
                                                             listener,
                                                             main);
 
-        spaceship_factory_ = std::make_shared< play::SpaceshipFactory >();
 
         setup_ui_ = std::make_shared< play::SetupUI >(setup_ui_name_,
                                                       TaskType::RUNNING,
@@ -53,7 +53,6 @@ class GameDependencies {
                 spaceship_handler_,
                 nav_manager_,
                 listener,
-                spaceship_factory_,
                 main);
 
     }

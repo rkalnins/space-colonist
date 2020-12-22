@@ -18,21 +18,18 @@ RunningUI::RunningUI ( const std::string &name, TaskType taskType,
                        std::shared_ptr< SpaceshipHandler > spaceship_handler,
                        std::shared_ptr< play::NavigationControlManager > nav_manager,
                        std::shared_ptr< InputListener > listener,
-                       std::shared_ptr< SpaceshipFactory > spaceship_factory,
                        WINDOW *main )
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),
           nav_manager_(std::move(nav_manager)),
           listener_(std::move(listener)),
-          spaceship_factory_(std::move(spaceship_factory)),
           main_(main), logger_(CreateLogger(name)) {
 
 }
 
 void RunningUI::Init () {
     logger_->debug("Running UI init");
-    spaceship_       = spaceship_handler_->GetSpaceship();
-    appearance_code_ = spaceship_->GetAppearanceCode();
+    spaceship_ = spaceship_handler_->GetSpaceship();
     nav_manager_->SetVelocity(Velocity::SLOW);
 }
 
@@ -244,9 +241,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
     disp.str("");
 
-    spaceship_factory_->PrintSpaceship(main_, ss_pos_y_, ss_pos_x_,
-                                       appearance_code_);
-
+    spaceship_handler_->PrintSpaceship(main_, ss_pos_y_, ss_pos_x_);
 
     switch ( running_state_ ) {
         case RunningState::FLYING:
@@ -772,26 +767,19 @@ void RunningUI::ShowChangeRationsOptions () {
 
 void RunningUI::MoveFlyingObject () {
 
-    if ( !flying_object_ && Random::get< bool >(flying_object_prob_)) {
-        flying_object_ = std::make_unique< FlyingObject >(ss_min_y_ - 2,
+    if ( !flying_debris_ && Random::get< bool >(flying_object_prob_)) {
+        flying_debris_ = std::make_unique< FlyingDebris >(main_,
+                                                          ss_min_y_ - 2,
                                                           ss_max_y_ + 2);
     } else {
-        if ( !flying_object_ ) { return; }
+        if ( !flying_debris_ ) { return; }
 
-        if ( flying_object_->travel_speed == 0 ) {
+        if ( flying_debris_->IsDone()) {
+            flying_debris_.reset();
             return;
         }
-        flying_object_->x =
-                ++( flying_object_->counter ) /
-                flying_object_->travel_speed;
 
-        mvwaddch(main_, flying_object_->y, flying_object_->x,
-                 flying_object_->appearance);
-
-        if ( flying_object_->x > flying_object_->end_pt ) {
-            flying_object_.reset(nullptr);
-            return;
-        }
+        flying_debris_->Move();
     }
 }
 

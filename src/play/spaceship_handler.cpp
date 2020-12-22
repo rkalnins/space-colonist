@@ -3,12 +3,16 @@
 //
 
 #include "spaceship_handler.h"
+
+#include <utility>
 #include "crew_member.h"
 
 
 namespace sc::play {
 
-SpaceshipHandler::SpaceshipHandler () : logger_(
+SpaceshipHandler::SpaceshipHandler (
+        std::shared_ptr< SpaceshipFactory > spaceship_factory )
+        : spaceship_factory_(std::move(spaceship_factory)), logger_(
         CreateLogger("ss_handler")) {}
 
 const std::shared_ptr< play::Spaceship > &
@@ -29,6 +33,11 @@ SpaceshipHandler::SetCrew ( const std::vector< CrewMember > &crew_choices,
             spaceship_->AddCrewMember(crew_choices[i]);
         }
     }
+}
+
+void SpaceshipHandler::PrintSpaceship ( WINDOW *main, int y, int x ) {
+    spaceship_factory_->PrintSpaceship(main, y, x,
+                                       spaceship_->GetAppearanceCode());
 }
 
 }

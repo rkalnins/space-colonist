@@ -41,19 +41,12 @@ class HUDDisplay : public Task {
   private:
     std::map< int, std::string > cat_details_;
 
-    std::shared_ptr< play::SpaceshipHandler > spaceship_handler_ {
-            nullptr
-    };
+    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
 
-    std::shared_ptr< play::NavigationControlManager > nav_manager_ {
-            nullptr
-    };
-    std::shared_ptr< play::Spaceship >                spaceship_ {
-            nullptr
-    };
-    std::shared_ptr< InputListener >                  listener_ {
-            nullptr
-    };
+    std::shared_ptr< NavigationControlManager > nav_manager_ { nullptr };
+
+    std::shared_ptr< Spaceship >     spaceship_ { nullptr };
+    std::shared_ptr< InputListener > listener_ { nullptr };
 
     logger_t logger_;
 

@@ -9,6 +9,7 @@
 #include "spaceship.h"
 #include "../input_listener.h"
 #include "../logging/logging.h"
+#include "spaceship_factory.h"
 
 
 namespace sc::play {
@@ -23,7 +24,7 @@ struct Checkbox {
 
 class SpaceshipHandler {
   public:
-    SpaceshipHandler ();
+    explicit SpaceshipHandler (std::shared_ptr<SpaceshipFactory> spaceship_factory);
 
   public:
     void
@@ -35,11 +36,14 @@ class SpaceshipHandler {
     void SetCrew ( const std::vector< CrewMember > &crew_choices,
                    std::vector< Checkbox > &selected );
 
+    void PrintSpaceship ( WINDOW *main, int y, int x );
+
   private:
 
     logger_t logger_;
 
-    std::shared_ptr< play::Spaceship > spaceship_ { nullptr };
+    std::shared_ptr< Spaceship > spaceship_ { nullptr };
+    std::shared_ptr< SpaceshipFactory > spaceship_factory_ { nullptr };
 };
 
 }
