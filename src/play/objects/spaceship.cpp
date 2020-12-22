@@ -46,17 +46,30 @@ bool Spaceship::AddItem ( Item &item ) {
 
     logger_->debug("Adding {}", item.GetName());
 
+    if ( money_ - item.GetCost() < 0 ) { return false; }
+
+    if ( item.GetCategory() == "Fuel" ) {
+        if ( item.GetValue() + fuel_ > full_fuel_ ) {
+            return false;
+        }
+
+        if ( !UpdateWeight(item.GetWeight())) {
+            logger_->debug("Unable to add item because of weight");
+            return false;
+        }
+
+        money_ -= item.GetCost();
+        fuel_ += item.GetValue();
+        return true;
+    }
+
     if ( !UpdateWeight(item.GetWeight())) {
         logger_->debug("Unable to add item because of weight");
         return false;
     }
 
-    money_ -= item.GetCost();
 
-    if ( item.GetCategory() == "Fuel" ) {
-        fuel_ += item.GetValue();
-        return true;
-    }
+    money_ -= item.GetCost();
 
     if ( item.GetCategory() == "Food" ) {
         food_ += item.GetValue();
@@ -120,17 +133,21 @@ bool Spaceship::RemoveItem ( Item &item ) {
 }
 
 void Spaceship::UseFood () {
-    if ( food_ == 0 ) {
+    if ( food_ <= 0 ) {
+        food_ = 0;
         return;
     }
 
-    --food_;
+    food_ = std::max(food_ - static_cast<int>(crew_.size()), 0);
 
     auto food = Random::get(items_["Food"]);
 
-    if ( food->UpdateValue(-1)) {
-        UpdateWeight(-1 * food->GetWeight());
-        if ( food->GetValue() == 0 ) {
+    // TODO bug when crew size > remaining value
+
+    if ( food->UpdateValue(-1 * static_cast<int>(crew_.size()))) {
+        UpdateWeight(
+                -1 * static_cast<int>(crew_.size()) * food->GetWeight());
+        if ( food->GetValue() <= 0 ) {
             items_["Food"].erase(food);
         }
     }
@@ -147,13 +164,10 @@ double Spaceship::GetFuel () const {
 }
 
 void Spaceship::UseFuel ( double usage ) {
-    if ( state_ == SpaceshipState::MOVING ) {
+    if ( fuel_ - usage > 0 ) {
 
-        if ( fuel_ - usage > 0 ) {
-
-            fuel_ -= usage;
-            UpdateWeight(-10 * usage); // FIXME 10 is weight of fuel
-        }
+        fuel_ -= usage;
+        UpdateWeight(-10 * usage); // FIXME 10 is weight of fuel
     }
 }
 
@@ -249,7 +263,9 @@ void Spaceship::SetFood ( int food ) {
 }
 
 void Spaceship::RemoveDeadCrew () {
-    crew_.erase(std::remove_if(crew_.begin(), crew_.end(), RemoveDeadComp()), crew_.end());
+    crew_.erase(
+            std::remove_if(crew_.begin(), crew_.end(), RemoveDeadComp()),
+            crew_.end());
 }
 
 }

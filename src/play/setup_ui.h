@@ -157,15 +157,15 @@ class SetupUI : public Task {
                                               std::make_shared< Item >(
                                                       "Fuel",
                                                       "Basic Fuel", 100,
-                                                      10, 5),
+                                                      10, 20),
                                               std::make_shared< Item >(
                                                       "Fuel",
                                                       "Purified fuel", 100,
-                                                      10, 10),
+                                                      10, 30),
                                               std::make_shared< Item >(
                                                       "Fuel",
                                                       "Enhanced fuel", 100,
-                                                      10, 15)
+                                                      10, 40)
                                       }},
             {
                     "Weapons",        {
@@ -207,27 +207,15 @@ class SetupUI : public Task {
 
                                               std::make_shared< Item >(
                                                       "Food",
-                                                      "Rations", 100, 4,
+                                                      "Rations", 100, 2,
                                                       2),
                                               std::make_shared< Item >(
                                                       "Food",
-                                                      "Fruits", 20, 2, 15),
+                                                      "Fruits", 20, 2, 5),
                                               std::make_shared< Item >(
                                                       "Food",
-                                                      "Vegetables", 20, 2,
-                                                      10),
-                                              std::make_shared< Item >(
-                                                      "Food",
-                                                      "Coffee", 30, 1, 5),
-                                              std::make_shared< Item >(
-                                                      "Food",
-                                                      "Tea", 30,
-                                                      1, 1),
-                                              std::make_shared< Item >(
-                                                      "Food",
-                                                      "Water", 100,
-                                                      2, 1)
-
+                                                      "Vegetables", 20, 5,
+                                                      3)
                                       }},
             {
                     "Infrastructure", {

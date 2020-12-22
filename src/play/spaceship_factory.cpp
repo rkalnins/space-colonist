@@ -35,7 +35,7 @@ std::shared_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
     s->SetFullFuel(Random::get(min_max_fuel_, max_max_fuel_));
     s->SetFullHull(Random::get(min_max_hull_, max_max_hull_));
     s->SetMaxCrew(Random::get(min_max_crew_, max_max_crew_));
-    s->SetCost(( s->GetMaxCrew() * 3 ) + (int) s->GetMaxWeight() +
+    s->SetCost(( s->GetMaxCrew() * 300 ) + (int) s->GetMaxWeight() +
                s->GetFullFuel() + s->GetFullHull());
     s->SetMoney(initial_money_);
 

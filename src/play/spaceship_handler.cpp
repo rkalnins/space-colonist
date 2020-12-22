@@ -130,7 +130,7 @@ void SpaceshipHandler::PrintItems () {
 
 void SpaceshipHandler::PrintHUD () {
     std::stringstream display;
-    display.precision(2);
+    display.precision(3);
     display << "Crew: " << spaceship_->GetCrew().size()
             << "\tFuel: "
             << ( spaceship_->GetFuel() / spaceship_->GetFullFuel() *
@@ -142,7 +142,7 @@ void SpaceshipHandler::PrintHUD () {
 
     display.str("");
 
-    display.precision(3);
+    display.precision(4);
     display << "Storage: "
             << ( spaceship_->GetMaxWeight() - spaceship_->GetWeight())
             << "\tMoney: " << spaceship_->GetMoney() << "\tFood: "

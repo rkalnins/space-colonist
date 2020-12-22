@@ -178,24 +178,44 @@ GameState SetupUI::OnLoop ( GameState state ) {
             }
             break;
         case KEY_RIGHT: {
-            Item item = *items_for_sale_[current_category_][current_selected_item_];
-            item.SetValue(1);
-            bool success = spaceship_handler_->GetSpaceship()->AddItem(
-                    item);
-            if ( success ) {
-                items_for_sale_[current_category_][current_selected_item_]->UpdateValue(
-                        -1);
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION: {
+                    if ( trading_post_view_ ==
+                         TradingPostCategory::ALL ) { break; }
+
+                    Item item = *items_for_sale_[current_category_][current_selected_item_];
+                    if ( item.GetValue() <= 0 ) { break; }
+                    item.SetValue(1);
+                    bool success = spaceship_handler_->GetSpaceship()->AddItem(
+                            item);
+                    if ( success ) {
+                        items_for_sale_[current_category_][current_selected_item_]->UpdateValue(
+                                -1);
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
             break;
         }
         case KEY_LEFT: {
-            Item item = *items_for_sale_[current_category_][current_selected_item_];
-            item.SetValue(1);
-            bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
-                    item);
-            if ( success ) {
-                items_for_sale_[current_category_][current_selected_item_]->UpdateValue(
-                        1);
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION: {
+                    if ( trading_post_view_ ==
+                         TradingPostCategory::ALL ) { break; }
+                    Item item = *items_for_sale_[current_category_][current_selected_item_];
+                    item.SetValue(1);
+                    bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
+                            item);
+                    if ( success ) {
+                        items_for_sale_[current_category_][current_selected_item_]->UpdateValue(
+                                1);
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
             break;
         }
@@ -209,7 +229,8 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     break;
                 case SetupState::DESTINATION_SELECTION:
                     state_ = SetupState::CREW_SELECTION;
-                    spaceship_handler_->SetInitialDistance(map_generator_->GetCost());
+                    spaceship_handler_->SetInitialDistance(
+                            map_generator_->GetCost());
                     break;
                 case SetupState::CREW_SELECTION:
                     state_ = SetupState::INVENTORY_SELECTION;
@@ -337,6 +358,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
 void SetupUI::SpaceshipSelection () {
     int y = ui_init_y_;
     int x = ui_init_x_;
+
 
     std::stringstream disp;
 

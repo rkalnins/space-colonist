@@ -3,6 +3,9 @@ cmake-build-debug/
 tmp/
 logs/
 
+
+docs/~$calcs.xslx
+
 *.o
 
 sc
