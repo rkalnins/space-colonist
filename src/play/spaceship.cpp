@@ -233,60 +233,46 @@ bool Spaceship::UseSpareParts ( int cables, int components ) {
 
 }
 
-int Spaceship::GetHull () const {
-    return hull_;
-}
+int Spaceship::GetHull () const { return hull_; }
 
-double Spaceship::GetFuel () const {
-    return fuel_;
-}
+double Spaceship::GetFuel () const { return fuel_; }
 
-std::vector< CrewMember > &Spaceship::GetCrew () {
-    return crew_;
-}
+std::vector< CrewMember > &Spaceship::GetCrew () { return crew_; }
 
-double Spaceship::GetFullFuel () const {
-    return full_fuel_;
-}
+double Spaceship::GetFullFuel () const { return full_fuel_; }
 
 std::map< std::string, std::vector< Item>> &Spaceship::GetItems () {
     return items_;
 }
 
-double Spaceship::GetWeight () const {
-    return weight_;
-}
+double Spaceship::GetWeight () const { return weight_; }
 
-double Spaceship::GetMaxWeight () const {
-    return max_weight_;
-}
+double Spaceship::GetMaxWeight () const { return max_weight_; }
 
-int Spaceship::GetMoney () const {
-    return money_;
-}
+int Spaceship::GetMoney () const { return money_; }
 
-void Spaceship::UpdateMoney ( int change ) {
-    money_ += change;
-}
+void Spaceship::UpdateMoney ( int change ) { money_ += change; }
 
 const std::string &Spaceship::GetAppearanceCode () const {
     return appearance_code_;
 }
 
-int Spaceship::GetCost () const {
-    return cost_;
-}
+int Spaceship::GetCost () const { return cost_; }
 
-int Spaceship::GetFullHull () const {
-    return full_hull_;
-}
+int Spaceship::GetFullHull () const { return full_hull_; }
 
-int Spaceship::GetMaxCrew () const {
-    return max_crew_;
-}
+int Spaceship::GetMaxCrew () const { return max_crew_; }
 
-int Spaceship::GetFood () const {
-    return food_;
-}
+int Spaceship::GetFood () const { return food_; }
+
+bool Spaceship::HasFuel () { return fuel_ > 0; }
+
+bool Spaceship::HasFood () { return food_ > 0; }
+
+void Spaceship::StopMoving () { state_ = SpaceshipState::OTHER; }
+
+void Spaceship::StartMoving () { state_ = SpaceshipState::MOVING; }
+
+bool Spaceship::IsMoving () { return state_ == SpaceshipState::MOVING; }
 
 }

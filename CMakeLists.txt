@@ -46,7 +46,7 @@ set(SOURCE_FILES
         src/play/space_map.cpp
         src/play/space_map.h
         src/play/spaceship_factory.cpp
-        src/play/spaceship_factory.h src/play/ui/running_ui.cpp src/play/ui/running_ui.h src/play/ui/hud_display.cpp src/play/ui/hud_display.h src/play/nav_control_manager.cpp src/play/nav_control_manager.h src/play/flying_debris.cpp src/play/flying_debris.h)
+        src/play/spaceship_factory.h src/play/ui/running_ui.cpp src/play/ui/running_ui.h src/play/ui/hud_display.cpp src/play/ui/hud_display.h src/play/nav_control_manager.cpp src/play/nav_control_manager.h src/play/flying_debris.cpp src/play/flying_debris.h src/play/pause_menu.cpp src/play/pause_menu.h src/play/situation_type.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

@@ -13,6 +13,8 @@
 #include "../spaceship_factory.h"
 #include "../nav_control_manager.h"
 #include "../flying_debris.h"
+#include "../situation_type.h"
+#include "../pause_menu.h"
 
 
 namespace sc::play {
@@ -23,17 +25,6 @@ enum class RunningState {
     FLYING,
     PAUSED,
     SITUATION,
-};
-
-enum class SituationType {
-    NONE,
-    MINOR,
-    ENGINE_FAILURE,
-    AIR_FILTER_FAILURE,
-    GYROSCOPE_FAILURE,
-    MINOR_HULL_BREACH,
-    MAJOR_HULL_BREACH,
-    APPROACHING_SHIP,
 };
 
 enum class MenuOptions {
@@ -71,13 +62,7 @@ class RunningUI : public Task {
 
     void UpdateCrewFood ();
 
-    void ShowPauseOptions ();
-
     void Pause ();
-
-    void ShowVelocityChangeOptions ();
-
-    void ShowChangeRationsOptions ();
 
     bool IsSituation ();
 
@@ -104,6 +89,8 @@ class RunningUI : public Task {
   private:
 
     logger_t logger_;
+
+    std::unique_ptr< PauseMenu > pause_menu_ { nullptr };
 
     std::shared_ptr< NavigationControlManager > nav_manager_ { nullptr };
 
@@ -175,7 +162,7 @@ class RunningUI : public Task {
             "Air filter unresponsive. Cannot recycle Oxygen.",
     };
 
-    std::queue< std::string >       notifications_;
+
     std::queue< const std::string > situations_;
 
     const std::string distance_remaining_ = "Distance remaining: ";
@@ -205,11 +192,10 @@ class RunningUI : public Task {
 
     int ss_mvmt_counter_ { 0 };
 
+    bool notified_no_food_ = false;
 
     const int pause_y_ { 32 };
     const int pause_x_ { 30 };
-
-    bool notified_no_food_ = false;
 
     GameState     ret_state { GameState::RUNNING };
     MenuOptions   menu_options_ { MenuOptions::MAIN };

@@ -23,14 +23,14 @@ RunningUI::RunningUI ( const std::string &name, TaskType taskType,
           spaceship_handler_(std::move(spaceship_handler)),
           nav_manager_(std::move(nav_manager)),
           listener_(std::move(listener)),
-          main_(main), logger_(CreateLogger(name)) {
-
-}
+          main_(main), logger_(CreateLogger(name)) {}
 
 void RunningUI::Init () {
     logger_->debug("Running UI init");
     spaceship_ = spaceship_handler_->GetSpaceship();
     nav_manager_->SetVelocity(Velocity::SLOW);
+    pause_menu_ = std::make_unique< PauseMenu >(spaceship_, nav_manager_,
+                                                main_);
 }
 
 void RunningUI::ProcessInput () {
@@ -52,9 +52,7 @@ void RunningUI::ProcessInput () {
                         logger_->debug("Returning to flying");
                     }
 
-                    if ( !notifications_.empty()) {
-                        notifications_.pop();
-                    }
+                    pause_menu_->ClearLastNotification();
                     break;
                 case RunningState::SITUATION:
                     Pause();
@@ -185,9 +183,7 @@ void RunningUI::ProcessInput () {
                             fixing_minor_  = true;
                             running_state_ = RunningState::FLYING;
                             logger_->debug("Trying to fix minor issue");
-                            if ( !notifications_.empty()) {
-                                notifications_.pop();
-                            }
+                            pause_menu_->ClearLastNotification();
                             break;
                         }
                         case MenuOptions::VELOCITY_CHANGE:
@@ -259,13 +255,14 @@ GameState RunningUI::OnLoop ( GameState state ) {
         case RunningState::PAUSED:
             switch ( menu_options_ ) {
                 case MenuOptions::MAIN:
-                    ShowPauseOptions();
+                    pause_menu_->ShowPauseOptions(situation_type_,
+                                                  ignored_minor_mech_failures_);
                     break;
                 case MenuOptions::VELOCITY_CHANGE:
-                    ShowVelocityChangeOptions();
+                    pause_menu_->ShowVelocityChangeOptions();
                     break;
                 case MenuOptions::RATION_CHANGE:
-                    ShowChangeRationsOptions();
+                    pause_menu_->ShowChangeRationsOptions();
                     break;
             }
             break;
@@ -289,7 +286,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
             break;
     }
 
-    if ( !notifications_.empty()) {
+    if ( pause_menu_->HasNotifications()) {
         Pause();
         return GameState::RUNNING; // clear queue before exiting
     }
@@ -310,7 +307,7 @@ void RunningUI::Update () {
 
 void RunningUI::WaitForHelp () {
     if ( Random::get< bool >(successful_distress_)) {
-        notifications_.push("Saved by friendly aliens.");
+        pause_menu_->PushNotification("Saved by friendly aliens.");
         situation_type_    = SituationType::NONE;
         running_state_     = RunningState::FLYING;
         waiting_for_help_  = false;
@@ -328,7 +325,7 @@ void RunningUI::FixMinor () {
     if ( Random::get< bool >(minor_fix_prob_)) {
         std::string fixed = "Fixed \"" + situations_.front() +
                             "\"";
-        notifications_.push(fixed);
+        pause_menu_->PushNotification(fixed);
         situation_type_ = SituationType::NONE;
         running_state_  = RunningState::FLYING;
         fixing_         = false;
@@ -343,7 +340,7 @@ void RunningUI::FixMinorIgnored () {
     if ( Random::get< bool >(minor_fix_prob_)) {
         logger_->debug("Fixed ignored issue");
         std::string fixed = "Fixed ignored minor issue";
-        notifications_.push(fixed);
+        pause_menu_->PushNotification(fixed);
         fixing_minor_  = false;
         enough_spares_ = true;
 
@@ -353,7 +350,7 @@ void RunningUI::FixMinorIgnored () {
 
 bool RunningUI::UseGenericSpareParts () {
     if ( !spaceship_->UseSpareParts(req_cabling_, req_components_)) {
-        notifications_.push("Not enough spare parts");
+        pause_menu_->PushNotification("Not enough spare parts");
         enough_spares_ = false;
         return false;
     } else {
@@ -370,7 +367,8 @@ void RunningUI::AttemptFix () {
             break;
         case SituationType::ENGINE_FAILURE: {
             if ( Random::get< bool >(major_fix_prob_)) {
-                notifications_.push("Fixed engine. Engine nominal.");
+                pause_menu_->PushNotification(
+                        "Fixed engine. Engine nominal.");
                 situation_type_    = SituationType::NONE;
                 running_state_     = RunningState::FLYING;
                 situation_counter_ = 0;
@@ -385,7 +383,7 @@ void RunningUI::AttemptFix () {
         }
         case SituationType::AIR_FILTER_FAILURE: {
             if ( Random::get< bool >(major_fix_prob_)) {
-                notifications_.push("Fixed air filter.");
+                pause_menu_->PushNotification("Fixed air filter.");
                 situation_type_    = SituationType::NONE;
                 running_state_     = RunningState::FLYING;
                 air_is_poisoned_   = false;
@@ -537,21 +535,20 @@ void RunningUI::UpdateSpaceshipState () {
         ss_food_usage_counter_ = 0;
     }
 
-    if ( spaceship_->GetFuel() <= 0 ) {
-        notifications_.push("Out of fuel :(");
+    if ( !spaceship_->HasFuel()) {
+        pause_menu_->PushNotification("Out of fuel :(");
         ret_state = GameState::EXITING;
     }
 
     if ( spaceship_->GetCrew().empty()) {
-        notifications_.push("All crew dead :(");
+        pause_menu_->PushNotification("All crew dead :(");
         ret_state = GameState::EXITING;
     }
 
-    if ( !notified_no_food_ &&
-         spaceship_->GetFood() <= 0 ) {
-        notifications_.push("Out of food :(");
+    if ( !notified_no_food_ && !spaceship_->HasFood()) {
+        pause_menu_->PushNotification("Out of food :(");
         notified_no_food_ = true;
-    } else if ( spaceship_->GetFood() > 0 ) {
+    } else if ( spaceship_->HasFood()) {
         notified_no_food_ = false;
     }
 
@@ -566,41 +563,6 @@ void RunningUI::UpdateSpaceshipState () {
 
 }
 
-void RunningUI::ShowPauseOptions () {
-    int y = pause_y_;
-    int x = pause_x_;
-
-    mvwaddstr(main_, y++, x - 3, "Paused");
-    mvwaddstr(main_, y++, x - 23,
-              "---------------------------------------------");
-
-    if ( !notifications_.empty()) {
-        mvwaddstr(main_, y++, x - notifications_.front().length() / 2,
-                  notifications_.front().c_str());
-        mvwaddstr(main_, y++, x - 23,
-                  "---------------------------------------------");
-    }
-    std::string vel = ( situation_type_ != SituationType::ENGINE_FAILURE
-                        ? "1. Change velocity"
-                        : "1. <Unable to change velocity>" );
-    mvwaddstr(main_, y++, x - 12, vel.c_str());
-    mvwaddstr(main_, y++, x - 12, "2. Change rations");
-    std::string       en     = ( nav_manager_->LowPowerEnabled()
-                                 ? "enabled"
-                                 : "disabled" );
-    const std::string &power = "3. Toggle low power mode. Currently " + en;
-    mvwaddstr(main_, y++, x - 12, power.c_str());
-
-    if ( ignored_minor_mech_failures_ > 0 ) {
-        std::stringstream out;
-        out << "4. Attempt to fix one of (" << ignored_minor_mech_failures_
-            << ") minor issues";
-        mvwaddstr(main_, y++, x - 12, out.str().c_str());
-    }
-    ++y;
-    mvwaddstr(main_, y++, x - 12, "Hit [Space] to continue.");
-}
-
 void RunningUI::UpdateAllCrewHealth () {
     std::vector< CrewMember > &crew = spaceship_->GetCrew();
 
@@ -612,7 +574,7 @@ void RunningUI::UpdateAllCrewHealth () {
 
     for ( auto &c : crew ) {
         if ( c.IsDead()) {
-            notifications_.push(
+            pause_menu_->PushNotification(
                     c.GetName() +
                     " has suffocated to death from poisoned air :(");
         }
@@ -664,7 +626,7 @@ void RunningUI::UpdateCrewFood () {
 
     for ( auto &c : crew ) {
         if ( c.IsDead()) {
-            notifications_.push(
+            pause_menu_->PushNotification(
                     c.GetName() + " has starved to death :(");
         }
     }
@@ -675,65 +637,6 @@ void RunningUI::UpdateCrewFood () {
 void RunningUI::Pause () {
     running_state_ = RunningState::PAUSED;
     menu_options_  = MenuOptions::MAIN;
-}
-
-void RunningUI::ShowVelocityChangeOptions () {
-    int y = pause_y_;
-    int x = pause_x_;
-
-    std::stringstream disp;
-    disp.precision(3);
-
-    disp << spaceship_->GetFuel();
-    std::string available = "Available: " + disp.str();
-    disp.str("");
-
-    disp << nav_manager_->GetStopFuel();
-    std::string stop = "1. Stop (" + disp.str() + " fuel)";
-    disp.str("");
-
-    disp << nav_manager_->GetSlowFuel();
-    std::string slow = "2. Slow (" + disp.str() + " fuel)";
-    disp.str("");
-
-    disp << nav_manager_->GetModerateFuel();
-    std::string moderate = "3. Moderate (" + disp.str() + " fuel)";
-    disp.str("");
-
-    disp << nav_manager_->GetFastFuel();
-    std::string fast = "4. Fast (" + disp.str() + " fuel)";
-    disp.str("");
-
-    disp << nav_manager_->GetDangerousFuel();
-    std::string dangerous = "5. Dangerous (" + disp.str() + " fuel)";
-    disp.str("");
-
-    mvwaddstr(main_, y++, x - 3, "Paused");
-    mvwaddstr(main_, y++, x - 23,
-              "---------------------------------------------");
-    mvwaddstr(main_, y++, x - 26,
-              "Any velocity change requires fuel. Save enough fuel to stop.");
-    mvwaddstr(main_, y++, x - 12, "Would be unfortunate...");
-    mvwaddstr(main_, y++, x - 10, available.c_str());
-    ++y;
-    mvwaddstr(main_, y++, x - 10, stop.c_str());
-    mvwaddstr(main_, y++, x - 10, slow.c_str());
-    mvwaddstr(main_, y++, x - 10, moderate.c_str());
-    mvwaddstr(main_, y++, x - 10, fast.c_str());
-    mvwaddstr(main_, y++, x - 10, dangerous.c_str());
-}
-
-void RunningUI::ShowChangeRationsOptions () {
-
-    int y = pause_y_;
-    int x = pause_x_;
-
-    mvwaddstr(main_, y++, x - 3, "Paused");
-    mvwaddstr(main_, y++, x - 23,
-              "---------------------------------------------");
-    mvwaddstr(main_, y++, x - 10, "1. Half");
-    mvwaddstr(main_, y++, x - 10, "2. Normal");
-    mvwaddstr(main_, y++, x - 10, "3. Filling");
 }
 
 void RunningUI::MoveFlyingObject () {
