@@ -20,6 +20,7 @@ int main () {
     initscr();
     noecho();
     keypad(stdscr, true);
+    curs_set(0);
 
     WINDOW *main = subwin(stdscr, LINES - 2, COLS - 42, 1, 41);
 

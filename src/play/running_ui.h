@@ -5,6 +5,7 @@
 #pragma once
 
 #include <map>
+#include <effolkronium/random.hpp>
 
 #include "../loop_control/task.h"
 #include "../logging/logging.h"
@@ -13,6 +14,8 @@
 
 
 namespace sc::play {
+
+using Random = effolkronium::random_static;
 
 enum class RunningState {
     FLYING,
@@ -92,7 +95,10 @@ class RunningUI : public Task {
 
     void UpdateAllCrewHealth ();
 
+    void MoveFlyingObject ();
+
   private:
+
 
     logger_t logger_;
 
@@ -103,6 +109,32 @@ class RunningUI : public Task {
     std::shared_ptr< InputListener > listener_;
 
     WINDOW *main_;
+
+
+    struct FlyingObject {
+        FlyingObject ( int min_y, int max_y ) {
+            appearance   = Random::get({ '*', '.', '`', 'o', 'x' });
+            x            = 0;
+            y            = Random::get< int >(min_y, max_y);
+            travel_speed = Random::get({ 2, 4, 6 });
+            end_pt       = Random::get< int >(90, 100);
+        }
+
+        FlyingObject () : x(0), y(0), travel_speed(0), appearance(' '),
+                          end_pt(0) {}
+
+        int  x;
+        int  y;
+        int  travel_speed;
+        int  end_pt;
+        int counter { 0 };
+        char appearance;
+    };
+
+
+    const double flying_object_prob_ { 0.1 };
+    std::unique_ptr<FlyingObject> flying_object_ { nullptr };
+
 
     std::string appearance_code_ {};
 
@@ -209,7 +241,7 @@ class RunningUI : public Task {
     const double fast_      = 0.005;
     const double dangerous_ = 0.01;
 
-    const int ss_max_y_ { 26 };
+    const int ss_max_y_ { 37 };
     const int ss_min_y_ { 24 };
     const int ss_max_x_ { 55 };
     const int ss_min_x_ { 45 };

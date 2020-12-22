@@ -13,7 +13,6 @@
 
 namespace sc::play {
 
-using Random = effolkronium::random_static;
 
 RunningUI::RunningUI ( const std::string &name, TaskType taskType,
                        std::shared_ptr< SpaceshipHandler > spaceship_handler,
@@ -261,6 +260,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
     switch ( running_state_ ) {
         case RunningState::FLYING:
+            MoveFlyingObject();
             IsSituation();
 
             if ( fixing_minor_ ) {
@@ -288,15 +288,11 @@ GameState RunningUI::OnLoop ( GameState state ) {
             }
             break;
         case RunningState::SITUATION:
-            ++situation_counter_;
-
-            if ( situation_type_ == SituationType::AIR_FILTER_FAILURE &&
-                 !air_is_poisoned_ && air_response_time_ -
-                                      ( situation_counter_ /
-                                        second_count_period_ ) <= 0 ) {
-                logger_->debug("Air is poisoned");
-                air_is_poisoned_ = true;
+            if ( situation_type_ == SituationType::AIR_FILTER_FAILURE ) {
+                ++situation_counter_;
             }
+
+            MoveFlyingObject();
 
             if ( velocity_ != stop_ ) {
                 MoveSpaceship();
@@ -322,6 +318,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
         Pause();
         return GameState::RUNNING; // clear queue before exiting
     }
+
 
     return ret_state;
 }
@@ -446,7 +443,6 @@ void RunningUI::ShowSituationReport () {
     if ( !waiting_for_help_ && !enough_spares_ ) {
         mvwaddstr(main_, y++, x - 12,
                   "Not enough spares. Issue distress signal (y/n)?");
-        return;
     }
 
     if ( enough_spares_ && fixing_ ) {
@@ -611,6 +607,14 @@ void RunningUI::UpdateSpaceshipState () {
         notified_no_food_ = true;
     } else if ( spaceship_handler_->GetSpaceship()->GetFood() > 0 ) {
         notified_no_food_ = false;
+    }
+
+    if ( situation_type_ == SituationType::AIR_FILTER_FAILURE &&
+         !air_is_poisoned_ && air_response_time_ -
+                              ( situation_counter_ /
+                                second_count_period_ ) <= 0 ) {
+        logger_->debug("Air is poisoned");
+        air_is_poisoned_ = true;
     }
 
 
@@ -795,6 +799,31 @@ void RunningUI::ShowChangeRationsOptions () {
     mvwaddstr(main_, y++, x - 10, "1. Half");
     mvwaddstr(main_, y++, x - 10, "2. Normal");
     mvwaddstr(main_, y++, x - 10, "3. Filling");
+}
+
+void RunningUI::MoveFlyingObject () {
+
+    if ( !flying_object_ && Random::get< bool >(flying_object_prob_)) {
+        flying_object_ = std::make_unique< FlyingObject >(ss_min_y_ - 2,
+                                                          ss_max_y_ + 2);
+    } else {
+        if ( !flying_object_ ) { return; }
+
+        if ( flying_object_->travel_speed == 0 ) {
+            return;
+        }
+        flying_object_->x =
+                ++( flying_object_->counter ) /
+                flying_object_->travel_speed;
+
+        mvwaddch(main_, flying_object_->y, flying_object_->x,
+                 flying_object_->appearance);
+
+        if ( flying_object_->x > flying_object_->end_pt ) {
+            flying_object_.reset(nullptr);
+            return;
+        }
+    }
 }
 
 

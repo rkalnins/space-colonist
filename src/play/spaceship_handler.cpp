@@ -133,8 +133,9 @@ void SpaceshipHandler::PrintHUD () {
     display.precision(3);
     display << "Crew: " << spaceship_->GetCrew().size()
             << "\tFuel: "
-            << ( spaceship_->GetFuel() / spaceship_->GetFullFuel() *
-                 100.0 )
+            << std::max(
+                    ( spaceship_->GetFuel() / spaceship_->GetFullFuel() *
+                      100.0 ), 0.0)
             << "%\tHull: " << spaceship_->GetHull();
 
     mvwaddstr(main_, spaceship_display_y_, spaceship_display_x_,
