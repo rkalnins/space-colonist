@@ -13,7 +13,7 @@ namespace sc {
 
 using logger_t = std::shared_ptr< spdlog::logger >;
 
-logger_t CreateLogger ( const std::string &name ) {
+static logger_t CreateLogger ( const std::string &name ) {
     logger_t logger = spdlog::basic_logger_mt(name,
                                               "logs/space-colonist-log.log");
     logger->set_level(spdlog::level::debug);

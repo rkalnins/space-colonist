@@ -16,9 +16,8 @@ namespace sc {
 Game::Game ( std::shared_ptr< GameDependencies > deps,
              std::shared_ptr< InputListener > listener )
         : deps_(std::move(deps)),
-          input_listener_(std::move(listener)) {
-    logger_ = spdlog::basic_logger_mt("game",
-                                      "logs/space-colonist-log.log");
+          input_listener_(std::move(listener)),
+          logger_(CreateLogger("game")) {
     logger_->set_level(spdlog::level::debug);
 
     main_ = deps_->GetMain();
