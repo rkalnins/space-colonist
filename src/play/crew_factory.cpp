@@ -15,10 +15,8 @@ using Random = effolkronium::random_static;
 
 namespace sc::play {
 
-CrewMemberFactory::CrewMemberFactory () {
-    logger_ = spdlog::basic_logger_mt("crew_factory",
-                                      "logs/space-colonist-log.log");
-    logger_->set_level(spdlog::level::debug);
+CrewMemberFactory::CrewMemberFactory () : logger_(
+        CreateLogger("crew_factory")) {
 }
 
 

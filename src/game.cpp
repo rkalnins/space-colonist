@@ -8,7 +8,6 @@
 #include <utility>
 
 #include "logging/logging.h"
-#include "loop_control/watchdog.h"
 #include "game.h"
 
 
@@ -81,9 +80,11 @@ void Game::LoopController () {
 
 void Game::Init () {
     setup_tasks_.AddTask(deps_->setup_ui_);
-    setup_tasks_.AddTask(deps_->spaceship_handler_);
+    setup_tasks_.AddTask(deps_->hud_display_);
+    setup_tasks_.AddTask(deps_->nav_manager_);
 
-    running_tasks_.AddTask(deps_->spaceship_handler_);
+    running_tasks_.AddTask(deps_->hud_display_);
+    running_tasks_.AddTask(deps_->nav_manager_);
 
     LoopController();
 }

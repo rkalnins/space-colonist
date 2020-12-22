@@ -20,7 +20,7 @@
 #include "game_deps.h"
 #include "game_state.h"
 
-#include "play/objects/spaceship.h"
+#include "play/spaceship.h"
 #include "play/spaceship_handler.h"
 #include "loop_control/watchdog.h"
 

@@ -8,8 +8,9 @@
 namespace sc {
 
 enum class GameState {
-   SETUP, RUNNING, EXITING
+    SETUP, RUNNING, EXITING
 };
+
 }
 
 

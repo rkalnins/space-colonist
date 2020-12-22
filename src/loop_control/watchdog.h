@@ -14,9 +14,7 @@ namespace sc {
 class Watchdog {
   public:
     Watchdog () {
-        logger_ = spdlog::basic_logger_mt("watchdog",
-                                          "logs/space-colonist-log.log");
-        logger_->set_level(spdlog::level::debug);
+        logger_ = CreateLogger("watchdog");
     }
 
     void Notify () {

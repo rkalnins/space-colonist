@@ -19,17 +19,35 @@ class Item {
 
     [[nodiscard]] const std::string &GetName () const;
 
-    [[nodiscard]] int GetValue () const;
-
     [[nodiscard]] double GetWeight () const;
-
-    bool UpdateValue ( int value );
-
-    void UpdateWeight ( double weight );
 
     [[nodiscard]] int GetCost () const;
 
-    void SetValue ( int value );
+    [[nodiscard]] int GetQuantity () const;
+
+    void SetQuantity ( int quantity );
+
+    /**
+     * Updates value, if subtracting and result is less than 0, new value is 0
+     * @param quantity
+     * @return
+     */
+    bool HardUpdateQuantity ( int quantity );
+
+    /**
+     * Updates value, if subtracting and result is less than 0 then abort
+     * @param quantity
+     * @return
+     */
+    bool SoftUpdateQuantity ( int quantity );
+
+
+    /**
+     * Updates value, if subtracting, updates as much as possible, returns value not used, if any
+     * @param weight
+     * @return
+     */
+    int PartialUpdateQuantity ( int quantity );
 
 
     class NameComparator {
@@ -50,9 +68,11 @@ class Item {
 
     std::string category_;
     std::string name_;
-    int         value_;
-    double      weight_;
-    int         cost_;
+
+    double weight_;
+
+    int cost_;
+    int quantity_;
 };
 
 }

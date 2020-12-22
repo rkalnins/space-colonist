@@ -16,26 +16,24 @@ namespace sc::play {
 
 RunningUI::RunningUI ( const std::string &name, TaskType taskType,
                        std::shared_ptr< SpaceshipHandler > spaceship_handler,
+                       std::shared_ptr< play::NavigationControlManager > nav_manager,
                        std::shared_ptr< InputListener > listener,
                        std::shared_ptr< SpaceshipFactory > spaceship_factory,
                        WINDOW *main )
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),
+          nav_manager_(std::move(nav_manager)),
           listener_(std::move(listener)),
           spaceship_factory_(std::move(spaceship_factory)),
-          main_(main) {
-
-    logger_ = spdlog::basic_logger_mt("running_ui",
-                                      "logs/space-colonist-log.log");
-    logger_->set_level(spdlog::level::debug);
-
+          main_(main), logger_(CreateLogger(name)) {
 
 }
 
 void RunningUI::Init () {
     logger_->debug("Running UI init");
-    appearance_code_ = spaceship_handler_->GetSpaceship()->GetAppearanceCode();
-    spaceship_handler_->GetSpaceship()->StartMoving();
+    spaceship_       = spaceship_handler_->GetSpaceship();
+    appearance_code_ = spaceship_->GetAppearanceCode();
+    nav_manager_->SetVelocity(Velocity::SLOW);
 }
 
 void RunningUI::ProcessInput () {
@@ -47,8 +45,6 @@ void RunningUI::ProcessInput () {
                     logger_->debug("Pausing");
                     break;
                 case RunningState::PAUSED:
-                    spaceship_handler_->GetSpaceship()->StartMoving();
-
                     if ( situation_type_ != SituationType::NONE ) {
                         running_state_ = RunningState::SITUATION;
                         logger_->debug("Returning to situation");
@@ -79,7 +75,7 @@ void RunningUI::ProcessInput () {
                             }
                             break;
                         case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(stop_);
+                            UpdateVelocity(Velocity::STOP);
                             break;
                         case MenuOptions::RATION_CHANGE:
                             ss_food_usage_period_ = ss_half_rations_;
@@ -125,7 +121,7 @@ void RunningUI::ProcessInput () {
                             menu_options_ = MenuOptions::RATION_CHANGE;
                             break;
                         case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(slow_);
+                            UpdateVelocity(Velocity::SLOW);
                             break;
                         case MenuOptions::RATION_CHANGE:
                             ss_food_usage_period_ = ss_normal_rations_;
@@ -158,17 +154,10 @@ void RunningUI::ProcessInput () {
                 case RunningState::PAUSED:
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN:
-                            if ( !trickle_nominal_ ) {
-                                fuel_trickle_ = nominal_trickle_;
-                            } else {
-                                fuel_trickle_ = low_e_trickle_;
-                            }
-
-                            trickle_nominal_ = !trickle_nominal_;
-
+                            nav_manager_->TogglePowerMode();
                             break;
                         case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(moderate_);
+                            UpdateVelocity(Velocity::MODERATE);
                             break;
                         case MenuOptions::RATION_CHANGE:
                             ss_food_usage_period_ = ss_filling_rations_;
@@ -203,7 +192,7 @@ void RunningUI::ProcessInput () {
                             break;
                         }
                         case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(fast_);
+                            UpdateVelocity(Velocity::FAST);
                             break;
                         default:
                             break;
@@ -219,7 +208,7 @@ void RunningUI::ProcessInput () {
                 case RunningState::PAUSED:
                     switch ( menu_options_ ) {
                         case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(dangerous_);
+                            UpdateVelocity(Velocity::DANGEROUS);
                             break;
                         default:
                             break;
@@ -247,8 +236,9 @@ GameState RunningUI::OnLoop ( GameState state ) {
     std::stringstream disp;
     disp.precision(3);
     disp << distance_remaining_
-         << spaceship_handler_->GetDistanceRemaining() << "\t"
-         << velocity_name_ << ( velocity_ * 100.0 ) << "\tRations: "
+         << nav_manager_->GetDistanceRemaining() << "\t"
+         << velocity_name_ << ( nav_manager_->GetVelocity() * 100.0 )
+         << "\tRations: "
          << rations_;
     mvwaddstr(main_, dist_disp_y_, dist_disp_x_, disp.str().c_str());
 
@@ -260,19 +250,14 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
     switch ( running_state_ ) {
         case RunningState::FLYING:
-            MoveFlyingObject();
             IsSituation();
 
             if ( fixing_minor_ ) {
                 FixMinorIgnored();
             }
 
-            if ( velocity_ != stop_ ) {
-                MoveSpaceship();
-            }
+            Update();
 
-            UpdateSpaceshipState();
-            UpdateCrew();
             break;
         case RunningState::PAUSED:
             switch ( menu_options_ ) {
@@ -292,14 +277,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
                 ++situation_counter_;
             }
 
-            MoveFlyingObject();
-
-            if ( velocity_ != stop_ ) {
-                MoveSpaceship();
-            }
-
-            UpdateSpaceshipState();
-            UpdateCrew();
+            Update();
 
             ShowSituationReport();
 
@@ -319,8 +297,18 @@ GameState RunningUI::OnLoop ( GameState state ) {
         return GameState::RUNNING; // clear queue before exiting
     }
 
-
     return ret_state;
+}
+
+void RunningUI::Update () {
+    MoveFlyingObject();
+
+    if ( !nav_manager_->IsStopped()) {
+        MoveSpaceship();
+    }
+
+    UpdateSpaceshipState();
+    UpdateCrew();
 }
 
 void RunningUI::WaitForHelp () {
@@ -367,8 +355,7 @@ void RunningUI::FixMinorIgnored () {
 }
 
 bool RunningUI::UseGenericSpareParts () {
-    if ( !spaceship_handler_->GetSpaceship()->UseSpareParts(req_cabling_,
-                                                            req_components_)) {
+    if ( !spaceship_->UseSpareParts(req_cabling_, req_components_)) {
         notifications_.push("Not enough spare parts");
         enough_spares_ = false;
         return false;
@@ -467,17 +454,14 @@ void RunningUI::ShowSituationReport () {
     }
 }
 
-bool RunningUI::UpdateVelocity ( double new_velocity ) {
+bool RunningUI::UpdateVelocity ( Velocity new_velocity ) {
     if ( Random::get< bool >(unresponsive_engines_)) {
         situations_.push("Unresponsive engines. Cause unknown.");
         situation_type_ = SituationType::ENGINE_FAILURE;
         menu_options_   = MenuOptions::MAIN;
         return true;
     } else {
-        spaceship_handler_->GetSpaceship()->UseFuel(
-                std::abs(( new_velocity - velocity_ )) *
-                velocity_to_fuel_ratio_);
-        velocity_     = new_velocity;
+        nav_manager_->SetVelocity(new_velocity);
         menu_options_ = MenuOptions::MAIN;
         return false;
     }
@@ -582,30 +566,26 @@ void RunningUI::UpdateSpaceshipState () {
         return;
     }
 
-    spaceship_handler_->GetSpaceship()->UseFuel(fuel_trickle_);
-    spaceship_handler_->UpdateDistanceRemaining(-1 * velocity_);
-
-
     if ( ss_food_usage_counter_++ > ss_food_usage_period_ ) {
-        spaceship_handler_->GetSpaceship()->UseFood();
+        spaceship_->UseFood();
         ss_food_usage_counter_ = 0;
     }
 
-    if ( spaceship_handler_->GetSpaceship()->GetFuel() <= 0 ) {
+    if ( spaceship_->GetFuel() <= 0 ) {
         notifications_.push("Out of fuel :(");
         ret_state = GameState::EXITING;
     }
 
-    if ( spaceship_handler_->GetSpaceship()->GetCrew().empty()) {
+    if ( spaceship_->GetCrew().empty()) {
         notifications_.push("All crew dead :(");
         ret_state = GameState::EXITING;
     }
 
     if ( !notified_no_food_ &&
-         spaceship_handler_->GetSpaceship()->GetFood() <= 0 ) {
+         spaceship_->GetFood() <= 0 ) {
         notifications_.push("Out of food :(");
         notified_no_food_ = true;
-    } else if ( spaceship_handler_->GetSpaceship()->GetFood() > 0 ) {
+    } else if ( spaceship_->GetFood() > 0 ) {
         notified_no_food_ = false;
     }
 
@@ -639,8 +619,9 @@ void RunningUI::ShowPauseOptions () {
                         : "1. <Unable to change velocity>" );
     mvwaddstr(main_, y++, x - 12, vel.c_str());
     mvwaddstr(main_, y++, x - 12, "2. Change rations");
-    std::string       en     = ( !trickle_nominal_ ? "enabled"
-                                                   : "disabled" );
+    std::string       en     = ( nav_manager_->LowPowerEnabled()
+                                 ? "enabled"
+                                 : "disabled" );
     const std::string &power = "3. Toggle low power mode. Currently " + en;
     mvwaddstr(main_, y++, x - 12, power.c_str());
 
@@ -655,7 +636,7 @@ void RunningUI::ShowPauseOptions () {
 }
 
 void RunningUI::UpdateAllCrewHealth () {
-    std::vector< CrewMember > &crew = spaceship_handler_->GetSpaceship()->GetCrew();
+    std::vector< CrewMember > &crew = spaceship_->GetCrew();
 
     if ( air_is_poisoned_ ) {
         for ( auto &c : crew ) {
@@ -671,7 +652,7 @@ void RunningUI::UpdateAllCrewHealth () {
         }
     }
 
-    spaceship_handler_->GetSpaceship()->RemoveDeadCrew();
+    spaceship_->RemoveDeadCrew();
 
 }
 
@@ -690,9 +671,9 @@ void RunningUI::UpdateCrew () {
 }
 
 void RunningUI::UpdateCrewFood () {
-    std::vector< CrewMember > &crew = spaceship_handler_->GetSpaceship()->GetCrew();
+    std::vector< CrewMember > &crew = spaceship_->GetCrew();
 
-    if ( spaceship_handler_->GetSpaceship()->GetFood() <= 0 ) {
+    if ( spaceship_->GetFood() <= 0 ) {
         ss_food_usage_period_ = starve_period_;
         for ( auto &c : crew ) {
             c.UpdateHealth(-1);
@@ -722,13 +703,12 @@ void RunningUI::UpdateCrewFood () {
         }
     }
 
-    spaceship_handler_->GetSpaceship()->RemoveDeadCrew();
+    spaceship_->RemoveDeadCrew();
 }
 
 void RunningUI::Pause () {
     running_state_ = RunningState::PAUSED;
     menu_options_  = MenuOptions::MAIN;
-    spaceship_handler_->GetSpaceship()->StopMoving();
 }
 
 void RunningUI::ShowVelocityChangeOptions () {
@@ -738,38 +718,27 @@ void RunningUI::ShowVelocityChangeOptions () {
     std::stringstream disp;
     disp.precision(3);
 
-    double stop_f = std::abs(( stop_ - velocity_ )) *
-                    velocity_to_fuel_ratio_;
-    double slow_f = std::abs(( slow_ - velocity_ )) *
-                    velocity_to_fuel_ratio_;
-    double mod_f  = std::abs(( moderate_ - velocity_ )) *
-                    velocity_to_fuel_ratio_;
-    double fast_f = std::abs(( fast_ - velocity_ )) *
-                    velocity_to_fuel_ratio_;
-    double dang_f = std::abs(( dangerous_ - velocity_ )) *
-                    velocity_to_fuel_ratio_;
-
-    disp << spaceship_handler_->GetSpaceship()->GetFuel();
+    disp << spaceship_->GetFuel();
     std::string available = "Available: " + disp.str();
     disp.str("");
 
-    disp << stop_f;
+    disp << nav_manager_->GetStopFuel();
     std::string stop = "1. Stop (" + disp.str() + " fuel)";
     disp.str("");
 
-    disp << slow_f;
+    disp << nav_manager_->GetSlowFuel();
     std::string slow = "2. Slow (" + disp.str() + " fuel)";
     disp.str("");
 
-    disp << mod_f;
+    disp << nav_manager_->GetModerateFuel();
     std::string moderate = "3. Moderate (" + disp.str() + " fuel)";
     disp.str("");
 
-    disp << fast_f;
+    disp << nav_manager_->GetFastFuel();
     std::string fast = "4. Fast (" + disp.str() + " fuel)";
     disp.str("");
 
-    disp << dang_f;
+    disp << nav_manager_->GetDangerousFuel();
     std::string dangerous = "5. Dangerous (" + disp.str() + " fuel)";
     disp.str("");
 

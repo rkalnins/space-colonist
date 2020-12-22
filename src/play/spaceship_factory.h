@@ -7,7 +7,7 @@
 #include <ncurses.h>
 
 #include "../logging/logging.h"
-#include "objects/spaceship.h"
+#include "spaceship.h"
 
 
 namespace sc::play {

@@ -55,4 +55,8 @@ void CrewMember::UpdateHealth ( int change ) {
     health_ += change;
 }
 
+bool CrewMember::IsDead () const {
+    return health_ <= 0;
+}
+
 }

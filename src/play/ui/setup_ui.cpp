@@ -7,29 +7,27 @@
 #include <utility>
 #include <sstream>
 
-#include "objects/crew_factory.h"
-#include "spaceship_factory.h"
-
 
 namespace sc::play {
 
 
 SetupUI::SetupUI ( const std::string &name, TaskType taskType,
                    std::shared_ptr< SpaceshipHandler > spaceship_handler,
+                   std::shared_ptr< play::NavigationControlManager > nav_manager_,
                    std::shared_ptr< InputListener > listener,
                    std::shared_ptr< SpaceshipFactory > spaceship_factory,
                    WINDOW *main )
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),
+          nav_manager_(std::move(nav_manager_)),
           listener_(std::move(listener)),
           spaceship_factory_(std::move(spaceship_factory)),
-          main_(main) {
-    logger_ = spdlog::basic_logger_mt("ui",
-                                      "logs/space-colonist-log.log");
-    logger_->set_level(spdlog::level::debug);
+          main_(main),
+          logger_(CreateLogger("name")) {
+    logger_ = CreateLogger(name);
 
-    map_generator_ = std::make_unique< MapGenerator >(main, ui_init_y_,
-                                                      ui_init_x_);
+    map_generator_ = std::make_unique< SpaceMap >(main, ui_init_y_,
+                                                  ui_init_x_);
 }
 
 void SetupUI::Init () {
@@ -184,12 +182,12 @@ GameState SetupUI::OnLoop ( GameState state ) {
                          TradingPostCategory::ALL ) { break; }
 
                     Item item = *items_for_sale_[current_category_][current_selected_item_];
-                    if ( item.GetValue() <= 0 ) { break; }
-                    item.SetValue(1);
+                    if ( item.GetQuantity() <= 0 ) { break; }
+                    item.SetQuantity(1);
                     bool success = spaceship_handler_->GetSpaceship()->AddItem(
                             item);
                     if ( success ) {
-                        items_for_sale_[current_category_][current_selected_item_]->UpdateValue(
+                        items_for_sale_[current_category_][current_selected_item_]->HardUpdateQuantity(
                                 -1);
                     }
                     break;
@@ -205,11 +203,11 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     if ( trading_post_view_ ==
                          TradingPostCategory::ALL ) { break; }
                     Item item = *items_for_sale_[current_category_][current_selected_item_];
-                    item.SetValue(1);
+                    item.SetQuantity(1);
                     bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
                             item);
                     if ( success ) {
-                        items_for_sale_[current_category_][current_selected_item_]->UpdateValue(
+                        items_for_sale_[current_category_][current_selected_item_]->HardUpdateQuantity(
                                 1);
                     }
                     break;
@@ -229,7 +227,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     break;
                 case SetupState::DESTINATION_SELECTION:
                     state_ = SetupState::CREW_SELECTION;
-                    spaceship_handler_->SetInitialDistance(
+                    nav_manager_->SetInitialDistance(
                             map_generator_->GetCost());
                     break;
                 case SetupState::CREW_SELECTION:
@@ -496,7 +494,7 @@ void SetupUI::InventorySelection () {
         mvwaddstr(main_, y, x - 2, row.str().c_str());
         row.str("");
 
-        row << item->GetValue();
+        row << item->GetQuantity();
         mvwaddstr(main_, y, x + 28, row.str().c_str());
         row.str("");
 

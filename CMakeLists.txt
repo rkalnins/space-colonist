@@ -26,12 +26,12 @@ set(SOURCE_FILES
         src/loop_control/task_pool.h
         src/windows/intro.cpp
         src/windows/intro.h
-        src/play/objects/spaceship.cpp
-        src/play/objects/spaceship.h
-        src/play/items/item.cpp
-        src/play/items/item.h
-        src/play/objects/crew_member.cpp
-        src/play/objects/crew_member.h
+        src/play/spaceship.cpp
+        src/play/spaceship.h
+        src/play/item.cpp
+        src/play/item.h
+        src/play/crew_member.cpp
+        src/play/crew_member.h
         src/loop_control/task.cpp
         src/loop_control/task.h
         src/game_deps.h
@@ -39,14 +39,14 @@ set(SOURCE_FILES
         src/game_state.h
         src/play/spaceship_handler.cpp
         src/play/spaceship_handler.h
-        src/play/setup_ui.cpp
-        src/play/setup_ui.h
-        src/play/objects/crew_factory.h
-        src/play/objects/crew_factory.cpp
-        src/play/map_generator.cpp
-        src/play/map_generator.h
+        src/play/ui/setup_ui.cpp
+        src/play/ui/setup_ui.h
+        src/play/crew_factory.h
+        src/play/crew_factory.cpp
+        src/play/space_map.cpp
+        src/play/space_map.h
         src/play/spaceship_factory.cpp
-        src/play/spaceship_factory.h src/play/running_ui.cpp src/play/running_ui.h)
+        src/play/spaceship_factory.h src/play/ui/running_ui.cpp src/play/ui/running_ui.h src/play/ui/hud_display.cpp src/play/ui/hud_display.h src/play/nav_control_manager.cpp src/play/nav_control_manager.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

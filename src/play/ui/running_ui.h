@@ -7,10 +7,11 @@
 #include <map>
 #include <effolkronium/random.hpp>
 
-#include "../loop_control/task.h"
-#include "../logging/logging.h"
-#include "spaceship_handler.h"
-#include "spaceship_factory.h"
+#include "../../loop_control/task.h"
+#include "../../logging/logging.h"
+#include "../spaceship_handler.h"
+#include "../spaceship_factory.h"
+#include "../nav_control_manager.h"
 
 
 namespace sc::play {
@@ -47,6 +48,7 @@ class RunningUI : public Task {
 
     RunningUI ( const std::string &name, TaskType taskType,
                 std::shared_ptr< SpaceshipHandler > spaceship_handler,
+                std::shared_ptr< play::NavigationControlManager > nav_manager,
                 std::shared_ptr< InputListener > listener,
                 std::shared_ptr< SpaceshipFactory > spaceship_factory,
                 WINDOW *main );
@@ -79,7 +81,7 @@ class RunningUI : public Task {
 
     bool IsSituation ();
 
-    bool UpdateVelocity ( double new_velocity );
+    bool UpdateVelocity ( Velocity new_velocity );
 
     void ShowSituationReport ();
 
@@ -97,16 +99,22 @@ class RunningUI : public Task {
 
     void MoveFlyingObject ();
 
+    void Update ();
+
   private:
 
 
     logger_t logger_;
 
-    std::shared_ptr< SpaceshipHandler > spaceship_handler_;
+    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
 
-    std::shared_ptr< SpaceshipFactory > spaceship_factory_;
+    std::shared_ptr< NavigationControlManager > nav_manager_ { nullptr };
 
-    std::shared_ptr< InputListener > listener_;
+    std::shared_ptr< Spaceship > spaceship_ { nullptr };
+
+    std::shared_ptr< SpaceshipFactory > spaceship_factory_ { nullptr };
+
+    std::shared_ptr< InputListener > listener_ { nullptr };
 
     WINDOW *main_;
 
@@ -127,13 +135,13 @@ class RunningUI : public Task {
         int  y;
         int  travel_speed;
         int  end_pt;
-        int counter { 0 };
+        int  counter { 0 };
         char appearance;
     };
 
 
-    const double flying_object_prob_ { 0.1 };
-    std::unique_ptr<FlyingObject> flying_object_ { nullptr };
+    const double                    flying_object_prob_ { 0.1 };
+    std::unique_ptr< FlyingObject > flying_object_ { nullptr };
 
 
     std::string appearance_code_ {};
@@ -226,20 +234,6 @@ class RunningUI : public Task {
 
     double ss_mvmt_x_prob_ { 0.75 };
     double ss_mvmt_y_prob_ { 0.75 };
-
-    double       fuel_trickle_    = 0.0004; // trickle
-    const double low_e_trickle_   = 0.00015; // trickle
-    const double nominal_trickle_ = 0.0003; // trickle
-    bool         trickle_nominal_ { true };
-
-    const double velocity_to_fuel_ratio_ = 1000;
-    double       velocity_               = 0.000;
-
-    const double stop_      = 0.0;
-    const double slow_      = 0.0005;
-    const double moderate_  = 0.001;
-    const double fast_      = 0.005;
-    const double dangerous_ = 0.01;
 
     const int ss_max_y_ { 37 };
     const int ss_min_y_ { 24 };

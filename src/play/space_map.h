@@ -20,10 +20,10 @@ namespace sc::play {
 using PlanetsMap = std::vector< std::vector< bool>>;
 
 
-class MapGenerator {
+class SpaceMap {
 
   public:
-    MapGenerator ( WINDOW *main, int map_init_y, int map_init_x );
+    SpaceMap ( WINDOW *main, int map_init_y, int map_init_x );
 
     void SeedMap ();
 
