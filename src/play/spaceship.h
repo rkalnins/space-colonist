@@ -96,6 +96,8 @@ class Spaceship {
 
     void UseFood ();
 
+    bool IsMoving () { return state_ == SpaceshipState::MOVING; }
+
     void StartMoving () { state_ = SpaceshipState::MOVING; }
 
     void StopMoving () { state_ = SpaceshipState::OTHER; }

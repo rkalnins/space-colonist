@@ -15,7 +15,7 @@ using Random = effolkronium::random_static;
 
 class FlyingDebris {
   public:
-    FlyingDebris ( WINDOW *main, int min_y, int max_y );
+    explicit FlyingDebris ( WINDOW *main );
 
     FlyingDebris ();
 
@@ -25,6 +25,10 @@ class FlyingDebris {
 
   private:
     WINDOW *main_;
+
+    const int max_y_ { 40 };
+    const int min_y_ { 25 };
+
 
     int  x;
     int  y {};

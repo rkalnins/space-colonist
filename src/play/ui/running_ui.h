@@ -205,16 +205,6 @@ class RunningUI : public Task {
 
     int ss_mvmt_counter_ { 0 };
 
-    double ss_mvmt_x_prob_ { 0.75 };
-    double ss_mvmt_y_prob_ { 0.75 };
-
-    const int ss_max_y_ { 37 };
-    const int ss_min_y_ { 24 };
-    const int ss_max_x_ { 55 };
-    const int ss_min_x_ { 45 };
-
-    int ss_pos_y_ { 25 };
-    int ss_pos_x_ { 50 };
 
     const int pause_y_ { 32 };
     const int pause_x_ { 30 };

@@ -40,8 +40,10 @@ void RunningUI::ProcessInput () {
                 case RunningState::FLYING:
                     Pause();
                     logger_->debug("Pausing");
+                    spaceship_->StopMoving();
                     break;
                 case RunningState::PAUSED:
+                    spaceship_->StartMoving();
                     if ( situation_type_ != SituationType::NONE ) {
                         running_state_ = RunningState::SITUATION;
                         logger_->debug("Returning to situation");
@@ -241,7 +243,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
     disp.str("");
 
-    spaceship_handler_->PrintSpaceship(main_, ss_pos_y_, ss_pos_x_);
+    spaceship_handler_->PrintSpaceship(main_);
 
     switch ( running_state_ ) {
         case RunningState::FLYING:
@@ -520,39 +522,8 @@ bool RunningUI::IsSituation () {
 
 void RunningUI::MoveSpaceship () {
     if ( ss_mvmt_counter_++ > ss_mvmt_period_ ) {
-
-        bool move_x = Random::get< bool >(ss_mvmt_x_prob_);
-        bool move_y = Random::get< bool >(ss_mvmt_y_prob_);
-
-        if ( move_x ) {
-            ss_pos_x_ += Random::get({ -1, 1 });
-        }
-
-        if ( move_y ) {
-            ss_pos_y_ += Random::get({ -1, 1 });
-        }
-
-        BoundSpaceshipPosition();
-
+        spaceship_handler_->MoveSpaceship();
         ss_mvmt_counter_ = 0;
-    }
-}
-
-void RunningUI::BoundSpaceshipPosition () {
-    if ( ss_pos_x_ > ss_max_x_ ) {
-        ss_pos_x_ = ss_max_x_;
-    }
-
-    if ( ss_pos_x_ < ss_min_x_ ) {
-        ss_pos_x_ = ss_min_x_;
-    }
-
-    if ( ss_pos_y_ > ss_max_y_ ) {
-        ss_pos_y_ = ss_max_y_;
-    }
-
-    if ( ss_pos_y_ < ss_min_y_ ) {
-        ss_pos_y_ = ss_min_y_;
     }
 }
 
@@ -768,9 +739,7 @@ void RunningUI::ShowChangeRationsOptions () {
 void RunningUI::MoveFlyingObject () {
 
     if ( !flying_debris_ && Random::get< bool >(flying_object_prob_)) {
-        flying_debris_ = std::make_unique< FlyingDebris >(main_,
-                                                          ss_min_y_ - 2,
-                                                          ss_max_y_ + 2);
+        flying_debris_ = std::make_unique< FlyingDebris >(main_);
     } else {
         if ( !flying_debris_ ) { return; }
 

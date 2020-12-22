@@ -25,7 +25,8 @@ class GameDependencies {
 
         spaceship_factory_ = std::make_shared< play::SpaceshipFactory >();
 
-        spaceship_handler_ = std::make_shared< play::SpaceshipHandler >(spaceship_factory_);
+        spaceship_handler_ = std::make_shared< play::SpaceshipHandler >(
+                spaceship_factory_);
 
         nav_manager_ = std::make_shared< play::NavigationControlManager >(
                 nav_manager_name_, TaskType::RUNNING,

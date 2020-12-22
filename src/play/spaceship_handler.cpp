@@ -5,10 +5,14 @@
 #include "spaceship_handler.h"
 
 #include <utility>
+#include <effolkronium/random.hpp>
+
 #include "crew_member.h"
 
 
 namespace sc::play {
+
+using Random = effolkronium::random_static;
 
 SpaceshipHandler::SpaceshipHandler (
         std::shared_ptr< SpaceshipFactory > spaceship_factory )
@@ -35,9 +39,43 @@ SpaceshipHandler::SetCrew ( const std::vector< CrewMember > &crew_choices,
     }
 }
 
-void SpaceshipHandler::PrintSpaceship ( WINDOW *main, int y, int x ) {
-    spaceship_factory_->PrintSpaceship(main, y, x,
+void SpaceshipHandler::PrintSpaceship ( WINDOW *main ) {
+    spaceship_factory_->PrintSpaceship(main, ss_pos_y_, ss_pos_x_,
                                        spaceship_->GetAppearanceCode());
+}
+
+void SpaceshipHandler::BoundSpaceshipPosition () {
+    if ( ss_pos_x_ > ss_max_x_ ) {
+        ss_pos_x_ = ss_max_x_;
+    }
+
+    if ( ss_pos_x_ < ss_min_x_ ) {
+        ss_pos_x_ = ss_min_x_;
+    }
+
+    if ( ss_pos_y_ > ss_max_y_ ) {
+        ss_pos_y_ = ss_max_y_;
+    }
+
+    if ( ss_pos_y_ < ss_min_y_ ) {
+        ss_pos_y_ = ss_min_y_;
+    }
+}
+
+void SpaceshipHandler::MoveSpaceship () {
+    bool move_x = Random::get< bool >(ss_mvmt_x_prob_);
+    bool move_y = Random::get< bool >(ss_mvmt_y_prob_);
+
+    if ( move_x ) {
+        ss_pos_x_ += Random::get({ -1, 1 });
+    }
+
+    if ( move_y ) {
+        ss_pos_y_ += Random::get({ -1, 1 });
+    }
+
+    BoundSpaceshipPosition();
+
 }
 
 }
