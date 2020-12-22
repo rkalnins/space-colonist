@@ -90,6 +90,8 @@ class Spaceship {
 
     void SetFood ( int food );
 
+    bool UseSpareParts ( int cables, int components );
+
   private:
 
     class RemoveDeadComp {

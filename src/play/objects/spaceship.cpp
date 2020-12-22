@@ -268,4 +268,43 @@ void Spaceship::RemoveDeadCrew () {
             crew_.end());
 }
 
+bool Spaceship::UseSpareParts ( int cables, int components ) {
+    auto spares = items_.find("Spare parts");
+
+    if ( spares == items_.end()) {
+        logger_->debug("No spares not available");
+        return false;
+    }
+
+    auto spares_v = spares->second;
+
+    Item::NameComparator cables_cmp("Cables");
+    Item::NameComparator comp_cmp("Electronic components");
+
+    auto cables_it = std::find_if(spares_v.begin(), spares_v.end(),
+                                  cables_cmp);
+    auto comp_it   = std::find_if(spares_v.begin(), spares_v.end(),
+                                  comp_cmp);
+
+    if ( cables_it == spares_v.end() || comp_it == spares_v.end()) {
+        logger_->debug("Required spares not available");
+        return false;
+    }
+
+    if ( cables_it->GetValue() < cables ||
+         comp_it->GetValue() < components ) {
+        logger_->debug("Not enough spare parts");
+        return false;
+    }
+
+
+    cables_it->UpdateValue(cables);
+    comp_it->UpdateValue(components);
+
+    logger_->debug("Used spare parts");
+
+    return true;
+
+}
+
 }

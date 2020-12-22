@@ -95,6 +95,7 @@ void RunningUI::ProcessInput () {
                 case RunningState::SITUATION: {
                     switch ( situation_type_ ) {
                         case SituationType::MINOR:
+
                             if ( !situations_.empty()) {
                                 situations_.pop();
                             }
@@ -104,6 +105,7 @@ void RunningUI::ProcessInput () {
                             break;
                         case SituationType::ENGINE_FAILURE:
                         case SituationType::AIR_FILTER_FAILURE:
+                            if ( !UseGenericSpareParts()) { break; }
                             fixing_ = true;
                             break;
                         default:
@@ -139,6 +141,7 @@ void RunningUI::ProcessInput () {
                 case RunningState::SITUATION: {
                     switch ( situation_type_ ) {
                         case SituationType::MINOR:
+                            if ( !UseGenericSpareParts()) { break; }
                             fixing_ = true;
                             break;
                         default:
@@ -191,6 +194,7 @@ void RunningUI::ProcessInput () {
                                 ignored_minor_mech_failures_ = 0;
                                 break;
                             }
+                            if ( !UseGenericSpareParts()) { break; }
                             fixing_minor_  = true;
                             running_state_ = RunningState::FLYING;
                             logger_->debug("Trying to fix minor issue");
@@ -224,6 +228,13 @@ void RunningUI::ProcessInput () {
                     break;
                 default:
                     break;
+            }
+            break;
+        }
+        case 'y': {
+            if ( running_state_ == RunningState::SITUATION &&
+                 !enough_spares_ ) {
+                waiting_for_help_ = true;
             }
             break;
         }
@@ -289,6 +300,11 @@ GameState RunningUI::OnLoop ( GameState state ) {
             if ( fixing_ ) {
                 AttemptFix();
             }
+
+            if ( waiting_for_help_ ) {
+                WaitForHelp();
+            }
+
             break;
     }
 
@@ -298,6 +314,19 @@ GameState RunningUI::OnLoop ( GameState state ) {
     }
 
     return ret_state;
+}
+
+void RunningUI::WaitForHelp () {
+    if ( Random::get< bool >(successful_distress_)) {
+        notifications_.push("Saved by friendly aliens.");
+        situation_type_   = SituationType::NONE;
+        running_state_    = RunningState::FLYING;
+        waiting_for_help_ = false;
+
+        if ( !situations_.empty()) {
+            situations_.pop();
+        }
+    }
 }
 
 void RunningUI::FixMinor () {
@@ -323,6 +352,19 @@ void RunningUI::FixMinorIgnored () {
         fixing_minor_ = false;
 
         --ignored_minor_mech_failures_;
+    }
+}
+
+bool RunningUI::UseGenericSpareParts () {
+    if ( !spaceship_handler_->GetSpaceship()->UseSpareParts(req_cabling_,
+                                                            req_components_)) {
+        notifications_.push("Not enough spare parts");
+        enough_spares_ = false;
+        return false;
+    } else {
+        logger_->debug("Enough spare parts");
+        enough_spares_ = true;
+        return true;
     }
 }
 
@@ -381,9 +423,17 @@ void RunningUI::ShowSituationReport () {
         mvwaddstr(main_, y++, x - 12, o.c_str());
     }
 
+    if ( !enough_spares_ ) {
+        mvwaddstr(main_, y++, x - 12,
+                  "Not enough spares. Issue distress signal (y/n)?");
+        return;
+    }
+
     y++;
-    if ( fixing_ ) {
+    if ( enough_spares_ && fixing_ ) {
         mvwaddstr(main_, y, x - 12, "Current Action: Fixing");
+    } else if ( !enough_spares_ && waiting_for_help_ ) {
+        mvwaddstr(main_, y, x - 12, "Current Action: Waiting for help");
     }
 
 }
@@ -431,6 +481,12 @@ bool RunningUI::IsSituation () {
                 situation_type_ = SituationType::NONE;
         }
 
+        req_cabling_    = *Random::get(cabling_used_major_);
+        req_components_ = *Random::get(components_used_major_);
+
+        logger_->debug("Req cabling/comp: {} {}", req_cabling_,
+                       req_components_);
+
         logger_->debug("Major failure");
         return true;
     }
@@ -440,6 +496,13 @@ bool RunningUI::IsSituation () {
         situation_type_ = SituationType::MINOR;
         running_state_  = RunningState::SITUATION;
         situations_.push(*Random::get(minor_failures_));
+
+
+        req_cabling_    = *Random::get(cabling_used_minor_);
+        req_components_ = *Random::get(components_used_minor_);
+
+        logger_->debug("Req cabling/comp: {} {}", req_cabling_,
+                       req_components_);
         logger_->debug("Minor failure");
         return true;
     }
@@ -559,7 +622,6 @@ void RunningUI::UpdateCrew () {
     if ( ret_state == GameState::EXITING ) {
         return;
     }
-
 
     if ( health_update_counter_++ > health_update_period_ ) {
         UpdateCrewFood();

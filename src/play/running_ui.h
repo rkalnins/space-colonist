@@ -86,6 +86,10 @@ class RunningUI : public Task {
 
     void FixMinorIgnored ();
 
+    bool UseGenericSpareParts ();
+
+    void WaitForHelp();
+
   private:
 
     logger_t logger_;
@@ -104,9 +108,22 @@ class RunningUI : public Task {
     double       major_failure_prob_ { 0.0003 };
     const double unresponsive_engines_ { 0.0001 };
 
+    const double successful_distress_ { 0.00001 };
+    bool         waiting_for_help_ { false };
+
     int    ignored_minor_mech_failures_ { 0 };
     double minor_fix_prob_ { 0.01 };
     double major_fix_prob_ { 0.01 };
+
+    bool enough_spares_ { true };
+
+    const std::vector< int > components_used_minor_ = { 1, 2 };
+    const std::vector< int > cabling_used_minor_    = { 1, 2 };
+    const std::vector< int > components_used_major_ = { 2, 3, 5 };
+    const std::vector< int > cabling_used_major_    = { 2, 3, 5 };
+
+    int req_components_ { 0 };
+    int req_cabling_ { 0 };
 
     bool fixing_ { false };
     bool fixing_minor_ { false };
