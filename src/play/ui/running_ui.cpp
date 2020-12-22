@@ -29,8 +29,11 @@ void RunningUI::Init () {
     logger_->debug("Running UI init");
     spaceship_ = spaceship_handler_->GetSpaceship();
     nav_manager_->SetVelocity(Velocity::SLOW);
-    pause_menu_ = std::make_unique< PauseMenu >(spaceship_, nav_manager_,
-                                                main_);
+    pause_menu_        = std::make_shared< PauseMenu >(spaceship_,
+                                                       nav_manager_,
+                                                       main_);
+    situation_manager_ = std::make_unique< SituationManager >(main_,
+                                                              pause_menu_);
 }
 
 void RunningUI::ProcessInput () {
@@ -44,7 +47,7 @@ void RunningUI::ProcessInput () {
                     break;
                 case RunningState::PAUSED:
                     spaceship_->StartMoving();
-                    if ( situation_type_ != SituationType::NONE ) {
+                    if ( situation_manager_->IsSituation()) {
                         running_state_ = RunningState::SITUATION;
                         logger_->debug("Returning to situation");
                     } else {
@@ -66,8 +69,7 @@ void RunningUI::ProcessInput () {
                 case RunningState::PAUSED: {
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN:
-                            if ( situation_type_ !=
-                                 SituationType::ENGINE_FAILURE ) {
+                            if ( situation_manager_->IsEngineFailure()) {
                                 menu_options_ = MenuOptions::VELOCITY_CHANGE;
                             }
                             break;
@@ -85,20 +87,15 @@ void RunningUI::ProcessInput () {
                     break;
                 }
                 case RunningState::SITUATION: {
-                    switch ( situation_type_ ) {
+                    switch ( situation_manager_->GetSituationType()) {
                         case SituationType::MINOR:
-
-                            if ( !situations_.empty()) {
-                                situations_.pop();
-                            }
-                            ++ignored_minor_mech_failures_;
-                            situation_type_ = SituationType::NONE;
-                            running_state_  = RunningState::FLYING;
+                            situation_manager_->IgnoreMinorFailure();
+                            running_state_ = RunningState::FLYING;
                             break;
                         case SituationType::ENGINE_FAILURE:
                         case SituationType::AIR_FILTER_FAILURE:
                             if ( !UseGenericSpareParts()) { break; }
-                            fixing_ = true;
+                            situation_manager_->StartImmediateFixing();
                             break;
                         default:
                             break;
@@ -131,10 +128,9 @@ void RunningUI::ProcessInput () {
                     break;
                 }
                 case RunningState::SITUATION: {
-                    switch ( situation_type_ ) {
+                    switch ( situation_manager_->GetSituationType()) {
                         case SituationType::MINOR:
-                            if ( !UseGenericSpareParts()) { break; }
-                            fixing_ = true;
+                            situation_manager_->StartImmediateFixing();
                             break;
                         default:
                             break;
@@ -175,15 +171,13 @@ void RunningUI::ProcessInput () {
                 case RunningState::PAUSED:
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN: {
-                            if ( ignored_minor_mech_failures_ <= 0 ) {
-                                ignored_minor_mech_failures_ = 0;
-                                break;
-                            }
-                            if ( !UseGenericSpareParts()) { break; }
-                            fixing_minor_  = true;
+
+                            if ( situation_manager_->GetIgnoredFailures() >
+                                 0 &&
+                                 !situation_manager_->IsFixingMinor() &&
+                                 !UseGenericSpareParts()) { break; }
+                            situation_manager_->StartFixingMinor();
                             running_state_ = RunningState::FLYING;
-                            logger_->debug("Trying to fix minor issue");
-                            pause_menu_->ClearLastNotification();
                             break;
                         }
                         case MenuOptions::VELOCITY_CHANGE:
@@ -215,9 +209,8 @@ void RunningUI::ProcessInput () {
             break;
         }
         case 'y': {
-            if ( running_state_ == RunningState::SITUATION &&
-                 !enough_spares_ ) {
-                waiting_for_help_ = true;
+            if ( running_state_ == RunningState::SITUATION ) {
+                situation_manager_->StartWaitingForHelp();
             }
             break;
         }
@@ -243,20 +236,21 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
     switch ( running_state_ ) {
         case RunningState::FLYING:
-            IsSituation();
-
-            if ( fixing_minor_ ) {
-                FixMinorIgnored();
+            if ( situation_manager_->CheckNewSituation()) {
+                running_state_ = RunningState::SITUATION;
             }
 
-            Update();
+            situation_manager_->FixMinorIgnored();
+
+            StandardLoopUpdate();
 
             break;
         case RunningState::PAUSED:
             switch ( menu_options_ ) {
                 case MenuOptions::MAIN:
-                    pause_menu_->ShowPauseOptions(situation_type_,
-                                                  ignored_minor_mech_failures_);
+                    pause_menu_->ShowPauseOptions(
+                            situation_manager_->GetSituationType(),
+                            situation_manager_->GetIgnoredFailures());
                     break;
                 case MenuOptions::VELOCITY_CHANGE:
                     pause_menu_->ShowVelocityChangeOptions();
@@ -267,20 +261,18 @@ GameState RunningUI::OnLoop ( GameState state ) {
             }
             break;
         case RunningState::SITUATION:
-            if ( situation_type_ == SituationType::AIR_FILTER_FAILURE ) {
-                ++situation_counter_;
+            situation_manager_->UpdateCounter();
+
+            StandardLoopUpdate();
+
+            situation_manager_->ShowSituationReport();
+
+            if ( situation_manager_->AttemptFix()) {
+                running_state_ = RunningState::FLYING;
             }
 
-            Update();
-
-            ShowSituationReport();
-
-            if ( fixing_ ) {
-                AttemptFix();
-            }
-
-            if ( waiting_for_help_ ) {
-                WaitForHelp();
+            if ( situation_manager_->WaitForHelp()) {
+                running_state_ = RunningState::FLYING;
             }
 
             break;
@@ -294,7 +286,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
     return ret_state;
 }
 
-void RunningUI::Update () {
+void RunningUI::StandardLoopUpdate () {
     MoveFlyingObject();
 
     if ( !nav_manager_->IsStopped()) {
@@ -305,155 +297,22 @@ void RunningUI::Update () {
     UpdateCrew();
 }
 
-void RunningUI::WaitForHelp () {
-    if ( Random::get< bool >(successful_distress_)) {
-        pause_menu_->PushNotification("Saved by friendly aliens.");
-        situation_type_    = SituationType::NONE;
-        running_state_     = RunningState::FLYING;
-        waiting_for_help_  = false;
-        air_is_poisoned_   = false;
-        enough_spares_     = true;
-        situation_counter_ = 0;
-
-        if ( !situations_.empty()) {
-            situations_.pop();
-        }
-    }
-}
-
-void RunningUI::FixMinor () {
-    if ( Random::get< bool >(minor_fix_prob_)) {
-        std::string fixed = "Fixed \"" + situations_.front() +
-                            "\"";
-        pause_menu_->PushNotification(fixed);
-        situation_type_ = SituationType::NONE;
-        running_state_  = RunningState::FLYING;
-        fixing_         = false;
-
-        if ( !situations_.empty()) {
-            situations_.pop();
-        }
-    }
-}
-
-void RunningUI::FixMinorIgnored () {
-    if ( Random::get< bool >(minor_fix_prob_)) {
-        logger_->debug("Fixed ignored issue");
-        std::string fixed = "Fixed ignored minor issue";
-        pause_menu_->PushNotification(fixed);
-        fixing_minor_  = false;
-        enough_spares_ = true;
-
-        --ignored_minor_mech_failures_;
-    }
-}
-
 bool RunningUI::UseGenericSpareParts () {
-    if ( !spaceship_->UseSpareParts(req_cabling_, req_components_)) {
+    if ( !spaceship_->UseSpareParts(situation_manager_->GetReqCabling(),
+                                    situation_manager_->GetReqComponents())) {
         pause_menu_->PushNotification("Not enough spare parts");
-        enough_spares_ = false;
+        situation_manager_->SetEnoughSpares(false);
         return false;
     } else {
         logger_->debug("Enough spare parts");
-        enough_spares_ = true;
+        situation_manager_->SetEnoughSpares(true);
         return true;
     }
 }
 
-void RunningUI::AttemptFix () {
-    switch ( situation_type_ ) {
-        case SituationType::MINOR:
-            FixMinor();
-            break;
-        case SituationType::ENGINE_FAILURE: {
-            if ( Random::get< bool >(major_fix_prob_)) {
-                pause_menu_->PushNotification(
-                        "Fixed engine. Engine nominal.");
-                situation_type_    = SituationType::NONE;
-                running_state_     = RunningState::FLYING;
-                situation_counter_ = 0;
-                fixing_            = false;
-                enough_spares_     = true;
-
-                if ( !situations_.empty()) {
-                    situations_.pop();
-                }
-            }
-            break;
-        }
-        case SituationType::AIR_FILTER_FAILURE: {
-            if ( Random::get< bool >(major_fix_prob_)) {
-                pause_menu_->PushNotification("Fixed air filter.");
-                situation_type_    = SituationType::NONE;
-                running_state_     = RunningState::FLYING;
-                air_is_poisoned_   = false;
-                enough_spares_     = true;
-                situation_counter_ = 0;
-                fixing_            = false;
-
-                if ( !situations_.empty()) {
-                    situations_.pop();
-                }
-            }
-            break;
-        }
-        default:
-            break;
-    }
-
-}
-
-void RunningUI::ShowSituationReport () {
-    int y = pause_y_;
-    int x = pause_x_;
-
-    mvwaddstr(main_, y++, x - 8, "Situation Report");
-    mvwaddstr(main_, y++, x - 23,
-              "---------------------------------------------");
-    if ( !situations_.empty()) {
-        mvwaddstr(main_, y++, x - situations_.front().length() / 2,
-                  situations_.front().c_str());
-        mvwaddstr(main_, y++, x - 23,
-                  "---------------------------------------------");
-    }
-
-    for ( auto &o : sitrep_options_[situation_type_] ) {
-        mvwaddstr(main_, y++, x - 12, o.c_str());
-    }
-
-    y++;
-    if ( !waiting_for_help_ && !enough_spares_ ) {
-        mvwaddstr(main_, y++, x - 12,
-                  "Not enough spares. Issue distress signal (y/n)?");
-    }
-
-    if ( enough_spares_ && fixing_ ) {
-        mvwaddstr(main_, y++, x - 12, "Current Action: Fixing");
-    }
-
-    if ( waiting_for_help_ ) {
-        mvwaddstr(main_, y++, x - 12, "Current Action: Waiting for help");
-    }
-
-    if ( situation_type_ == SituationType::AIR_FILTER_FAILURE ) {
-        int seconds = air_response_time_ -
-                      ( situation_counter_ / second_count_period_ );
-        if ( seconds >= 0 ) {
-            std::stringstream disp;
-            disp << seconds << " before poisoning begins";
-            mvwaddstr(main_, y++, x - 12, disp.str().c_str());
-        } else {
-            mvwaddstr(main_, y++, x - 12,
-                      "Crew is dying of poisoned air.");
-        }
-    }
-}
-
 bool RunningUI::UpdateVelocity ( Velocity new_velocity ) {
-    if ( Random::get< bool >(unresponsive_engines_)) {
-        situations_.push("Unresponsive engines. Cause unknown.");
-        situation_type_ = SituationType::ENGINE_FAILURE;
-        menu_options_   = MenuOptions::MAIN;
+    if ( situation_manager_->SuddenEngineFailure()) {
+        menu_options_ = MenuOptions::MAIN;
         return true;
     } else {
         nav_manager_->SetVelocity(new_velocity);
@@ -461,61 +320,6 @@ bool RunningUI::UpdateVelocity ( Velocity new_velocity ) {
         return false;
     }
 
-}
-
-bool RunningUI::IsSituation () {
-    if ( situation_type_ != SituationType::NONE ) {
-        return false;
-    }
-
-    double major_p_ = std::min(1.0,
-                               major_failure_prob_ *
-                               ( ignored_minor_mech_failures_ + 1 ));
-
-    if ( Random::get< bool >(major_p_)) {
-        char f = Random::get({ 'a', 'e' });
-        switch ( f ) {
-            case 'e':
-                situation_type_ = SituationType::ENGINE_FAILURE;
-                situations_.push(*Random::get(engine_failures_));
-                running_state_ = RunningState::SITUATION;
-                break;
-            case 'a':
-                situation_type_ = SituationType::AIR_FILTER_FAILURE;
-                situations_.push(*Random::get(air_filter_failure_));
-                running_state_ = RunningState::SITUATION;
-                break;
-            default:
-                situation_type_ = SituationType::NONE;
-        }
-
-        req_cabling_    = *Random::get(cabling_used_major_);
-        req_components_ = *Random::get(components_used_major_);
-
-        logger_->debug("Req cabling/comp: {} {}", req_cabling_,
-                       req_components_);
-
-        logger_->debug("Major failure");
-        return true;
-    }
-
-
-    if ( Random::get< bool >(minor_failure_prob_)) {
-        situation_type_ = SituationType::MINOR;
-        running_state_  = RunningState::SITUATION;
-        situations_.push(*Random::get(minor_failures_));
-
-
-        req_cabling_    = *Random::get(cabling_used_minor_);
-        req_components_ = *Random::get(components_used_minor_);
-
-        logger_->debug("Req cabling/comp: {} {}", req_cabling_,
-                       req_components_);
-        logger_->debug("Minor failure");
-        return true;
-    }
-
-    return false;
 }
 
 void RunningUI::MoveSpaceship () {
@@ -551,22 +355,12 @@ void RunningUI::UpdateSpaceshipState () {
     } else if ( spaceship_->HasFood()) {
         notified_no_food_ = false;
     }
-
-    if ( situation_type_ == SituationType::AIR_FILTER_FAILURE &&
-         !air_is_poisoned_ && air_response_time_ -
-                              ( situation_counter_ /
-                                second_count_period_ ) <= 0 ) {
-        logger_->debug("Air is poisoned");
-        air_is_poisoned_ = true;
-    }
-
-
 }
 
 void RunningUI::UpdateAllCrewHealth () {
     std::vector< CrewMember > &crew = spaceship_->GetCrew();
 
-    if ( air_is_poisoned_ ) {
+    if ( situation_manager_->IsAirPoisoned()) {
         for ( auto &c : crew ) {
             c.UpdateHealth(-2);
         }
@@ -637,6 +431,7 @@ void RunningUI::UpdateCrewFood () {
 void RunningUI::Pause () {
     running_state_ = RunningState::PAUSED;
     menu_options_  = MenuOptions::MAIN;
+    spaceship_->StopMoving();
 }
 
 void RunningUI::MoveFlyingObject () {

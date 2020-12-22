@@ -8,7 +8,7 @@
 
 #include "spaceship.h"
 #include "nav_control_manager.h"
-#include "situation_type.h"
+#include "situation/situation_type.h"
 
 
 namespace sc::play {
