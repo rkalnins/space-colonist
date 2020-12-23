@@ -9,15 +9,16 @@
 #include <map>
 #include <queue>
 
-#include "items/item.h"
-#include "objects/crew_member.h"
-#include "spaceship_handler.h"
-#include "../input_listener.h"
-#include "../logging/logging.h"
-#include "../loop_control/task.h"
-#include "objects/crew_factory.h"
-#include "spaceship_factory.h"
-#include "map_generator.h"
+#include "../item.h"
+#include "../crew_member.h"
+#include "../spaceship_handler.h"
+#include "../../input_listener.h"
+#include "../../logging/logging.h"
+#include "../../loop_control/task.h"
+#include "../crew_factory.h"
+#include "../spaceship_factory.h"
+#include "../space_map.h"
+#include "../nav_control_manager.h"
 
 
 namespace sc::play {
@@ -43,12 +44,11 @@ enum class TradingPostCategory {
 
 
 class SetupUI : public Task {
-
-
   public:
 
     SetupUI ( const std::string &name, TaskType taskType,
               std::shared_ptr< SpaceshipHandler > spaceship_handler,
+              std::shared_ptr< play::NavigationControlManager > nav_manager_,
               std::shared_ptr< InputListener > listener,
               std::shared_ptr< SpaceshipFactory > spaceship_factory,
               WINDOW *main );
@@ -83,11 +83,15 @@ class SetupUI : public Task {
 
     std::vector< CrewMember > crew_choices_;
 
+    std::shared_ptr< play::NavigationControlManager > nav_manager_ {
+            nullptr
+    };
+
     std::vector< std::shared_ptr< Spaceship > > spaceship_choices_;
 
     std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
     std::shared_ptr< InputListener >    listener_ { nullptr };
-    std::unique_ptr< MapGenerator >     map_generator_ { nullptr };
+    std::unique_ptr< SpaceMap >         map_generator_ { nullptr };
 
     WINDOW *main_;
 
@@ -158,14 +162,14 @@ class SetupUI : public Task {
                                                       "Fuel",
                                                       "Basic Fuel", 100,
                                                       10, 20),
-                                              std::make_shared< Item >(
-                                                      "Fuel",
-                                                      "Purified fuel", 100,
-                                                      10, 30),
-                                              std::make_shared< Item >(
-                                                      "Fuel",
-                                                      "Enhanced fuel", 100,
-                                                      10, 40)
+//                                              std::make_shared< Item >(
+//                                                      "Fuel",
+//                                                      "Purified fuel", 100,
+//                                                      10, 30),
+//                                              std::make_shared< Item >(
+//                                                      "Fuel",
+//                                                      "Enhanced fuel", 100,
+//                                                      10, 40)
                                       }},
             {
                     "Weapons",        {

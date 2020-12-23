@@ -2,7 +2,7 @@
 // Created by Roberts Kalnins on 19/12/2020.
 //
 
-#include "map_generator.h"
+#include "space_map.h"
 
 #include <ncurses.h>
 #include <vector>
@@ -14,18 +14,16 @@ using Random = effolkronium::random_static;
 
 namespace sc::play {
 
-MapGenerator::MapGenerator ( WINDOW *main, int map_init_y, int map_init_x )
-        : main_(main), map_init_y_(map_init_y), map_init_x_(map_init_x) {
-    logger_ = spdlog::basic_logger_mt("map_gen",
-                                      "logs/space-colonist-log.log");
-    logger_->set_level(spdlog::level::debug);
+SpaceMap::SpaceMap ( WINDOW *main, int map_init_y, int map_init_x )
+        : main_(main), map_init_y_(map_init_y), map_init_x_(map_init_x),
+          logger_(CreateLogger("map")) {
 
     planets_.resize(map_height_, std::vector< bool >(map_width_, false));
     planets_str_.reserve(map_height_);
 }
 
 
-void MapGenerator::SeedMap () {
+void SpaceMap::SeedMap () {
     double r = map_height_ / 2.0;
     double c = -map_width_ / 2.0 + 1.0;
 
@@ -49,8 +47,10 @@ void MapGenerator::SeedMap () {
 
 
         }
+
         r -= 1.0;
-        c           = -map_width_ / 2.0;
+
+        c = -map_width_ / 2.0;
     }
 
     std::stringstream line;
@@ -64,7 +64,7 @@ void MapGenerator::SeedMap () {
     }
 }
 
-void MapGenerator::PrintMap () {
+void SpaceMap::PrintMap () {
     int y = map_init_y_;
 
     std::stringstream disp;
@@ -85,12 +85,9 @@ void MapGenerator::PrintMap () {
         mvwaddstr(main_, map_init_y_ + map_height_ + 2,
                   map_init_x_ + map_width_ / 2 - 6, "End:  *");
     }
-
-
 }
 
-
-void MapGenerator::ToggleSelection ( int y, int x ) {
+void SpaceMap::ToggleSelection ( int y, int x ) {
 
     if ( route_.size() == max_route_length_ &&
          y == map_height_ + 2 &&
@@ -154,7 +151,7 @@ void MapGenerator::ToggleSelection ( int y, int x ) {
     }
 }
 
-double MapGenerator::GetCost () const {
+double SpaceMap::GetCost () const {
     return cost_;
 }
 

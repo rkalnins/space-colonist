@@ -16,27 +16,19 @@ class CrewMember {
     CrewMember ( std::string name, int health, int max_health,
                  std::map< std::string, int > skills );
 
-    [[nodiscard]] const std::string &GetName () const;
-
-    [[nodiscard]] int GetHealth () const;
-
     [[nodiscard]] const std::map< std::string, int > &GetSkills () const;
 
-    [[nodiscard]] int GetMaxHealth () const;
-
-    bool operator< ( const CrewMember &rhs ) const {
-        return name_ < rhs.name_;
-    }
-
-    bool operator== ( const CrewMember &rhs ) const {
-        return name_ == rhs.name_;
-    }
+    [[nodiscard]] const std::string &GetName () const;
 
     const std::string &GetCode ();
 
+    [[nodiscard]] int GetMaxHealth () const;
+
+    [[nodiscard]] int GetHealth () const;
+
     void UpdateHealth ( int change );
 
-    [[nodiscard]] bool IsDead () const { return health_ <= 0; };
+    [[nodiscard]] bool IsDead () const;
 
 
     class NameComparator {
@@ -53,15 +45,23 @@ class CrewMember {
     };
 
 
+    bool operator< ( const CrewMember &rhs ) const {
+        return name_ < rhs.name_;
+    }
+
+    bool operator== ( const CrewMember &rhs ) const {
+        return name_ == rhs.name_;
+    }
+
   private:
+    std::map< std::string, int > skills_;
+
     std::string name_;
     std::string appearance_code_;
-    int         health_;
-    int         max_health_;
 
-  private:
+    int max_health_;
+    int health_;
 
-    std::map< std::string, int > skills_;
 
 };
 

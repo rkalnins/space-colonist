@@ -10,10 +10,8 @@ using Random = effolkronium::random_static;
 
 namespace sc::play {
 
-SpaceshipFactory::SpaceshipFactory () {
-    logger_ = spdlog::basic_logger_mt("ss_factory",
-                                      "logs/space-colonist-log.log");
-    logger_->set_level(spdlog::level::debug);
+SpaceshipFactory::SpaceshipFactory () : logger_(
+        CreateLogger("ss_factory")) {
 }
 
 std::shared_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
@@ -31,13 +29,15 @@ std::shared_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
 
     std::shared_ptr< Spaceship > s = std::make_shared< Spaceship >(code);
 
-    s->SetMaxWeight(Random::get(min_max_weight_, max_max_weight_));
-    s->SetFullFuel(Random::get(min_max_fuel_, max_max_fuel_));
-    s->SetFullHull(Random::get(min_max_hull_, max_max_hull_));
-    s->SetMaxCrew(Random::get(min_max_crew_, max_max_crew_));
-    s->SetCost(( s->GetMaxCrew() * 300 ) + (int) s->GetMaxWeight() +
-               s->GetFullFuel() + s->GetFullHull());
-    s->SetMoney(initial_money_);
+    double weight = Random::get(min_max_weight_, max_max_weight_);
+    int    fuel   = Random::get(min_max_fuel_, max_max_fuel_);
+    int    hull   = Random::get(min_max_hull_, max_max_hull_);
+    int    crew   = Random::get(min_max_crew_, max_max_crew_);
+    int    cost   = ( crew * 300 ) + (int) weight + (int) fuel + hull;
+
+    s->SpaceshipInitConfig(weight, fuel, hull, crew, initial_money_ - cost,
+                           cost);
+    logger_->debug("Initial money {}", s->GetMoney());
 
     return s;
 }

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "../../logging/logging.h"
+#include "../logging/logging.h"
 #include "crew_member.h"
 
 

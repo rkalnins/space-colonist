@@ -10,9 +10,7 @@
 namespace sc {
 
 [[maybe_unused]] TaskPool::TaskPool ( const std::string &name ) {
-    logger_ = spdlog::basic_logger_mt(name,
-                                      "logs/space-colonist-log.log");
-    logger_->set_level(spdlog::level::debug);
+    logger_ = CreateLogger(name);
 }
 
 void TaskPool::AddTask ( const std::shared_ptr< Task > &task ) {

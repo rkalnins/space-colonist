@@ -16,7 +16,7 @@ unsigned int Factorial ( unsigned int number ) {
 TEST_CASE("Basic Spaceship", "[ss]") {
     using namespace sc::play;
 
-    Spaceship spaceship;
+    Spaceship spaceship((std::string &) "a");
 
     REQUIRE(spaceship.GetItems().empty());
 }
@@ -24,19 +24,8 @@ TEST_CASE("Basic Spaceship", "[ss]") {
 TEST_CASE("Use all fuel", "[ss]") {
     using namespace sc::play;
 
-    Spaceship spaceship;
+    Spaceship spaceship((std::string &) "a");
     spaceship.UseFuel(spaceship.GetFuel());
 
     REQUIRE(spaceship.GetFuel() == 0);
-}
-
-
-TEST_CASE("Reset fuel", "[ss]") {
-    using namespace sc::play;
-
-    Spaceship spaceship;
-    spaceship.UseFuel(spaceship.GetFuel());
-    spaceship.ResetFuel();
-
-    REQUIRE(spaceship.GetFuel() == spaceship.GetFullFuel());
 }

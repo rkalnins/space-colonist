@@ -8,9 +8,7 @@
 
 
 int main () {
-    auto logger = spdlog::basic_logger_mt("main",
-                                          "logs/space-colonist-log.log");
-    logger->set_level(spdlog::level::debug);
+    auto logger = sc::CreateLogger("main");
     spdlog::flush_on(spdlog::level::debug);
     spdlog::flush_every(std::chrono::seconds(1));
 

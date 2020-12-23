@@ -23,10 +23,7 @@ struct MousePosition {
 
 class InputListener {
   public:
-    InputListener () {
-        logger_ = spdlog::basic_logger_mt("input_listener",
-                                          "logs/space-colonist-log.log");
-        logger_->set_level(spdlog::level::debug);
+    InputListener () : logger_(CreateLogger("input_listener")) {
         logger_->debug("listener active");
 
         input_listener_ = std::thread([this] { Listen(); });
