@@ -13,7 +13,7 @@
 #include "situation_type.h"
 #include "situation.h"
 #include "major_situation.h"
-#include "../pause_menu.h"
+#include "../ui/pause_menu.h"
 
 
 namespace sc::play {
@@ -24,8 +24,6 @@ class SituationManager {
     SituationManager ( WINDOW *main,
                        std::shared_ptr< Spaceship > spaceship,
                        std::shared_ptr< PauseMenu > pause_menu );
-
-    void ShowSituationReport ();
 
     bool CheckNewSituation ();
 
@@ -39,9 +37,7 @@ class SituationManager {
 
     bool IsEngineFailure ();
 
-    [[nodiscard]] bool IsAirPoisoned () const;
-
-    bool Update ();
+    bool UpdateSituation ();
 
     bool ProcessInput ( int c );
 
@@ -49,7 +45,11 @@ class SituationManager {
 
     void FixMinorIgnored ();
 
+    void UpdateHealth ();
+
   private:
+
+    void ShowSituationReport ();
 
     bool FixMinor ();
 

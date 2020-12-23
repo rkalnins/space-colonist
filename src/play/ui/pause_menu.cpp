@@ -15,7 +15,9 @@ PauseMenu::PauseMenu ( std::shared_ptr< Spaceship > spaceship,
                        WINDOW *main ) : spaceship_(std::move(spaceship)),
                                         nav_manager_(
                                                 std::move(nav_manager)),
-                                        main_(main) {}
+                                        main_(main), logger_(CreateLogger(
+                "pause_menu")) {
+}
 
 void PauseMenu::ShowChangeRationsOptions () {
 
@@ -123,6 +125,22 @@ void PauseMenu::PushNotification ( const std::string &notification ) {
 void PauseMenu::ClearLastNotification () {
     if ( !notifications_.empty()) {
         notifications_.pop();
+    }
+}
+
+void
+PauseMenu::OnLoop ( MenuOptions menu_option, SituationType situation_type,
+                    int ignored_failures ) {
+    switch ( menu_option ) {
+        case MenuOptions::MAIN:
+            ShowPauseOptions(situation_type, ignored_failures);
+            break;
+        case MenuOptions::VELOCITY_CHANGE:
+            ShowVelocityChangeOptions();
+            break;
+        case MenuOptions::RATION_CHANGE:
+            ShowChangeRationsOptions();
+            break;
     }
 }
 

@@ -55,15 +55,16 @@ set(SOURCE_FILES
         src/play/nav_control_manager.h
         src/play/flying_debris.cpp
         src/play/flying_debris.h
-        src/play/pause_menu.cpp
-        src/play/pause_menu.h
+        src/play/ui/pause_menu.cpp
+        src/play/ui/pause_menu.h
         src/play/situation/situation_type.h
         src/play/situation/situation_manager.cpp
         src/play/situation/situation_manager.h
         src/play/situation/situation.cpp
         src/play/situation/situation.h
         src/play/situation/major_situation.cpp
-        src/play/situation/major_situation.h)
+        src/play/situation/major_situation.h
+        src/play/menu_options.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

@@ -14,8 +14,9 @@
 #include "../nav_control_manager.h"
 #include "../flying_debris.h"
 #include "../situation/situation_type.h"
-#include "../pause_menu.h"
+#include "pause_menu.h"
 #include "../situation/situation_manager.h"
+#include "../menu_options.h"
 
 
 namespace sc::play {
@@ -28,14 +29,9 @@ enum class RunningState {
     SITUATION,
 };
 
-enum class MenuOptions {
-    MAIN,
-    VELOCITY_CHANGE,
-    RATION_CHANGE
-};
 
-
-class RunningUI : public Task {
+class RunningUI
+        : public Task, public std::enable_shared_from_this< RunningUI > {
 
   public:
 
@@ -64,8 +60,6 @@ class RunningUI : public Task {
     void Pause ();
 
     bool UpdateVelocity ( Velocity new_velocity );
-
-    void UpdateAllCrewHealth ();
 
     void MoveFlyingObject ();
 

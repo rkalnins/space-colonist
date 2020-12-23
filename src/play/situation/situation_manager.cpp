@@ -253,7 +253,10 @@ bool SituationManager::IsEngineFailure () {
     return situation_type_ == SituationType::ENGINE_FAILURE;
 }
 
-bool SituationManager::Update () {
+bool SituationManager::UpdateSituation () {
+
+    ShowSituationReport();
+
     if ( situation_type_ == SituationType::AIR_FILTER_FAILURE &&
          !is_air_poisoned_ && air_response_time_ -
                               ( situation_counter_++ /
@@ -298,10 +301,6 @@ void SituationManager::IgnoreMinorFailure () {
     }
     ++ignored_minor_mech_failures_;
     situation_type_ = SituationType::NONE;
-}
-
-bool SituationManager::IsAirPoisoned () const {
-    return is_air_poisoned_;
 }
 
 bool SituationManager::ProcessInput ( int c ) {
@@ -366,6 +365,24 @@ bool SituationManager::CanFixMinorIgnoredIssue () {
 
     StartFixingMinor();
     return true;
+}
+
+void SituationManager::UpdateHealth () {
+    std::vector< CrewMember > &crew = spaceship_->GetCrew();
+
+    if ( is_air_poisoned_ ) {
+        for ( auto &c : crew ) {
+            c.UpdateHealth(-2);
+        }
+    }
+
+    for ( auto &c : crew ) {
+        if ( c.IsDead()) {
+            pause_menu_->PushNotification(
+                    c.GetName() +
+                    " has suffocated to death from poisoned air :(");
+        }
+    }
 }
 
 }

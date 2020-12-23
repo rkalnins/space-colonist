@@ -45,13 +45,7 @@ void RunningUI::ProcessInput () {
     switch ( running_state_ ) {
 
         case RunningState::FLYING: {
-            switch ( c ) {
-                case 32:
-                    Pause();
-                    break;
-                default:
-                    break;
-            }
+            if ( c == 32 ) { Pause(); }
             break;
         }
         case RunningState::PAUSED: {
@@ -200,28 +194,16 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
             break;
         case RunningState::PAUSED:
-            switch ( menu_options_ ) {
-                case MenuOptions::MAIN:
-                    pause_menu_->ShowPauseOptions(
-                            situation_manager_->GetSituationType(),
-                            situation_manager_->GetIgnoredFailures());
-                    break;
-                case MenuOptions::VELOCITY_CHANGE:
-                    pause_menu_->ShowVelocityChangeOptions();
-                    break;
-                case MenuOptions::RATION_CHANGE:
-                    pause_menu_->ShowChangeRationsOptions();
-                    break;
-            }
+            pause_menu_->OnLoop(menu_options_,
+                                situation_manager_->GetSituationType(),
+                                situation_manager_->GetIgnoredFailures());
             break;
         case RunningState::SITUATION:
-            if ( situation_manager_->Update()) {
+            if ( situation_manager_->UpdateSituation()) {
                 running_state_ = RunningState::FLYING;
             }
 
             StandardLoopUpdate();
-
-            situation_manager_->ShowSituationReport();
 
             break;
     }
@@ -255,7 +237,6 @@ bool RunningUI::UpdateVelocity ( Velocity new_velocity ) {
         menu_options_ = MenuOptions::MAIN;
         return false;
     }
-
 }
 
 void RunningUI::MoveSpaceship () {
@@ -293,27 +274,6 @@ void RunningUI::UpdateSpaceshipState () {
     }
 }
 
-void RunningUI::UpdateAllCrewHealth () {
-    std::vector< CrewMember > &crew = spaceship_->GetCrew();
-
-    if ( situation_manager_->IsAirPoisoned()) {
-        for ( auto &c : crew ) {
-            c.UpdateHealth(-2);
-        }
-    }
-
-    for ( auto &c : crew ) {
-        if ( c.IsDead()) {
-            pause_menu_->PushNotification(
-                    c.GetName() +
-                    " has suffocated to death from poisoned air :(");
-        }
-    }
-
-    spaceship_->RemoveDeadCrew();
-
-}
-
 void RunningUI::UpdateCrew () {
 
     if ( ret_state == GameState::EXITING ) {
@@ -321,7 +281,8 @@ void RunningUI::UpdateCrew () {
     }
 
     if ( health_update_counter_++ > health_update_period_ ) {
-        UpdateAllCrewHealth();
+        situation_manager_->UpdateHealth();
+        spaceship_->RemoveDeadCrew(); // ensure notifications don't overlap
         UpdateCrewFood();
 
         health_update_counter_ = 0;
@@ -368,6 +329,7 @@ void RunningUI::Pause () {
     running_state_ = RunningState::PAUSED;
     menu_options_  = MenuOptions::MAIN;
     spaceship_->StopMoving();
+    logger_->debug("Pausing");
 }
 
 void RunningUI::MoveFlyingObject () {
