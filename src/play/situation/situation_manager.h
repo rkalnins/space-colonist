@@ -22,6 +22,7 @@ class SituationManager {
   public:
 
     SituationManager ( WINDOW *main,
+                       std::shared_ptr< Spaceship > spaceship,
                        std::shared_ptr< PauseMenu > pause_menu );
 
     void ShowSituationReport ();
@@ -34,45 +35,46 @@ class SituationManager {
 
     bool SuddenEngineFailure ();
 
-    bool AttemptFix ();
-
     bool IsSituation ();
 
     bool IsEngineFailure ();
 
     [[nodiscard]] bool IsAirPoisoned () const;
 
-    bool FixMinor ();
+    bool Update ();
+
+    bool ProcessInput ( int c );
+
+    bool CanFixMinorIgnoredIssue ();
 
     void FixMinorIgnored ();
 
-    void StartWaitingForHelp ();
+  private:
 
-    void StartFixingMinor ();
+    bool FixMinor ();
 
-    void StartImmediateFixing ();
+    bool UseGenericSpareParts ();
 
     void IgnoreMinorFailure ();
 
+    void StartImmediateFixing ();
+
+    bool AttemptFix ();
+
     bool WaitForHelp ();
 
-    void UpdateCounter ();
+    void StartFixingMinor ();
 
-    [[nodiscard]] int GetReqComponents () const;
-
-    [[nodiscard]] int GetReqCabling () const;
-
-    void SetEnoughSpares ( bool enough_spares );
-
-    [[nodiscard]] bool IsFixingMinor () const;
-
-    void ProcessInput();
+    void StartWaitingForHelp ();
 
   private:
 
     logger_t logger_;
 
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
+
+    std::shared_ptr< Spaceship > spaceship_ { nullptr };
+
 
     std::map< SituationType, std::vector< std::string>> sitrep_options_ {
             { SituationType::MINOR,              { "1. Ignore", "2. Attempt fix" }},

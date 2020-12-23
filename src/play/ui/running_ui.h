@@ -65,15 +65,13 @@ class RunningUI : public Task {
 
     bool UpdateVelocity ( Velocity new_velocity );
 
-    bool UseGenericSpareParts ();
-
     void UpdateAllCrewHealth ();
 
     void MoveFlyingObject ();
 
     void StandardLoopUpdate ();
 
-    void Unpause();
+    void Unpause ();
 
   private:
 
@@ -122,9 +120,9 @@ class RunningUI : public Task {
 
     bool notified_no_food_ = false;
 
-    GameState     ret_state { GameState::RUNNING };
-    MenuOptions   menu_options_ { MenuOptions::MAIN };
-    RunningState  running_state_ { RunningState::FLYING };
+    GameState    ret_state { GameState::RUNNING };
+    MenuOptions  menu_options_ { MenuOptions::MAIN };
+    RunningState running_state_ { RunningState::FLYING };
 };
 
 }

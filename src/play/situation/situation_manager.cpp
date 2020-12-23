@@ -14,9 +14,11 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 SituationManager::SituationManager ( WINDOW *main,
+                                     std::shared_ptr< Spaceship > spaceship,
                                      std::shared_ptr< PauseMenu > pause_menu )
         : logger_(
         CreateLogger("sitmgr")), main_(main),
+          spaceship_(std::move(spaceship)),
           pause_menu_(std::move(pause_menu)) {}
 
 
@@ -251,7 +253,7 @@ bool SituationManager::IsEngineFailure () {
     return situation_type_ == SituationType::ENGINE_FAILURE;
 }
 
-void SituationManager::UpdateCounter () {
+bool SituationManager::Update () {
     if ( situation_type_ == SituationType::AIR_FILTER_FAILURE &&
          !is_air_poisoned_ && air_response_time_ -
                               ( situation_counter_++ /
@@ -259,6 +261,16 @@ void SituationManager::UpdateCounter () {
         logger_->debug("Air is poisoned");
         is_air_poisoned_ = true;
     }
+
+    if ( AttemptFix()) {
+        return true;
+    }
+
+    if ( WaitForHelp()) {
+        return true;
+    }
+
+    return false;
 }
 
 void SituationManager::StartWaitingForHelp () {
@@ -292,24 +304,68 @@ bool SituationManager::IsAirPoisoned () const {
     return is_air_poisoned_;
 }
 
-int SituationManager::GetReqComponents () const {
-    return req_components_;
+bool SituationManager::ProcessInput ( int c ) {
+    switch ( c ) {
+        case 32:
+            pause_menu_->PushNotification("Situation in Progress");
+            break;
+        case '1': {
+            switch ( situation_type_ ) {
+                case SituationType::MINOR:
+                    IgnoreMinorFailure();
+                    return true;
+                case SituationType::ENGINE_FAILURE:
+                case SituationType::AIR_FILTER_FAILURE:
+                    if ( !UseGenericSpareParts()) { break; }
+                    StartImmediateFixing();
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case '2': {
+            switch ( situation_type_ ) {
+                case SituationType::MINOR:
+                    StartImmediateFixing();
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case 'y': {
+            StartWaitingForHelp();
+            break;
+        }
+        default:
+            break;
+    }
+
+    return false;
 }
 
-int SituationManager::GetReqCabling () const {
-    return req_cabling_;
+bool SituationManager::UseGenericSpareParts () {
+    if ( !spaceship_->UseSpareParts(req_cabling_,
+                                    req_components_)) {
+        pause_menu_->PushNotification("Not enough spare parts");
+        enough_spares_ = false;
+        return false;
+    } else {
+        logger_->debug("Enough spare parts");
+        enough_spares_ = true;
+        return true;
+    }
 }
 
-void SituationManager::SetEnoughSpares ( bool enough_spares ) {
-    enough_spares_ = enough_spares;
-}
+bool SituationManager::CanFixMinorIgnoredIssue () {
+    if ( ignored_minor_mech_failures_ > 0 &&
+         !fixing_minor_ && !UseGenericSpareParts()) {
+        return false;
+    }
 
-bool SituationManager::IsFixingMinor () const {
-    return fixing_minor_;
-}
-
-void SituationManager::ProcessInput () {
-
+    StartFixingMinor();
+    return true;
 }
 
 }

@@ -33,9 +33,11 @@ void RunningUI::Init () {
                                                        nav_manager_,
                                                        main_);
     situation_manager_ = std::make_unique< SituationManager >(main_,
+                                                              spaceship_,
                                                               pause_menu_);
 }
 
+// FIXME please
 void RunningUI::ProcessInput () {
 
     int c = listener_->GetCh();
@@ -117,12 +119,9 @@ void RunningUI::ProcessInput () {
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN: {
 
-                            if ( situation_manager_->GetIgnoredFailures() >
-                                 0 &&
-                                 !situation_manager_->IsFixingMinor() &&
-                                 !UseGenericSpareParts()) { break; }
-                            situation_manager_->StartFixingMinor();
-                            running_state_ = RunningState::FLYING;
+                            if ( situation_manager_->CanFixMinorIgnoredIssue()) {
+                                running_state_ = RunningState::FLYING;
+                            }
                             break;
                         }
                         case MenuOptions::VELOCITY_CHANGE:
@@ -149,42 +148,9 @@ void RunningUI::ProcessInput () {
             break;
         }
         case RunningState::SITUATION: {
-            switch ( c ) {
-                case 32:
-                    Pause();
-                    break;
-                case '1': {
-                    switch ( situation_manager_->GetSituationType()) {
-                        case SituationType::MINOR:
-                            situation_manager_->IgnoreMinorFailure();
-                            running_state_ = RunningState::FLYING;
-                            break;
-                        case SituationType::ENGINE_FAILURE:
-                        case SituationType::AIR_FILTER_FAILURE:
-                            if ( !UseGenericSpareParts()) { break; }
-                            situation_manager_->StartImmediateFixing();
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                case '2': {
-                    switch ( situation_manager_->GetSituationType()) {
-                        case SituationType::MINOR:
-                            situation_manager_->StartImmediateFixing();
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                case 'y': {
-                    situation_manager_->StartWaitingForHelp();
-                    break;
-                }
-                default:
-                    break;
+
+            if ( situation_manager_->ProcessInput(c)) {
+                running_state_ = RunningState::FLYING;
             }
 
             break;
@@ -249,24 +215,19 @@ GameState RunningUI::OnLoop ( GameState state ) {
             }
             break;
         case RunningState::SITUATION:
-            situation_manager_->UpdateCounter();
+            if ( situation_manager_->Update()) {
+                running_state_ = RunningState::FLYING;
+            }
 
             StandardLoopUpdate();
 
             situation_manager_->ShowSituationReport();
 
-            if ( situation_manager_->AttemptFix()) {
-                running_state_ = RunningState::FLYING;
-            }
-
-            if ( situation_manager_->WaitForHelp()) {
-                running_state_ = RunningState::FLYING;
-            }
-
             break;
     }
 
-    if ( pause_menu_->HasNotifications()) {
+    if ( running_state_ != RunningState::PAUSED &&
+         pause_menu_->HasNotifications()) {
         Pause();
         return GameState::RUNNING; // clear queue before exiting
     }
@@ -283,19 +244,6 @@ void RunningUI::StandardLoopUpdate () {
 
     UpdateSpaceshipState();
     UpdateCrew();
-}
-
-bool RunningUI::UseGenericSpareParts () {
-    if ( !spaceship_->UseSpareParts(situation_manager_->GetReqCabling(),
-                                    situation_manager_->GetReqComponents())) {
-        pause_menu_->PushNotification("Not enough spare parts");
-        situation_manager_->SetEnoughSpares(false);
-        return false;
-    } else {
-        logger_->debug("Enough spare parts");
-        situation_manager_->SetEnoughSpares(true);
-        return true;
-    }
 }
 
 bool RunningUI::UpdateVelocity ( Velocity new_velocity ) {
@@ -420,7 +368,6 @@ void RunningUI::Pause () {
     running_state_ = RunningState::PAUSED;
     menu_options_  = MenuOptions::MAIN;
     spaceship_->StopMoving();
-    logger_->debug("Pausing");
 }
 
 void RunningUI::MoveFlyingObject () {

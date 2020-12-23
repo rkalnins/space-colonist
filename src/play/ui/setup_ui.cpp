@@ -454,14 +454,12 @@ void SetupUI::InventorySelection () {
     mvwaddstr(main_, y++, x,
               "Trading Post (Use $ to buy supplies, 0 to go to categories)");
 
-
     std::stringstream row;
 
     int i = 1;
 
     if ( trading_post_view_ == TradingPostCategory::ALL ) {
         mvwaddstr(main_, y++, x, "Categories:");
-
 
         for ( auto &c : items_for_sale_ ) {
             row << i << ": " << c.first.c_str();

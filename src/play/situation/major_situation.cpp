@@ -4,6 +4,7 @@
 
 #include "major_situation.h"
 
+
 namespace sc::play {
 
 }
