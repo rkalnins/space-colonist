@@ -64,7 +64,9 @@ class SituationManager {
 
     void SetEnoughSpares ( bool enough_spares );
 
-    bool IsFixingMinor () const;
+    [[nodiscard]] bool IsFixingMinor () const;
+
+    void ProcessInput();
 
   private:
 

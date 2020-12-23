@@ -308,4 +308,8 @@ bool SituationManager::IsFixingMinor () const {
     return fixing_minor_;
 }
 
+void SituationManager::ProcessInput () {
+
+}
+
 }

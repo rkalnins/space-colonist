@@ -49,25 +49,33 @@ double NavigationControlManager::GetVelocity () const {
 }
 
 void NavigationControlManager::SetVelocity ( Velocity velocity ) {
-    velocity_state_ = velocity;
+    double temp_vel;
+
     switch ( velocity ) {
         case Velocity::STOP:
-            velocity_ = stop_vel_;
+            temp_vel = stop_vel_;
             break;
         case Velocity::SLOW:
-            velocity_ = slow_vel_;
+            temp_vel = slow_vel_;
             break;
         case Velocity::MODERATE:
-            velocity_ = moderate_vel_;
+            temp_vel = moderate_vel_;
             break;
         case Velocity::FAST:
-            velocity_ = fast_vel_;
+            temp_vel = fast_vel_;
             break;
         case Velocity::DANGEROUS:
-            velocity_ = dangerous_vel_;
+            temp_vel = dangerous_vel_;
             break;
     }
 
+    if ( temp_vel * velocity_to_fuel_ratio_ > spaceship_->GetFuel()) {
+        return;
+    }
+
+
+    velocity_state_ = velocity;
+    velocity_       = temp_vel;
     spaceship_->UseFuel(velocity_ * velocity_to_fuel_ratio_);
 
     stop_fuel_      = std::abs(( stop_vel_ - velocity_ )) *

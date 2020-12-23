@@ -73,6 +73,8 @@ class RunningUI : public Task {
 
     void StandardLoopUpdate ();
 
+    void Unpause();
+
   private:
 
     logger_t logger_;

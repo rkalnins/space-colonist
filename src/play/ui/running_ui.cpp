@@ -37,39 +37,30 @@ void RunningUI::Init () {
 }
 
 void RunningUI::ProcessInput () {
-    switch ( listener_->GetCh()) {
-        case 32: {
-            switch ( running_state_ ) {
-                case RunningState::FLYING:
-                    Pause();
-                    logger_->debug("Pausing");
-                    spaceship_->StopMoving();
-                    break;
-                case RunningState::PAUSED:
-                    spaceship_->StartMoving();
-                    if ( situation_manager_->IsSituation()) {
-                        running_state_ = RunningState::SITUATION;
-                        logger_->debug("Returning to situation");
-                    } else {
-                        running_state_ = RunningState::FLYING;
-                        logger_->debug("Returning to flying");
-                    }
 
-                    pause_menu_->ClearLastNotification();
-                    break;
-                case RunningState::SITUATION:
+    int c = listener_->GetCh();
+
+    switch ( running_state_ ) {
+
+        case RunningState::FLYING: {
+            switch ( c ) {
+                case 32:
                     Pause();
-                    logger_->debug("Pausing");
+                    break;
+                default:
                     break;
             }
             break;
         }
-        case '1': {
-            switch ( running_state_ ) {
-                case RunningState::PAUSED: {
+        case RunningState::PAUSED: {
+            switch ( c ) {
+                case 32:
+                    Unpause();
+                    break;
+                case '1': {
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN:
-                            if ( situation_manager_->IsEngineFailure()) {
+                            if ( !situation_manager_->IsEngineFailure()) {
                                 menu_options_ = MenuOptions::VELOCITY_CHANGE;
                             }
                             break;
@@ -86,30 +77,7 @@ void RunningUI::ProcessInput () {
                     }
                     break;
                 }
-                case RunningState::SITUATION: {
-                    switch ( situation_manager_->GetSituationType()) {
-                        case SituationType::MINOR:
-                            situation_manager_->IgnoreMinorFailure();
-                            running_state_ = RunningState::FLYING;
-                            break;
-                        case SituationType::ENGINE_FAILURE:
-                        case SituationType::AIR_FILTER_FAILURE:
-                            if ( !UseGenericSpareParts()) { break; }
-                            situation_manager_->StartImmediateFixing();
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case '2': {
-            switch ( running_state_ ) {
-                case RunningState::PAUSED: {
+                case '2': {
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN:
                             menu_options_ = MenuOptions::RATION_CHANGE;
@@ -127,24 +95,7 @@ void RunningUI::ProcessInput () {
                     }
                     break;
                 }
-                case RunningState::SITUATION: {
-                    switch ( situation_manager_->GetSituationType()) {
-                        case SituationType::MINOR:
-                            situation_manager_->StartImmediateFixing();
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case '3': {
-            switch ( running_state_ ) {
-                case RunningState::PAUSED:
+                case '3': {
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN:
                             nav_manager_->TogglePowerMode();
@@ -161,14 +112,8 @@ void RunningUI::ProcessInput () {
                             break;
                     }
                     break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '4': {
-            switch ( running_state_ ) {
-                case RunningState::PAUSED:
+                }
+                case '4': {
                     switch ( menu_options_ ) {
                         case MenuOptions::MAIN: {
 
@@ -187,14 +132,8 @@ void RunningUI::ProcessInput () {
                             break;
                     }
                     break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '5': {
-            switch ( running_state_ ) {
-                case RunningState::PAUSED:
+                }
+                case '5': {
                     switch ( menu_options_ ) {
                         case MenuOptions::VELOCITY_CHANGE:
                             UpdateVelocity(Velocity::DANGEROUS);
@@ -203,18 +142,67 @@ void RunningUI::ProcessInput () {
                             break;
                     }
                     break;
+                }
                 default:
                     break;
             }
             break;
         }
-        case 'y': {
-            if ( running_state_ == RunningState::SITUATION ) {
-                situation_manager_->StartWaitingForHelp();
+        case RunningState::SITUATION: {
+            switch ( c ) {
+                case 32:
+                    Pause();
+                    break;
+                case '1': {
+                    switch ( situation_manager_->GetSituationType()) {
+                        case SituationType::MINOR:
+                            situation_manager_->IgnoreMinorFailure();
+                            running_state_ = RunningState::FLYING;
+                            break;
+                        case SituationType::ENGINE_FAILURE:
+                        case SituationType::AIR_FILTER_FAILURE:
+                            if ( !UseGenericSpareParts()) { break; }
+                            situation_manager_->StartImmediateFixing();
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                case '2': {
+                    switch ( situation_manager_->GetSituationType()) {
+                        case SituationType::MINOR:
+                            situation_manager_->StartImmediateFixing();
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                case 'y': {
+                    situation_manager_->StartWaitingForHelp();
+                    break;
+                }
+                default:
+                    break;
             }
+
             break;
         }
     }
+}
+
+void RunningUI::Unpause () {
+    spaceship_->StartMoving();
+    if ( situation_manager_->IsSituation()) {
+        running_state_ = RunningState::SITUATION;
+        logger_->debug("Returning to situation");
+    } else {
+        running_state_ = RunningState::FLYING;
+        logger_->debug("Returning to flying");
+    }
+
+    pause_menu_->ClearLastNotification();
 }
 
 GameState RunningUI::OnLoop ( GameState state ) {
@@ -432,6 +420,7 @@ void RunningUI::Pause () {
     running_state_ = RunningState::PAUSED;
     menu_options_  = MenuOptions::MAIN;
     spaceship_->StopMoving();
+    logger_->debug("Pausing");
 }
 
 void RunningUI::MoveFlyingObject () {
