@@ -192,7 +192,7 @@ bool SituationManager::ProcessInput ( int c ) {
 }
 
 bool SituationManager::CanFixMinorIgnoredIssue () {
-    if ( ignored_minor_issues_.empty() && !situations_.empty()) {
+    if ( ignored_minor_issues_.empty()) {
         return false;
     }
 

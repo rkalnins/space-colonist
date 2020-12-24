@@ -47,7 +47,15 @@ int main () {
     listener->Stop();
     logger->info("Quit game");
 
+    int x, y;
+    getmaxyx(main, y, x);
+
     werase(main);
+    mvwaddstr(main, y / 2, x / 2 - 4, "Game Over");
+    wrefresh(main);
+
+    getch();
+
     erase();
     endwin();
 
