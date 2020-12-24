@@ -185,6 +185,10 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
     spaceship_handler_->PrintSpaceship(main_);
 
+    if (nav_manager_->GetDistanceRemaining() <= 0) {
+        return GameState::EXITING;
+    }
+
     switch ( running_state_ ) {
         case RunningState::FLYING:
             if ( situation_manager_->CheckNewSituation()) {

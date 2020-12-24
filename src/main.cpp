@@ -50,8 +50,45 @@ int main () {
     int x, y;
     getmaxyx(main, y, x);
 
+    y /= 2;
+    x = x / 2 - 4;
+
     werase(main);
-    mvwaddstr(main, y / 2, x / 2 - 4, "Game Over");
+
+    if (deps->nav_manager_->GetDistanceRemaining() <= 0) {
+        werase(main);
+        mvwaddstr(main, y, x, "You win!");
+        y += 2;
+
+        std::stringstream disp;
+
+        int crew_left = deps->spaceship_handler_->GetSpaceship()->GetCrew().size();
+        disp << "Crew remaining: " << crew_left;
+        mvwaddstr(main, y++, x - 10, disp.str().c_str());
+        disp.str("");
+
+        int food_left = deps->spaceship_handler_->GetSpaceship()->GetFood();
+        disp << "Food remaining: " << food_left;
+        mvwaddstr(main, y++, x - 10, disp.str().c_str());
+        disp.str("");
+
+        disp.precision(4);
+        double distance_traveled = deps->nav_manager_->GetInitialDistance() - deps->nav_manager_->GetDistanceRemaining();
+        disp << "Distance remaining: " << distance_traveled;
+        mvwaddstr(main, y++, x - 10, disp.str().c_str());
+        disp.str("");
+
+        ++y;
+
+        double score = crew_left * 500 + food_left * 100 + distance_traveled * 150;
+        disp << "Score: " << score;
+        mvwaddstr(main, y++, x - 10, disp.str().c_str());
+
+    } else {
+        mvwaddstr(main, y, x, "Game Over");
+        y += 2;
+    }
+
     wrefresh(main);
 
     getch();

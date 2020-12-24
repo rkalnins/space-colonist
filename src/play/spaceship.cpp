@@ -181,6 +181,9 @@ void Spaceship::UseFuel ( double usage ) {
 
         fuel_ -= usage;
         UpdateWeight(-10 * usage); // FIXME 10 is weight of fuel
+    } else {
+        UpdateWeight(-10 * (fuel_));
+        fuel_ = 0;
     }
 }
 
@@ -265,9 +268,9 @@ int Spaceship::GetMaxCrew () const { return max_crew_; }
 
 int Spaceship::GetFood () const { return food_; }
 
-bool Spaceship::HasFuel () { return fuel_ > 0; }
+bool Spaceship::HasFuel () const { return fuel_ > 0; }
 
-bool Spaceship::HasFood () { return food_ > 0; }
+bool Spaceship::HasFood () const { return food_ > 0; }
 
 void Spaceship::StopMoving () { state_ = SpaceshipState::OTHER; }
 

@@ -102,9 +102,9 @@ class Spaceship {
 
     void StopMoving ();
 
-    bool HasFuel ();
+    bool HasFuel () const;
 
-    bool HasFood ();
+    bool HasFood () const;
 
   private:
 

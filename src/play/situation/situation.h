@@ -13,6 +13,16 @@
 
 namespace sc::play {
 
+enum class SituationState {
+    NEW,
+    IGNORED,
+    PROMPT_FOR_HELP,
+    WAITING_FOR_HELP,
+    FIXING,
+    RESOLVED
+};
+
+
 class Situation {
   public:
     Situation ( std::shared_ptr< Spaceship > spaceship,
@@ -36,9 +46,9 @@ class Situation {
 
     [[nodiscard]] bool IsWaitingForHelp () const;
 
-    bool PromptForHelp() const;
+    [[nodiscard]] bool PromptForHelp () const;
 
-    int GetRemainingResponseTime() const;
+    [[nodiscard]] int GetRemainingResponseTime () const;
 
     [[nodiscard]] bool AttemptFix () const;
 
@@ -59,6 +69,7 @@ class Situation {
     std::unique_ptr< const std::string > issue_ { nullptr };
 
     SituationType type_ { SituationType::NONE };
+    SituationState state_ { SituationState::NEW };
 
     double fix_prob_ { 0 };
     int    response_time_ { 0 };
@@ -67,19 +78,14 @@ class Situation {
     int required_cables_ { 0 };
     int required_components_ { 0 };
 
-    bool fixing_ { false };
-    bool waiting_for_help_ { false };
-
     const double successful_distress_ { 0.008 };
 
   private:
 
-    const int max_situation_time_ = 6000; // cycles
+    const int max_situation_time_ = 90; // sec
     const int cycles_per_second_  = 60;
 
     int counter_ { 0 };
-
-    bool enough_spares_ { true };
 };
 
 

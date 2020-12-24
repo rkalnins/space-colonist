@@ -29,7 +29,7 @@ void Situation::SituationCycle () {
 }
 
 bool Situation::IsResolved () {
-    return false;
+    return state_ == SituationState::RESOLVED || situation_time_ > max_situation_time_;
 }
 
 SituationType Situation::GetType () const { return type_; }
@@ -40,12 +40,11 @@ bool Situation::UseGenericSpareParts () {
                                     required_components_)) {
         logger->debug("Not enough spare parts");
         pause_menu_->PushNotification("Not enough spare parts");
-        enough_spares_ = false;
+        state_ = SituationState::PROMPT_FOR_HELP;
         return false;
     }
 
     logger->debug("Enough spare parts");
-    enough_spares_ = true;
     return true;
 }
 
@@ -55,7 +54,7 @@ const std::unique_ptr< const std::string > &Situation::GetIssue () const {
 
 bool Situation::AttemptFix () const {
 
-    if ( !fixing_ ) { return false; }
+    if ( state_ != SituationState::FIXING  ) { return false; }
 
     if ( Random::get< bool >(fix_prob_)) {
         const std::string &fixed = "Fixed \"" + *issue_ +
@@ -75,26 +74,26 @@ void Situation::StartFix () {
     logger->debug("Attempting to start fix");
     if ( UseGenericSpareParts()) {
         logger->debug("Starting fix");
-        fixing_ = true;
+        state_ = SituationState::FIXING;
     }
 }
 
 void Situation::StartWaitForHelp () {
-    if ( !enough_spares_ ) {
-        waiting_for_help_ = true;
+    if ( state_ == SituationState::PROMPT_FOR_HELP ) {
+        state_ = SituationState::WAITING_FOR_HELP;
     }
 }
 
 bool Situation::IsFixing () const {
-    return fixing_;
+    return state_ == SituationState::FIXING;
 }
 
 bool Situation::WaitForHelp () {
-    if ( !waiting_for_help_ ) { return false; }
+    if ( state_ != SituationState::WAITING_FOR_HELP ) { return false; }
 
     if ( Random::get< bool >(successful_distress_)) {
         pause_menu_->PushNotification("Saved by friendly aliens.");
-        waiting_for_help_ = false;
+        state_ = SituationState::RESOLVED;
         return true;
     }
 
@@ -102,11 +101,11 @@ bool Situation::WaitForHelp () {
 }
 
 bool Situation::IsWaitingForHelp () const {
-    return waiting_for_help_;
+    return state_ == SituationState::WAITING_FOR_HELP;
 }
 
 bool Situation::PromptForHelp () const {
-    return !enough_spares_ && !waiting_for_help_;
+    return state_ == SituationState::PROMPT_FOR_HELP;
 }
 
 int Situation::GetRemainingResponseTime () const {
