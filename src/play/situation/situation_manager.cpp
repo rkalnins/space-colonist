@@ -14,52 +14,56 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 SituationManager::SituationManager ( WINDOW *main,
-                                     std::shared_ptr< Spaceship > spaceship,
-                                     std::shared_ptr< PauseMenu > pause_menu )
-        : logger_(
-        CreateLogger("sitmgr")), main_(main),
-          spaceship_(std::move(spaceship)),
-          pause_menu_(std::move(pause_menu)) {}
+                                     const std::shared_ptr< Spaceship > &spaceship,
+                                     const std::shared_ptr< PauseMenu > &pause_menu )
+        : logger_(CreateLogger("sitmgr")), main_(main),
+          spaceship_(spaceship),
+          pause_menu_(pause_menu),
+          situation_factory_(pause_menu,
+                             spaceship) {}
 
 
 void SituationManager::ShowSituationReport () {
     int y = pause_y_;
     int x = pause_x_;
 
+    if ( situations_.empty()) { return; }
+
     mvwaddstr(main_, y++, x - 8, "Situation Report");
     mvwaddstr(main_, y++, x - 23,
               "---------------------------------------------");
     if ( !situations_.empty()) {
-        mvwaddstr(main_, y++, x - situations_.front().length() / 2,
-                  situations_.front().c_str());
+        mvwaddstr(main_, y++,
+                  x - situations_.front()->GetIssue()->length() / 2,
+                  situations_.front()->GetIssue()->c_str());
         mvwaddstr(main_, y++, x - 23,
                   "---------------------------------------------");
     }
 
-    for ( auto &o : sitrep_options_[situation_type_] ) {
+    for ( auto &o : sitrep_options_[situations_.front()->GetType()] ) {
         mvwaddstr(main_, y++, x - 12, o.c_str());
     }
 
     y++;
-    if ( !waiting_for_help_ && !enough_spares_ ) {
+    if ( situations_.front()->PromptForHelp()) {
         mvwaddstr(main_, y++, x - 12,
                   "Not enough spares. Issue distress signal (y/n)?");
     }
 
-    if ( enough_spares_ && fixing_ ) {
+    if ( situations_.front()->IsFixing()) {
         mvwaddstr(main_, y++, x - 12, "Current Action: Fixing");
     }
 
-    if ( waiting_for_help_ ) {
+    if ( situations_.front()->IsWaitingForHelp()) {
         mvwaddstr(main_, y++, x - 12, "Current Action: Waiting for help");
     }
 
-    if ( situation_type_ == SituationType::AIR_FILTER_FAILURE ) {
-        int seconds = air_response_time_ -
-                      ( situation_counter_ / second_count_period_ );
-        if ( seconds >= 0 ) {
+    if ( situations_.front()->GetType() ==
+         SituationType::AIR_FILTER_FAILURE ) {
+        if ( situations_.front()->GetRemainingResponseTime() >= 0 ) {
             std::stringstream disp;
-            disp << seconds << " before poisoning begins";
+            disp << situations_.front()->GetRemainingResponseTime()
+                 << " before poisoning begins";
             mvwaddstr(main_, y++, x - 12, disp.str().c_str());
         } else {
             mvwaddstr(main_, y++, x - 12,
@@ -69,72 +73,15 @@ void SituationManager::ShowSituationReport () {
 }
 
 bool SituationManager::CheckNewSituation () {
-    if ( situation_type_ != SituationType::NONE ) {
+    if ( !situations_.empty()) {
         return false;
     }
 
-    double major_p_ = std::min(1.0,
-                               major_failure_prob_ *
-                               ( ignored_minor_mech_failures_ + 1 ));
+    std::shared_ptr< Situation > tmp = situation_factory_.GetSituation();
 
-    if ( Random::get< bool >(major_p_)) {
-        char f = Random::get({ 'a', 'e' });
-        switch ( f ) {
-            case 'e':
-                situation_type_ = SituationType::ENGINE_FAILURE;
-                situations_.push(*Random::get(engine_failures_));
-                break;
-            case 'a':
-                situation_type_ = SituationType::AIR_FILTER_FAILURE;
-                situations_.push(*Random::get(air_filter_failure_));
-                break;
-            default:
-                situation_type_ = SituationType::NONE;
-        }
-
-        req_cabling_    = *Random::get(cabling_used_major_);
-        req_components_ = *Random::get(components_used_major_);
-
-        logger_->debug("Req cabling/comp: {} {}", req_cabling_,
-                       req_components_);
-
-        logger_->debug("Major failure");
-        return true;
-    }
-
-
-    if ( Random::get< bool >(minor_failure_prob_)) {
-        situation_type_ = SituationType::MINOR;
-        situations_.push(*Random::get(minor_failures_));
-
-
-        req_cabling_    = *Random::get(cabling_used_minor_);
-        req_components_ = *Random::get(components_used_minor_);
-
-        logger_->debug("Req cabling/comp: {} {}", req_cabling_,
-                       req_components_);
-        logger_->debug("Minor failure");
-        return true;
-    }
-
-    return false;
-}
-
-bool SituationManager::WaitForHelp () {
-    if ( !waiting_for_help_ ) { return false; }
-
-    if ( Random::get< bool >(successful_distress_)) {
-        pause_menu_->PushNotification("Saved by friendly aliens.");
-        situation_type_    = SituationType::NONE;
-        waiting_for_help_  = false;
-        is_air_poisoned_   = false;
-        enough_spares_     = true;
-        situation_counter_ = 0;
-
-        if ( !situations_.empty()) {
-            situations_.pop();
-        }
-
+    if ( tmp ) {
+        logger_->debug("Got situation");
+        situations_.push(tmp);
         return true;
     }
 
@@ -142,30 +89,63 @@ bool SituationManager::WaitForHelp () {
 }
 
 void SituationManager::FixMinorIgnored () {
-    if ( !fixing_minor_ ) { return; }
+    if ( ignored_minor_issues_.empty()) { return; }
 
-    if ( Random::get< bool >(minor_fix_prob_)) {
-        logger_->debug("Fixed ignored issue");
-        std::string fixed = "Fixed ignored minor issue";
-        pause_menu_->PushNotification(fixed);
-        fixing_minor_  = false;
-        enough_spares_ = true;
+    if ( ignored_minor_issues_.front()->AttemptFix()) {
+        logger_->debug("Minor ignored issue resolved");
 
-        --ignored_minor_mech_failures_;
-
-        if ( ignored_minor_mech_failures_ <= 0 ) {
-            ignored_minor_mech_failures_ = 0;
+        if ( !ignored_minor_issues_.empty()) {
+            ignored_minor_issues_.pop();
         }
     }
 }
 
-bool SituationManager::FixMinor () {
-    if ( Random::get< bool >(minor_fix_prob_)) {
-        std::string fixed = "Fixed \"" + situations_.front() +
-                            "\"";
-        pause_menu_->PushNotification(fixed);
-        situation_type_ = SituationType::NONE;
-        fixing_         = false;
+SituationType SituationManager::GetSituationType () const {
+    if ( situations_.empty()) { return SituationType::NONE; }
+
+    return situations_.front()->GetType();
+}
+
+int SituationManager::GetIgnoredFailures () const {
+    return ignored_minor_issues_.size();
+}
+
+bool SituationManager::SuddenEngineFailure () {
+    std::shared_ptr< Situation > tmp = situation_factory_.GetSuddenEngineFailure();
+
+    if ( tmp ) {
+        situations_.push(tmp);
+        return true;
+    }
+
+    return false;
+}
+
+bool SituationManager::IsSituation () {
+    return !situations_.empty();
+}
+
+bool SituationManager::IsEngineFailure () {
+    if ( situations_.empty()) { return false; }
+
+    return situations_.front()->GetType() == SituationType::ENGINE_FAILURE;
+}
+
+bool SituationManager::UpdateSituation () {
+
+    if ( situations_.empty()) { return false; }
+
+    ShowSituationReport();
+
+    situations_.front()->SituationCycle();
+
+
+    if ( situations_.empty()) { return false; }
+
+
+    // ending conditions for a situation, either help arrives or is fixed
+    if ( situations_.front()->AttemptFix() ||
+         situations_.front()->WaitForHelp()) {
 
         if ( !situations_.empty()) {
             situations_.pop();
@@ -175,132 +155,6 @@ bool SituationManager::FixMinor () {
     }
 
     return false;
-}
-
-bool SituationManager::AttemptFix () {
-
-    if ( !fixing_ ) {
-        return false;
-    }
-
-    switch ( situation_type_ ) {
-        case SituationType::MINOR:
-            return FixMinor();
-        case SituationType::ENGINE_FAILURE: {
-            if ( Random::get< bool >(major_fix_prob_)) {
-                pause_menu_->PushNotification(
-                        "Fixed engine. Engine nominal.");
-                situation_type_    = SituationType::NONE;
-                situation_counter_ = 0;
-                fixing_            = false;
-                enough_spares_     = true;
-
-                if ( !situations_.empty()) {
-                    situations_.pop();
-                }
-
-                return true;
-            }
-            break;
-        }
-        case SituationType::AIR_FILTER_FAILURE: {
-            if ( Random::get< bool >(major_fix_prob_)) {
-                pause_menu_->PushNotification("Fixed air filter.");
-                situation_type_    = SituationType::NONE;
-                is_air_poisoned_   = false;
-                enough_spares_     = true;
-                situation_counter_ = 0;
-                fixing_            = false;
-
-                if ( !situations_.empty()) {
-                    situations_.pop();
-                }
-
-                return true;
-            }
-            break;
-        }
-        default:
-            break;
-    }
-
-    return false;
-}
-
-SituationType SituationManager::GetSituationType () const {
-    return situation_type_;
-}
-
-int SituationManager::GetIgnoredFailures () const {
-    return ignored_minor_mech_failures_;
-}
-
-bool SituationManager::SuddenEngineFailure () {
-    if ( Random::get< bool >(unresponsive_engines_)) {
-        situations_.push("Unresponsive engines. Cause unknown.");
-        situation_type_ = SituationType::ENGINE_FAILURE;
-        return true;
-    }
-
-    return false;
-}
-
-bool SituationManager::IsSituation () {
-    return situation_type_ != SituationType::NONE;
-}
-
-bool SituationManager::IsEngineFailure () {
-    return situation_type_ == SituationType::ENGINE_FAILURE;
-}
-
-bool SituationManager::UpdateSituation () {
-
-    ShowSituationReport();
-
-    if ( situation_type_ == SituationType::AIR_FILTER_FAILURE &&
-         !is_air_poisoned_ && air_response_time_ -
-                              ( situation_counter_++ /
-                                second_count_period_ ) <= 0 ) {
-        logger_->debug("Air is poisoned");
-        is_air_poisoned_ = true;
-    }
-
-    if ( AttemptFix()) {
-        return true;
-    }
-
-    if ( WaitForHelp()) {
-        return true;
-    }
-
-    return false;
-}
-
-void SituationManager::StartWaitingForHelp () {
-    if ( !enough_spares_ ) {
-        waiting_for_help_ = true;
-    }
-}
-
-void SituationManager::StartFixingMinor () {
-    fixing_minor_ = true;
-
-    pause_menu_->ClearLastNotification();
-
-    logger_->debug("Trying to fix minor issue");
-
-}
-
-void SituationManager::StartImmediateFixing () {
-    fixing_ = true;
-}
-
-void SituationManager::IgnoreMinorFailure () {
-    if ( !situations_.empty()) {
-        situations_.pop();
-    }
-    ++ignored_minor_mech_failures_;
-    situation_type_ = SituationType::NONE;
 }
 
 bool SituationManager::ProcessInput ( int c ) {
@@ -309,32 +163,25 @@ bool SituationManager::ProcessInput ( int c ) {
             pause_menu_->PushNotification("Situation in Progress");
             break;
         case '1': {
-            switch ( situation_type_ ) {
-                case SituationType::MINOR:
-                    IgnoreMinorFailure();
-                    return true;
-                case SituationType::ENGINE_FAILURE:
-                case SituationType::AIR_FILTER_FAILURE:
-                    if ( !UseGenericSpareParts()) { break; }
-                    StartImmediateFixing();
-                    break;
-                default:
-                    break;
+            if ( situations_.front()->GetType() == SituationType::MINOR ) {
+                logger_->debug("Ignoring minor");
+                ignored_minor_issues_.push(situations_.front());
+
+                if ( !situations_.empty()) {
+                    situations_.pop();
+                }
+                return true;
             }
+
+            logger_->debug("Starting to fix");
+            situations_.front()->StartFix();
             break;
         }
         case '2': {
-            switch ( situation_type_ ) {
-                case SituationType::MINOR:
-                    StartImmediateFixing();
-                    break;
-                default:
-                    break;
-            }
-            break;
+            situations_.front()->StartFix();
         }
         case 'y': {
-            StartWaitingForHelp();
+            situations_.front()->StartWaitForHelp();
             break;
         }
         default:
@@ -344,45 +191,23 @@ bool SituationManager::ProcessInput ( int c ) {
     return false;
 }
 
-bool SituationManager::UseGenericSpareParts () {
-    if ( !spaceship_->UseSpareParts(req_cabling_,
-                                    req_components_)) {
-        pause_menu_->PushNotification("Not enough spare parts");
-        enough_spares_ = false;
-        return false;
-    } else {
-        logger_->debug("Enough spare parts");
-        enough_spares_ = true;
-        return true;
-    }
-}
-
 bool SituationManager::CanFixMinorIgnoredIssue () {
-    if ( ignored_minor_mech_failures_ > 0 &&
-         !fixing_minor_ && !UseGenericSpareParts()) {
+    if ( ignored_minor_issues_.empty() && !situations_.empty()) {
         return false;
     }
 
-    StartFixingMinor();
+    pause_menu_->ClearLastNotification();
+    logger_->debug("Trying to fix minor issue 1 of {}",
+                   ignored_minor_issues_.size());
+    ignored_minor_issues_.front()->StartFix();
+
     return true;
 }
 
 void SituationManager::UpdateHealth () {
-    std::vector< CrewMember > &crew = spaceship_->GetCrew();
+    if ( situations_.empty()) { return; }
 
-    if ( is_air_poisoned_ ) {
-        for ( auto &c : crew ) {
-            c.UpdateHealth(-2);
-        }
-    }
-
-    for ( auto &c : crew ) {
-        if ( c.IsDead()) {
-            pause_menu_->PushNotification(
-                    c.GetName() +
-                    " has suffocated to death from poisoned air :(");
-        }
-    }
+    situations_.front()->HealthUpdate();
 }
 
 }

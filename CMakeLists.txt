@@ -64,7 +64,15 @@ set(SOURCE_FILES
         src/play/situation/situation.h
         src/play/situation/major_situation.cpp
         src/play/situation/major_situation.h
-        src/play/menu_options.h)
+        src/play/menu_options.h
+        src/play/situation/standard_engine_failure.cpp
+        src/play/situation/standard_engine_failure.h
+        src/play/situation/air_filter_failure.cpp
+        src/play/situation/air_filter_failure.h
+        src/play/situation/situation_factory.cpp
+        src/play/situation/situation_factory.h
+        src/play/situation/minor_situation.cpp
+        src/play/situation/minor_situation.h)
 
 add_executable(sc ${MAIN} ${SOURCE_FILES})
 add_executable(sc_test ${SOURCE_FILES} ${TEST_FILES})

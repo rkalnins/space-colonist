@@ -28,13 +28,16 @@ RunningUI::RunningUI ( const std::string &name, TaskType taskType,
 void RunningUI::Init () {
     logger_->debug("Running UI init");
     spaceship_ = spaceship_handler_->GetSpaceship();
+    logger_->debug("Got spaceship");
     nav_manager_->SetVelocity(Velocity::SLOW);
     pause_menu_        = std::make_shared< PauseMenu >(spaceship_,
                                                        nav_manager_,
                                                        main_);
+    logger_->debug("Created pause menu");
     situation_manager_ = std::make_unique< SituationManager >(main_,
                                                               spaceship_,
                                                               pause_menu_);
+    logger_->debug("Created situation manager");
 }
 
 // FIXME please
@@ -186,6 +189,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
         case RunningState::FLYING:
             if ( situation_manager_->CheckNewSituation()) {
                 running_state_ = RunningState::SITUATION;
+                logger_->debug("New situation");
             }
 
             situation_manager_->FixMinorIgnored();
@@ -201,10 +205,9 @@ GameState RunningUI::OnLoop ( GameState state ) {
         case RunningState::SITUATION:
             if ( situation_manager_->UpdateSituation()) {
                 running_state_ = RunningState::FLYING;
+            } else {
+                StandardLoopUpdate();
             }
-
-            StandardLoopUpdate();
-
             break;
     }
 
@@ -313,7 +316,6 @@ void RunningUI::UpdateCrewFood () {
             Random::get(crew)->UpdateHealth(1);
         }
     }
-
 
     for ( auto &c : crew ) {
         if ( c.IsDead()) {

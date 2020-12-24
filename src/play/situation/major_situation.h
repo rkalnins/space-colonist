@@ -12,6 +12,19 @@ namespace sc::play {
 
 class MajorSituation : public Situation {
 
+  public:
+    MajorSituation ( std::shared_ptr< Spaceship > spaceship,
+                     std::shared_ptr< PauseMenu > pauseMenu);
+
+    bool IsResolved () override;
+
+  protected:
+    void SituationCycleOverride () override;
+
+  private:
+    const std::vector< int > components_used_choices_ = { 2, 3, 5 };
+    const std::vector< int > cabling_used_choices_    = { 2, 3, 5 };
+
 };
 
 }

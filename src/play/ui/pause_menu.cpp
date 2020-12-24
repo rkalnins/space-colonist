@@ -16,8 +16,7 @@ PauseMenu::PauseMenu ( std::shared_ptr< Spaceship > spaceship,
                                         nav_manager_(
                                                 std::move(nav_manager)),
                                         main_(main), logger_(CreateLogger(
-                "pause_menu")) {
-}
+                "pause_menu")) {}
 
 void PauseMenu::ShowChangeRationsOptions () {
 
