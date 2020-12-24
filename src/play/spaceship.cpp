@@ -182,7 +182,7 @@ void Spaceship::UseFuel ( double usage ) {
         fuel_ -= usage;
         UpdateWeight(-10 * usage); // FIXME 10 is weight of fuel
     } else {
-        UpdateWeight(-10 * (fuel_));
+        UpdateWeight(-10 * ( fuel_ ));
         fuel_ = 0;
     }
 }

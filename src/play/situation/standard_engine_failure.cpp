@@ -21,15 +21,4 @@ StandardEngineFailure::StandardEngineFailure (
     type_ = SituationType::ENGINE_FAILURE;
 }
 
-bool StandardEngineFailure::IsResolved () {
-    return MajorSituation::IsResolved();
-}
-
-void StandardEngineFailure::SituationCycleOverride () {
-    MajorSituation::SituationCycleOverride();
-}
-
-void StandardEngineFailure::HealthUpdate () {
-
-}
 }

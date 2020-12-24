@@ -139,10 +139,6 @@ bool SituationManager::UpdateSituation () {
 
     situations_.front()->SituationCycle();
 
-
-    if ( situations_.empty()) { return false; }
-
-
     // ending conditions for a situation, either help arrives or is fixed
     if ( situations_.front()->AttemptFix() ||
          situations_.front()->WaitForHelp()) {

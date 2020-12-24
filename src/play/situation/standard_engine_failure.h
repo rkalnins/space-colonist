@@ -14,12 +14,7 @@ class StandardEngineFailure : public MajorSituation {
     StandardEngineFailure ( std::shared_ptr< Spaceship > spaceship,
                             std::shared_ptr< PauseMenu > pauseMenu );
 
-    bool IsResolved () override;
-
-    virtual void HealthUpdate () override;
-
-  protected:
-    void SituationCycleOverride () override;
+  private:
 
     const std::vector< const std::string > issue_choices_ =
                                                    {

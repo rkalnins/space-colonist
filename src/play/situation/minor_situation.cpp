@@ -25,12 +25,4 @@ MinorSituation::MinorSituation (
     required_cables_     = *Random::get(cabling_used_choices_);
 }
 
-void MinorSituation::SituationCycleOverride () {
-
-}
-
-void MinorSituation::HealthUpdate () {
-
-}
-
 }

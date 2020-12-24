@@ -24,8 +24,8 @@ class SituationManager {
   public:
 
     SituationManager ( WINDOW *main,
-                       const std::shared_ptr< Spaceship >& spaceship,
-                       const std::shared_ptr< PauseMenu >& pause_menu );
+                       const std::shared_ptr< Spaceship > &spaceship,
+                       const std::shared_ptr< PauseMenu > &pause_menu );
 
     bool CheckNewSituation ();
 
@@ -68,7 +68,7 @@ class SituationManager {
             { SituationType::AIR_FILTER_FAILURE, { "1. Attempt fix" }}
     };
 
-    std::queue< std::shared_ptr<Situation> > situations_;
+    std::queue< std::shared_ptr< Situation > > situations_;
 
     std::queue< std::shared_ptr< Situation >> ignored_minor_issues_;
 

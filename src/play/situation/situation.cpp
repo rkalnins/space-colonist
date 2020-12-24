@@ -25,11 +25,14 @@ Situation::Situation ( std::shared_ptr< Spaceship > spaceship,
 void Situation::SituationCycle () {
     ++counter_;
     situation_time_ = counter_ / cycles_per_second_;
-    SituationCycleOverride();
-}
 
-bool Situation::IsResolved () {
-    return state_ == SituationState::RESOLVED || situation_time_ > max_situation_time_;
+    if ( situation_time_ > max_situation_time_ ) {
+        state_ = SituationState::RESOLVED;
+        pause_menu_->PushNotification("Situation resolved");
+        return;
+    }
+
+    SituationCycleOverride();
 }
 
 SituationType Situation::GetType () const { return type_; }
@@ -54,7 +57,7 @@ const std::unique_ptr< const std::string > &Situation::GetIssue () const {
 
 bool Situation::AttemptFix () const {
 
-    if ( state_ != SituationState::FIXING  ) { return false; }
+    if ( state_ != SituationState::FIXING ) { return false; }
 
     if ( Random::get< bool >(fix_prob_)) {
         const std::string &fixed = "Fixed \"" + *issue_ +
@@ -111,5 +114,9 @@ bool Situation::PromptForHelp () const {
 int Situation::GetRemainingResponseTime () const {
     return response_time_ - situation_time_;
 }
+
+void Situation::SituationCycleOverride () {}
+
+void Situation::HealthUpdate () {}
 
 }

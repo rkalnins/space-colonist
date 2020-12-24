@@ -15,13 +15,6 @@ class MinorSituation : public Situation {
     MinorSituation ( std::shared_ptr< Spaceship > spaceship,
                      std::shared_ptr< PauseMenu > pauseMenu );
 
-  protected:
-    void SituationCycleOverride () override;
-
-  public:
-    virtual void HealthUpdate () override;
-
-
   private:
 
     const std::vector< const std::string > issue_choices_ = {
@@ -36,7 +29,6 @@ class MinorSituation : public Situation {
     const std::vector< int > components_used_choices_ = { 1, 2 };
     const std::vector< int > cabling_used_choices_    = { 1, 2 };
 
-    bool ignored_ { false };
 };
 
 

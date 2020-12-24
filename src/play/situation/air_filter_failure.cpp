@@ -18,17 +18,14 @@ AirFilterFailure::AirFilterFailure (
         std::shared_ptr< PauseMenu > pauseMenu ) : MajorSituation(
         std::move(spaceship), std::move(pauseMenu)) {
 
-    issue_ = std::make_unique< std::string >(*Random::get(issue_choices_));
-    type_ = SituationType::AIR_FILTER_FAILURE;
+    issue_         = std::make_unique< std::string >(
+            *Random::get(issue_choices_));
+    type_          = SituationType::AIR_FILTER_FAILURE;
     response_time_ = 15; // sec
 }
 
-bool AirFilterFailure::IsResolved () {
-    return MajorSituation::IsResolved();
-}
-
 void AirFilterFailure::SituationCycleOverride () {
-    if (!is_air_poisoned_ && ResponseTimeExpired() ) {
+    if ( !is_air_poisoned_ && ResponseTimeExpired()) {
         is_air_poisoned_ = true;
     }
 }

@@ -15,7 +15,6 @@ namespace sc::play {
 
 enum class SituationState {
     NEW,
-    IGNORED,
     PROMPT_FOR_HELP,
     WAITING_FOR_HELP,
     FIXING,
@@ -30,8 +29,6 @@ class Situation {
 
     void SituationCycle ();
 
-    virtual bool IsResolved ();
-
     [[nodiscard]] SituationType GetType () const;
 
     void StartWaitForHelp ();
@@ -40,7 +37,7 @@ class Situation {
 
     void StartFix ();
 
-    virtual void HealthUpdate () = 0;
+    virtual void HealthUpdate ();
 
     [[nodiscard]] bool IsFixing () const;
 
@@ -61,14 +58,14 @@ class Situation {
 
     [[nodiscard]] bool ResponseTimeExpired () const;
 
-    virtual void SituationCycleOverride () = 0;
+    virtual void SituationCycleOverride ();
 
     std::shared_ptr< Spaceship > spaceship_ { nullptr };
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
 
     std::unique_ptr< const std::string > issue_ { nullptr };
 
-    SituationType type_ { SituationType::NONE };
+    SituationType  type_ { SituationType::NONE };
     SituationState state_ { SituationState::NEW };
 
     double fix_prob_ { 0 };

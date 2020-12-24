@@ -14,9 +14,7 @@ class MajorSituation : public Situation {
 
   public:
     MajorSituation ( std::shared_ptr< Spaceship > spaceship,
-                     std::shared_ptr< PauseMenu > pauseMenu);
-
-    bool IsResolved () override;
+                     std::shared_ptr< PauseMenu > pauseMenu );
 
   protected:
     void SituationCycleOverride () override;

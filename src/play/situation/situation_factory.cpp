@@ -21,7 +21,9 @@ using Random = effolkronium::random_static;
 SituationFactory::SituationFactory (
         std::shared_ptr< PauseMenu > pauseMenu,
         std::shared_ptr< Spaceship > spaceship ) : pause_menu_(std::move(
-        pauseMenu)), spaceship_(std::move(spaceship)), logger_(CreateLogger("sit_factory")) {}
+        pauseMenu)), spaceship_(std::move(spaceship)),
+                                                   logger_(CreateLogger(
+                                                           "sit_factory")) {}
 
 std::shared_ptr< Situation > SituationFactory::GetSituation () {
 

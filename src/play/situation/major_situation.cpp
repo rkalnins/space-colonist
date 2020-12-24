@@ -28,7 +28,4 @@ void MajorSituation::SituationCycleOverride () {
 
 }
 
-bool MajorSituation::IsResolved () {
-    return Situation::IsResolved();
-}
 }

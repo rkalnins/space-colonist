@@ -29,10 +29,10 @@ void RunningUI::Init () {
     logger_->debug("Running UI init");
     spaceship_ = spaceship_handler_->GetSpaceship();
     logger_->debug("Got spaceship");
-    nav_manager_->SetVelocity(Velocity::SLOW);
-    pause_menu_        = std::make_shared< PauseMenu >(spaceship_,
-                                                       nav_manager_,
-                                                       main_);
+    nav_manager_->SetVelocity(Velocity::STOP);
+    pause_menu_ = std::make_shared< PauseMenu >(spaceship_,
+                                                nav_manager_,
+                                                main_);
     logger_->debug("Created pause menu");
     situation_manager_ = std::make_unique< SituationManager >(main_,
                                                               spaceship_,
@@ -185,7 +185,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
     spaceship_handler_->PrintSpaceship(main_);
 
-    if (nav_manager_->GetDistanceRemaining() <= 0) {
+    if ( nav_manager_->GetDistanceRemaining() <= 0 ) {
         return GameState::EXITING;
     }
 
