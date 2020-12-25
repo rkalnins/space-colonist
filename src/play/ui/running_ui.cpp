@@ -15,9 +15,9 @@ namespace sc::play {
 
 
 RunningUI::RunningUI ( const std::string &name, TaskType taskType,
-                       std::shared_ptr< SpaceshipHandler > spaceship_handler,
-                       std::shared_ptr< play::NavigationControlManager > nav_manager,
-                       std::shared_ptr< InputListener > listener,
+                       shared_spaceship_handler_t spaceship_handler,
+                       shared_nav_manager_t nav_manager,
+                       shared_input_listener_t listener,
                        WINDOW *main )
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),
@@ -156,7 +156,7 @@ void RunningUI::ProcessInput () {
 }
 
 void RunningUI::Unpause () {
-    spaceship_->StartMoving();
+    spaceship_->Unpause();
     if ( situation_manager_->IsSituation()) {
         running_state_ = RunningState::SITUATION;
         logger_->debug("Returning to situation");
@@ -334,7 +334,7 @@ void RunningUI::UpdateCrewFood () {
 void RunningUI::Pause () {
     running_state_ = RunningState::PAUSED;
     menu_options_  = MenuOptions::MAIN;
-    spaceship_->StopMoving();
+    spaceship_->Pause();
     logger_->debug("Pausing");
 }
 
@@ -351,6 +351,7 @@ void RunningUI::MoveFlyingObject () {
         }
 
         flying_debris_->Move();
+        flying_debris_->Render();
     }
 }
 

@@ -12,7 +12,7 @@ namespace sc::play {
 class MinorSituation : public Situation {
   public:
 
-    MinorSituation ( std::shared_ptr< Spaceship > spaceship,
+    MinorSituation ( shared_spaceship_t spaceship,
                      std::shared_ptr< PauseMenu > pauseMenu );
 
   private:

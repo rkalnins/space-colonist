@@ -12,7 +12,7 @@ namespace sc::play {
 class Item {
   public:
 
-    Item ( std::string category, std::string name, int value, int weight,
+    Item ( std::string category, std::string name, int quantity, int weight,
            int cost );
 
     [[nodiscard]] const std::string &GetCategory () const;

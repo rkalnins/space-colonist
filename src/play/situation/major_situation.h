@@ -13,7 +13,7 @@ namespace sc::play {
 class MajorSituation : public Situation {
 
   public:
-    MajorSituation ( std::shared_ptr< Spaceship > spaceship,
+    MajorSituation ( shared_spaceship_t spaceship,
                      std::shared_ptr< PauseMenu > pauseMenu );
 
   protected:

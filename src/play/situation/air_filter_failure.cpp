@@ -6,7 +6,6 @@
 
 #include "air_filter_failure.h"
 #include <effolkronium/random.hpp>
-#include <utility>
 
 
 namespace sc::play {
@@ -14,7 +13,7 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 AirFilterFailure::AirFilterFailure (
-        std::shared_ptr< Spaceship > spaceship,
+        shared_spaceship_t spaceship,
         std::shared_ptr< PauseMenu > pauseMenu ) : MajorSituation(
         std::move(spaceship), std::move(pauseMenu)) {
 

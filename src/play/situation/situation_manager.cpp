@@ -14,7 +14,7 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 SituationManager::SituationManager ( WINDOW *main,
-                                     const std::shared_ptr< Spaceship > &spaceship,
+                                     const shared_spaceship_t &spaceship,
                                      const std::shared_ptr< PauseMenu > &pause_menu )
         : logger_(CreateLogger("sitmgr")), main_(main),
           spaceship_(spaceship),

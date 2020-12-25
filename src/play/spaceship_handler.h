@@ -24,14 +24,16 @@ struct Checkbox {
 
 class SpaceshipHandler {
   public:
+
+
     explicit SpaceshipHandler (
-            std::shared_ptr< SpaceshipFactory > spaceship_factory );
+            shared_spaceship_factory_t spaceship_factory );
 
   public:
     void
-    SetSpaceship ( const std::shared_ptr< play::Spaceship > &spaceship );
+    SetSpaceship ( const shared_spaceship_t &spaceship );
 
-    [[nodiscard]] const std::shared_ptr< play::Spaceship > &
+    [[nodiscard]] const shared_spaceship_t &
     GetSpaceship () const;
 
     void SetCrew ( const std::vector< CrewMember > &crew_choices,
@@ -47,8 +49,8 @@ class SpaceshipHandler {
 
     logger_t logger_;
 
-    std::shared_ptr< Spaceship >        spaceship_ { nullptr };
-    std::shared_ptr< SpaceshipFactory > spaceship_factory_ { nullptr };
+    shared_spaceship_t         spaceship_ { nullptr };
+    shared_spaceship_factory_t spaceship_factory_ { nullptr };
 
     double ss_mvmt_x_prob_ { 0.75 };
     double ss_mvmt_y_prob_ { 0.75 };
@@ -61,6 +63,9 @@ class SpaceshipHandler {
     int ss_pos_y_ { 25 };
     int ss_pos_x_ { 50 };
 };
+
+
+using shared_spaceship_handler_t = std::shared_ptr< SpaceshipHandler >;
 
 }
 

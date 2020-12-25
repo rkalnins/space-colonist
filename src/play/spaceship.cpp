@@ -272,10 +272,10 @@ bool Spaceship::HasFuel () const { return fuel_ > 0; }
 
 bool Spaceship::HasFood () const { return food_ > 0; }
 
-void Spaceship::StopMoving () { state_ = SpaceshipState::OTHER; }
+void Spaceship::Pause () { state_ = SpaceshipState::PAUSED; }
 
-void Spaceship::StartMoving () { state_ = SpaceshipState::MOVING; }
+void Spaceship::Unpause () { state_ = SpaceshipState::OTHER; }
 
-bool Spaceship::IsMoving () { return state_ == SpaceshipState::MOVING; }
+bool Spaceship::IsPaused () { return state_ == SpaceshipState::PAUSED; }
 
 }

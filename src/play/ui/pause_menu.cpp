@@ -10,8 +10,8 @@
 
 namespace sc::play {
 
-PauseMenu::PauseMenu ( std::shared_ptr< Spaceship > spaceship,
-                       std::shared_ptr< NavigationControlManager > nav_manager,
+PauseMenu::PauseMenu ( shared_spaceship_t spaceship,
+                       shared_nav_manager_t nav_manager,
                        WINDOW *main ) : spaceship_(std::move(spaceship)),
                                         nav_manager_(
                                                 std::move(nav_manager)),

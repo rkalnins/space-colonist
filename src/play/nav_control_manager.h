@@ -20,7 +20,7 @@ class NavigationControlManager : public Task {
   public:
 
     NavigationControlManager ( const std::string &name, TaskType taskType,
-                               std::shared_ptr< SpaceshipHandler > spaceship_handler );
+                               shared_spaceship_handler_t spaceship_handler );
 
     void Init () override;
 
@@ -54,8 +54,8 @@ class NavigationControlManager : public Task {
 
   private:
 
-    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
-    std::shared_ptr< Spaceship >        spaceship_ { nullptr };
+    shared_spaceship_handler_t spaceship_handler_ { nullptr };
+    shared_spaceship_t         spaceship_ { nullptr };
 
     logger_t logger_;
 
@@ -84,6 +84,9 @@ class NavigationControlManager : public Task {
     double distance_traveled_ { 0 };
     double velocity_ { 0 };
 };
+
+
+using shared_nav_manager_t = std::shared_ptr< play::NavigationControlManager >;
 
 }
 

@@ -18,9 +18,9 @@ class HUDDisplay : public Task {
   public:
 
     HUDDisplay ( const std::string &name, TaskType task_type,
-                 std::shared_ptr< SpaceshipHandler > spaceship_handler,
-                 std::shared_ptr< play::NavigationControlManager > nav_manager,
-                 std::shared_ptr< InputListener > listener, WINDOW *main );
+                 shared_spaceship_handler_t spaceship_handler,
+                 shared_nav_manager_t nav_manager,
+                 shared_input_listener_t listener, WINDOW *main );
 
     void Init () override;
 
@@ -41,11 +41,11 @@ class HUDDisplay : public Task {
   private:
     std::map< int, std::string > cat_details_;
 
-    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
+    shared_spaceship_handler_t spaceship_handler_ { nullptr };
 
-    std::shared_ptr< NavigationControlManager > nav_manager_ { nullptr };
+    shared_nav_manager_t nav_manager_ { nullptr };
 
-    std::shared_ptr< Spaceship >     spaceship_ { nullptr };
+    shared_spaceship_t     spaceship_ { nullptr };
     std::shared_ptr< InputListener > listener_ { nullptr };
 
     logger_t logger_;

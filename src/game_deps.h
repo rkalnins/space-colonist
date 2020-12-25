@@ -19,6 +19,7 @@ namespace sc {
 
 class GameDependencies {
   public:
+
     GameDependencies ( WINDOW *main,
                        std::shared_ptr< InputListener > &listener )
             : main_(main) {
@@ -60,24 +61,20 @@ class GameDependencies {
 
   public:
 
-    std::shared_ptr< play::SpaceshipHandler > spaceship_handler_ {
+    play::shared_spaceship_handler_t spaceship_handler_ { nullptr };
+    play::shared_nav_manager_t       nav_manager_ { nullptr };
+
+    play::shared_spaceship_factory_t spaceship_factory_ {
             nullptr
     };
 
-    std::shared_ptr< play::SpaceshipFactory > spaceship_factory_ {
+    std::shared_ptr< play::SetupUI >    setup_ui_ {
             nullptr
     };
-
-    std::shared_ptr< play::SetupUI >                  setup_ui_ {
+    std::shared_ptr< play::RunningUI >  running_ui_ {
             nullptr
     };
-    std::shared_ptr< play::RunningUI >                running_ui_ {
-            nullptr
-    };
-    std::shared_ptr< play::HUDDisplay >               hud_display_ {
-            nullptr
-    };
-    std::shared_ptr< play::NavigationControlManager > nav_manager_ {
+    std::shared_ptr< play::HUDDisplay > hud_display_ {
             nullptr
     };
 

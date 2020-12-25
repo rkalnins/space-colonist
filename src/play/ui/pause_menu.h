@@ -18,8 +18,8 @@ class PauseMenu {
 
   public:
 
-    PauseMenu ( std::shared_ptr< Spaceship > spaceship,
-                std::shared_ptr< NavigationControlManager > nav_manager,
+    PauseMenu ( shared_spaceship_t spaceship,
+                shared_nav_manager_t nav_manager,
                 WINDOW *main );
 
     void ShowChangeRationsOptions ();
@@ -44,9 +44,9 @@ class PauseMenu {
 
     logger_t logger_;
 
-    std::shared_ptr< Spaceship > spaceship_ { nullptr };
+    shared_spaceship_t spaceship_ { nullptr };
 
-    std::shared_ptr< NavigationControlManager > nav_manager_ { nullptr };
+    shared_nav_manager_t nav_manager_ { nullptr };
 
     WINDOW *main_;
 

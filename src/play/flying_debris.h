@@ -19,9 +19,13 @@ class FlyingDebris {
 
     FlyingDebris ();
 
+    FlyingDebris ( WINDOW *main, double travel_speed, int end_pt );
+
     void Move ();
 
     [[nodiscard]] bool IsDone () const;
+
+    void Render ();
 
   private:
     WINDOW *main_;
@@ -30,11 +34,11 @@ class FlyingDebris {
     const int min_y_ { 25 };
 
 
-    int  x;
-    int  y {};
-    int  travel_speed {};
-    int  end_pt {};
-    int  counter { 0 };
+    int  x_ {};
+    int  y_ {};
+    double  travel_speed_;
+    int  end_pt_ {};
+    int  counter_ { 0 };
     char appearance {};
 };
 

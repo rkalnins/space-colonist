@@ -13,7 +13,7 @@ namespace sc::play {
 class CrewMember {
 
   public:
-    CrewMember ( std::string name, int health, int max_health,
+    CrewMember ( std::string name, int max_health,
                  std::map< std::string, int > skills );
 
     [[nodiscard]] const std::map< std::string, int > &GetSkills () const;

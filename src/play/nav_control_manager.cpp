@@ -11,7 +11,7 @@ namespace sc::play {
 
 NavigationControlManager::NavigationControlManager (
         const std::string &name, TaskType taskType,
-        std::shared_ptr< SpaceshipHandler > spaceship_handler )
+        shared_spaceship_handler_t spaceship_handler )
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),
           logger_(CreateLogger(name)) {
@@ -24,10 +24,14 @@ void NavigationControlManager::Init () {
 GameState NavigationControlManager::OnLoop ( GameState state ) {
     if ( !spaceship_ ) {
         spaceship_ = spaceship_handler_->GetSpaceship();
-    } else if ( state != GameState::SETUP && spaceship_->IsMoving()) {
-        spaceship_->UseFuel(fuel_trickle_);
+    } else if ( state != GameState::SETUP ) {
         distance_traveled_ += velocity_;
+
+        if ( !spaceship_->IsPaused()) {
+            spaceship_->UseFuel(fuel_trickle_);
+        }
     }
+
 
     return state;
 }

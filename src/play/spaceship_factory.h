@@ -18,7 +18,7 @@ class SpaceshipFactory {
 
     SpaceshipFactory ();
 
-    std::shared_ptr< Spaceship > CreateSpaceship ();
+    std::unique_ptr< Spaceship > CreateSpaceship ();
 
     void PrintSpaceship ( WINDOW *window, int y, int x,
                           const std::string &code );
@@ -64,6 +64,8 @@ class SpaceshipFactory {
 
     static const int initial_money_ { 3000 };
 };
+
+using shared_spaceship_factory_t = std::shared_ptr< SpaceshipFactory >;
 
 }
 

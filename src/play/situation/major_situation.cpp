@@ -12,7 +12,7 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 MajorSituation::MajorSituation (
-        std::shared_ptr< Spaceship > spaceship,
+        shared_spaceship_t spaceship,
         std::shared_ptr< PauseMenu > pauseMenu )
         : Situation(std::move(spaceship),
                     std::move(pauseMenu)) {

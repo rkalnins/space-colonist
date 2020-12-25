@@ -12,10 +12,10 @@ namespace sc::play {
 
 
 SetupUI::SetupUI ( const std::string &name, TaskType taskType,
-                   std::shared_ptr< SpaceshipHandler > spaceship_handler,
-                   std::shared_ptr< play::NavigationControlManager > nav_manager_,
-                   std::shared_ptr< InputListener > listener,
-                   std::shared_ptr< SpaceshipFactory > spaceship_factory,
+                   shared_spaceship_handler_t spaceship_handler,
+                   shared_nav_manager_t nav_manager_,
+                   shared_input_listener_t listener,
+                   shared_spaceship_factory_t spaceship_factory,
                    WINDOW *main )
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),

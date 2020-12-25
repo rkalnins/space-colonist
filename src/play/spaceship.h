@@ -15,7 +15,7 @@
 
 namespace sc::play {
 
-enum class SpaceshipState { NONE, MOVING, FIXING, OTHER };
+enum class SpaceshipState { NONE, PAUSED, MOVING, FIXING, OTHER };
 
 
 class Spaceship {
@@ -96,15 +96,15 @@ class Spaceship {
 
     void UseFood ();
 
-    bool IsMoving ();
+    bool IsPaused ();
 
-    void StartMoving ();
+    void Unpause ();
 
-    void StopMoving ();
+    void Pause ();
 
-    bool HasFuel () const;
+    [[nodiscard]] bool HasFuel () const;
 
-    bool HasFood () const;
+    [[nodiscard]] bool HasFood () const;
 
   private:
 
@@ -156,9 +156,9 @@ class Spaceship {
     int cost_ { 0 };
     int food_ { 0 };
     int max_crew_ { 0 };
-
-
 };
+
+using shared_spaceship_t = std::shared_ptr< Spaceship >;
 
 }
 

@@ -11,7 +11,7 @@ namespace sc::play {
 
 class AirFilterFailure : public MajorSituation {
   public:
-    AirFilterFailure ( std::shared_ptr< Spaceship > spaceship,
+    AirFilterFailure ( shared_spaceship_t spaceship,
                        std::shared_ptr< PauseMenu > pauseMenu );
 
     void HealthUpdate () override;

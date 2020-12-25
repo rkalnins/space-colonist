@@ -24,7 +24,7 @@ enum class SituationState {
 
 class Situation {
   public:
-    Situation ( std::shared_ptr< Spaceship > spaceship,
+    Situation ( shared_spaceship_t spaceship,
                 std::shared_ptr< PauseMenu > pause_menu );
 
     void SituationCycle ();
@@ -60,7 +60,7 @@ class Situation {
 
     virtual void SituationCycleOverride ();
 
-    std::shared_ptr< Spaceship > spaceship_ { nullptr };
+    shared_spaceship_t spaceship_ { nullptr };
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
 
     std::unique_ptr< const std::string > issue_ { nullptr };

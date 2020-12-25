@@ -47,10 +47,10 @@ class SetupUI : public Task {
   public:
 
     SetupUI ( const std::string &name, TaskType taskType,
-              std::shared_ptr< SpaceshipHandler > spaceship_handler,
-              std::shared_ptr< play::NavigationControlManager > nav_manager_,
-              std::shared_ptr< InputListener > listener,
-              std::shared_ptr< SpaceshipFactory > spaceship_factory,
+              shared_spaceship_handler_t spaceship_handler,
+              shared_nav_manager_t nav_manager_,
+              shared_input_listener_t listener,
+              shared_spaceship_factory_t spaceship_factory,
               WINDOW *main );
 
     void Init () override;
@@ -78,20 +78,20 @@ class SetupUI : public Task {
   private:
     logger_t logger_;
 
-    CrewMemberFactory                   crew_member_factory_;
-    std::shared_ptr< SpaceshipFactory > spaceship_factory_;
+    CrewMemberFactory          crew_member_factory_;
+    shared_spaceship_factory_t spaceship_factory_;
 
     std::vector< CrewMember > crew_choices_;
 
-    std::shared_ptr< play::NavigationControlManager > nav_manager_ {
+    shared_nav_manager_t nav_manager_ {
             nullptr
     };
 
-    std::vector< std::shared_ptr< Spaceship > > spaceship_choices_;
+    std::vector< shared_spaceship_t > spaceship_choices_;
 
-    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
-    std::shared_ptr< InputListener >    listener_ { nullptr };
-    std::unique_ptr< SpaceMap >         map_generator_ { nullptr };
+    shared_spaceship_handler_t  spaceship_handler_ { nullptr };
+    shared_input_listener_t     listener_ { nullptr };
+    std::unique_ptr< SpaceMap > map_generator_ { nullptr };
 
     WINDOW *main_;
 

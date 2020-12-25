@@ -56,7 +56,7 @@ CrewMember CrewMemberFactory::Create () {
 
     logger_->debug("Created crew {}", name->first);
 
-    return CrewMember(name->first, health, health, skills);
+    return CrewMember(name->first, health, skills);
 
 }
 

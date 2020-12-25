@@ -12,7 +12,7 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 StandardEngineFailure::StandardEngineFailure (
-        std::shared_ptr< Spaceship > spaceship,
+        shared_spaceship_t spaceship,
         std::shared_ptr< PauseMenu > pauseMenu ) : MajorSituation(
         std::move(spaceship), std::move(pauseMenu)) {
     issue_ = std::make_unique< const std::string >(

@@ -11,7 +11,7 @@ namespace sc::play {
 
 class StandardEngineFailure : public MajorSituation {
   public:
-    StandardEngineFailure ( std::shared_ptr< Spaceship > spaceship,
+    StandardEngineFailure ( shared_spaceship_t spaceship,
                             std::shared_ptr< PauseMenu > pauseMenu );
 
   private:

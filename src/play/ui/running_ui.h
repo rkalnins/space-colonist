@@ -30,15 +30,14 @@ enum class RunningState {
 };
 
 
-class RunningUI
-        : public Task, public std::enable_shared_from_this< RunningUI > {
+class RunningUI : public Task {
 
   public:
 
     RunningUI ( const std::string &name, TaskType taskType,
-                std::shared_ptr< SpaceshipHandler > spaceship_handler,
-                std::shared_ptr< play::NavigationControlManager > nav_manager,
-                std::shared_ptr< InputListener > listener,
+                shared_spaceship_handler_t spaceship_handler,
+                shared_nav_manager_t nav_manager,
+                shared_input_listener_t listener,
                 WINDOW *main );
 
     void Init () override;
@@ -73,11 +72,12 @@ class RunningUI
 
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
 
-    std::shared_ptr< NavigationControlManager > nav_manager_ { nullptr };
+    shared_nav_manager_t nav_manager_ { nullptr };
 
-    std::shared_ptr< SpaceshipHandler > spaceship_handler_ { nullptr };
-    std::shared_ptr< Spaceship >        spaceship_ { nullptr };
-    std::shared_ptr< InputListener >    listener_ { nullptr };
+    shared_spaceship_handler_t spaceship_handler_ { nullptr };
+    shared_spaceship_t         spaceship_ { nullptr };
+    shared_input_listener_t    listener_ { nullptr };
+
     std::unique_ptr< FlyingDebris >     flying_debris_ { nullptr };
     std::unique_ptr< SituationManager > situation_manager_ { nullptr };
 

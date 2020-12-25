@@ -24,7 +24,7 @@ class SituationManager {
   public:
 
     SituationManager ( WINDOW *main,
-                       const std::shared_ptr< Spaceship > &spaceship,
+                       const shared_spaceship_t &spaceship,
                        const std::shared_ptr< PauseMenu > &pause_menu );
 
     bool CheckNewSituation ();
@@ -58,7 +58,7 @@ class SituationManager {
     logger_t logger_;
 
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
-    std::shared_ptr< Spaceship > spaceship_ { nullptr };
+    shared_spaceship_t spaceship_ { nullptr };
 
     SituationFactory situation_factory_;
 

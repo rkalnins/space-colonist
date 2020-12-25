@@ -14,7 +14,7 @@ using Random = effolkronium::random_static;
 
 static logger_t logger = CreateLogger("situation");
 
-Situation::Situation ( std::shared_ptr< Spaceship > spaceship,
+Situation::Situation ( shared_spaceship_t spaceship,
                        std::shared_ptr< PauseMenu > pause_menu )
         : spaceship_(std::move(spaceship)),
           pause_menu_(std::move(pause_menu)) {

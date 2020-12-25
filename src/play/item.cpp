@@ -9,11 +9,11 @@
 
 namespace sc::play {
 
-Item::Item ( std::string category, std::string name, int value, int weight,
+Item::Item ( std::string category, std::string name, int quantity, int weight,
              int cost )
         : category_(std::move(category)),
           name_(std::move(name)),
-          quantity_(value), weight_(weight), cost_(cost) {}
+          quantity_(quantity), weight_(weight), cost_(cost) {}
 
 const std::string &Item::GetCategory () const {
     return category_;
@@ -43,7 +43,7 @@ bool Item::HardUpdateQuantity ( int quantity ) {
 }
 
 bool Item::SoftUpdateQuantity ( int quantity ) {
-    if ( quantity_ - quantity < 0 ) {
+    if ( quantity_ + quantity < 0 ) {
         return false;
     }
 
@@ -55,7 +55,9 @@ int Item::PartialUpdateQuantity ( int quantity ) {
     quantity_ += quantity;
 
     if ( quantity_ < 0 ) {
-        return std::abs(quantity_);
+        int tmp = quantity_;
+        quantity_ = 0;
+        return std::abs(tmp);
     }
 
     return 0;

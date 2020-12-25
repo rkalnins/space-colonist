@@ -14,7 +14,7 @@ SpaceshipFactory::SpaceshipFactory () : logger_(
         CreateLogger("ss_factory")) {
 }
 
-std::shared_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
+std::unique_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
 
     std::string code = " ";
     char        index;
@@ -27,7 +27,7 @@ std::shared_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
 
     logger_->debug("Spaceship appearance code: {}", code);
 
-    std::shared_ptr< Spaceship > s = std::make_shared< Spaceship >(code);
+    std::unique_ptr< Spaceship > s = std::make_unique< Spaceship >(code);
 
     double weight = Random::get(min_max_weight_, max_max_weight_);
     int    fuel   = Random::get(min_max_fuel_, max_max_fuel_);

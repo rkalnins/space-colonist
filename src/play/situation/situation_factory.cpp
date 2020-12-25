@@ -20,12 +20,12 @@ using Random = effolkronium::random_static;
 
 SituationFactory::SituationFactory (
         std::shared_ptr< PauseMenu > pauseMenu,
-        std::shared_ptr< Spaceship > spaceship ) : pause_menu_(std::move(
+        shared_spaceship_t spaceship ) : pause_menu_(std::move(
         pauseMenu)), spaceship_(std::move(spaceship)),
                                                    logger_(CreateLogger(
                                                            "sit_factory")) {}
 
-std::shared_ptr< Situation > SituationFactory::GetSituation () {
+std::unique_ptr< Situation > SituationFactory::GetSituation () {
 
     // FIXME make major dependent on number of minor failures
     if ( Random::get< bool >(major_failure_prob_)) {
@@ -33,10 +33,10 @@ std::shared_ptr< Situation > SituationFactory::GetSituation () {
         char f = Random::get({ 'a', 'e' });
         switch ( f ) {
             case 'e':
-                return std::make_shared< StandardEngineFailure >(
+                return std::make_unique< StandardEngineFailure >(
                         spaceship_, pause_menu_);
             case 'a':
-                return std::make_shared< AirFilterFailure >(spaceship_,
+                return std::make_unique< AirFilterFailure >(spaceship_,
                                                             pause_menu_);
             default:
                 return nullptr;
@@ -46,16 +46,16 @@ std::shared_ptr< Situation > SituationFactory::GetSituation () {
 
     if ( Random::get< bool >(minor_failure_prob_)) {
         logger_->debug("Creating minor failure");
-        return std::make_shared< MinorSituation >(spaceship_, pause_menu_);
+        return std::make_unique< MinorSituation >(spaceship_, pause_menu_);
     }
 
 
     return nullptr;
 }
 
-std::shared_ptr< Situation > SituationFactory::GetSuddenEngineFailure () {
+std::unique_ptr< Situation > SituationFactory::GetSuddenEngineFailure () {
     if ( Random::get< bool >(unexpected_engine_prob_)) {
-        return std::make_shared< StandardEngineFailure >(spaceship_,
+        return std::make_unique< StandardEngineFailure >(spaceship_,
                                                          pause_menu_);
     }
 

@@ -15,7 +15,7 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 SpaceshipHandler::SpaceshipHandler (
-        std::shared_ptr< SpaceshipFactory > spaceship_factory )
+        shared_spaceship_factory_t spaceship_factory )
         : spaceship_factory_(std::move(spaceship_factory)), logger_(
         CreateLogger("ss_handler")) {}
 
@@ -24,8 +24,8 @@ SpaceshipHandler::GetSpaceship () const {
     return spaceship_;
 }
 
-void SpaceshipHandler::SetSpaceship (
-        const std::shared_ptr< play::Spaceship > &spaceship ) {
+void
+SpaceshipHandler::SetSpaceship ( const shared_spaceship_t &spaceship ) {
     spaceship_ = spaceship;
 }
 
