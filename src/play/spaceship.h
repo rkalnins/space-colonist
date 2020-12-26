@@ -158,6 +158,7 @@ class Spaceship {
     int max_crew_ { 0 };
 };
 
+
 using shared_spaceship_t = std::shared_ptr< Spaceship >;
 
 }

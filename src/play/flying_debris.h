@@ -34,12 +34,12 @@ class FlyingDebris {
     const int min_y_ { 25 };
 
 
-    int  x_ {};
-    int  y_ {};
-    double  travel_speed_;
-    int  end_pt_ {};
-    int  counter_ { 0 };
-    char appearance {};
+    int    x_ {};
+    int    y_ {};
+    double travel_speed_;
+    int    end_pt_ {};
+    int    counter_ { 0 };
+    char   appearance {};
 };
 
 }

@@ -22,8 +22,8 @@ SituationFactory::SituationFactory (
         std::shared_ptr< PauseMenu > pauseMenu,
         shared_spaceship_t spaceship ) : pause_menu_(std::move(
         pauseMenu)), spaceship_(std::move(spaceship)),
-                                                   logger_(CreateLogger(
-                                                           "sit_factory")) {}
+                                         logger_(CreateLogger(
+                                                 "sit_factory")) {}
 
 std::unique_ptr< Situation > SituationFactory::GetSituation () {
 

@@ -58,7 +58,7 @@ class SituationManager {
     logger_t logger_;
 
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
-    shared_spaceship_t spaceship_ { nullptr };
+    shared_spaceship_t           spaceship_ { nullptr };
 
     SituationFactory situation_factory_;
 

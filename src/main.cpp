@@ -51,11 +51,11 @@ int main () {
     getmaxyx(main, y, x);
 
     y /= 2;
-    x = x / 2 - 4;
+    x                                            = x / 2 - 4;
 
     werase(main);
 
-    if (deps->nav_manager_->GetDistanceRemaining() <= 0) {
+    if ( deps->nav_manager_->GetDistanceRemaining() <= 0 ) {
         werase(main);
         mvwaddstr(main, y, x, "You win!");
         y += 2;
@@ -73,14 +73,17 @@ int main () {
         disp.str("");
 
         disp.precision(4);
-        double distance_traveled = deps->nav_manager_->GetInitialDistance() - deps->nav_manager_->GetDistanceRemaining();
+        double distance_traveled =
+                       deps->nav_manager_->GetInitialDistance() -
+                       deps->nav_manager_->GetDistanceRemaining();
         disp << "Distance remaining: " << distance_traveled;
         mvwaddstr(main, y++, x - 10, disp.str().c_str());
         disp.str("");
 
         ++y;
 
-        double score = crew_left * 500 + food_left * 100 + distance_traveled * 150;
+        double score = crew_left * 500 + food_left * 100 +
+                       distance_traveled * 150;
         disp << "Score: " << score;
         mvwaddstr(main, y++, x - 10, disp.str().c_str());
 

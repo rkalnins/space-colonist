@@ -43,7 +43,7 @@ TEST_CASE("4.1 Crew member basic tests", "[multi-file:4]") {
         REQUIRE(c.GetHealth() == c.GetMaxHealth() + change_3);
     }
 
-    SECTION("4.1.3 IsDead" ) {
+    SECTION("4.1.3 IsDead") {
         REQUIRE_FALSE(c.IsDead());
         c.UpdateHealth(-1 * c.GetMaxHealth() + 1);
         REQUIRE_FALSE(c.IsDead());

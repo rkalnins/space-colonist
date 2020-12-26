@@ -15,10 +15,10 @@
 namespace sc::play {
 
 struct Checkbox {
-    int  y;
-    int  left_x;
-    int  right_x;
-    bool checked;
+    int  y { 0 };
+    int  left_x { 0 };
+    int  right_x { 0 };
+    bool checked { false };
 };
 
 

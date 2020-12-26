@@ -13,7 +13,12 @@ include_directories(/usr/local/opt/ncurses/include)
 link_directories(/usr/local/opt/ncurses/lib)
 
 set(TEST_FILES
-        src/test/test_main.cpp src/test/test_item.cpp src/test/crew_member.cpp src/test/test_flying_debris.cpp src/test/test_spaceship_handler.cpp)
+        src/test/test_main.cpp
+        src/test/test_item.cpp
+        src/test/test_crew_member.cpp
+        src/test/test_flying_debris.cpp
+        src/test/test_spaceship_handler.cpp
+        src/test/test_spaceship_factory.cpp)
 
 set(MAIN src/main.cpp)
 

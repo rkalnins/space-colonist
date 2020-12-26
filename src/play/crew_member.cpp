@@ -14,7 +14,8 @@ namespace sc::play {
 
 CrewMember::CrewMember ( std::string name, int max_health,
                          std::map< std::string, int > skills )
-        : name_(std::move(name)), health_(max_health), max_health_(max_health),
+        : name_(std::move(name)), health_(max_health),
+          max_health_(max_health),
           skills_(std::move(skills)) {
 
     for ( int i = 0; i < 5; ++i ) {

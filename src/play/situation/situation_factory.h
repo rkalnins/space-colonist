@@ -28,7 +28,7 @@ class SituationFactory {
     logger_t logger_;
 
     std::shared_ptr< PauseMenu > pause_menu_;
-    shared_spaceship_t spaceship_;
+    shared_spaceship_t           spaceship_;
 
     const double minor_failure_prob_ { 0.001 };
     const double major_failure_prob_ { 0.0002 };

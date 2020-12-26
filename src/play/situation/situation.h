@@ -60,7 +60,7 @@ class Situation {
 
     virtual void SituationCycleOverride ();
 
-    shared_spaceship_t spaceship_ { nullptr };
+    shared_spaceship_t           spaceship_ { nullptr };
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
 
     std::unique_ptr< const std::string > issue_ { nullptr };

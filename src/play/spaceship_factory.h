@@ -65,6 +65,7 @@ class SpaceshipFactory {
     static const int initial_money_ { 3000 };
 };
 
+
 using shared_spaceship_factory_t = std::shared_ptr< SpaceshipFactory >;
 
 }

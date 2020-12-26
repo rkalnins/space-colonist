@@ -9,7 +9,8 @@
 
 namespace sc::play {
 
-Item::Item ( std::string category, std::string name, int quantity, int weight,
+Item::Item ( std::string category, std::string name, int quantity,
+             int weight,
              int cost )
         : category_(std::move(category)),
           name_(std::move(name)),

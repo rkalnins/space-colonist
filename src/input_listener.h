@@ -90,6 +90,7 @@ class InputListener {
     std::atomic< int >   ch_ {};
 };
 
+
 using shared_input_listener_t = std::shared_ptr< InputListener >;
 
 }

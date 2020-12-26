@@ -45,7 +45,7 @@ class HUDDisplay : public Task {
 
     shared_nav_manager_t nav_manager_ { nullptr };
 
-    shared_spaceship_t     spaceship_ { nullptr };
+    shared_spaceship_t               spaceship_ { nullptr };
     std::shared_ptr< InputListener > listener_ { nullptr };
 
     logger_t logger_;

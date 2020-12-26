@@ -21,8 +21,6 @@ class CrewMemberFactory {
 
     CrewMember Create ();
 
-    static char GetFaceChar ( char c );
-
     /**
      *
      * People are drawn in a box of height 5 and width 3
@@ -32,6 +30,10 @@ class CrewMemberFactory {
      */
     static void PrintCharacter ( WINDOW *window, int y, int x,
                                  const std::string &code );
+
+  private:
+
+    static char GetFaceChar ( char c );
 
   private:
     logger_t logger_;
