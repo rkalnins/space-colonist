@@ -19,7 +19,7 @@ SpaceMap::SpaceMap ( WINDOW *main, int map_init_y, int map_init_x )
           logger_(CreateLogger("map")) {
 
     planets_.resize(map_height_, std::vector< bool >(map_width_, false));
-    planets_str_.reserve(map_height_);
+    planets_str_.resize(map_height_, std::string(map_width_, ' '));
 }
 
 
@@ -53,14 +53,12 @@ void SpaceMap::SeedMap () {
         c = -map_width_ / 2.0;
     }
 
-    std::stringstream line;
-
-    for ( auto &row : planets_ ) {
-        for ( auto &&i : row ) {
-            line << ( i ? "*" : " " );
+    for ( int y = 0; y < map_height_; ++y ) {
+        for ( int x = 0; x < map_width_; ++x ) {
+            if ( planets_[y][x] ) {
+                planets_str_[y][x] = '*';
+            }
         }
-        planets_str_.push_back(line.str());
-        line.str("");
     }
 }
 
@@ -127,8 +125,7 @@ void SpaceMap::ToggleSelection ( int y, int x ) {
         if ( route_.empty()) {
             dist = std::hypot(map_init_y_ - 2 - y,
                               map_init_x_ + map_width_ / 2 - x);
-            if ( dist >
-                 max_travel_distance_ ) {
+            if ( dist > max_travel_distance_ ) {
                 return;
             }
         } else {
@@ -147,7 +144,6 @@ void SpaceMap::ToggleSelection ( int y, int x ) {
         route_.emplace(y, x);
 
         logger_->debug("Selected selection at {} {}", y, x);
-
     }
 }
 

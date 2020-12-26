@@ -31,7 +31,9 @@ class SpaceMap {
 
     void ToggleSelection ( int y, int x );
 
-  private:
+    [[nodiscard]] double GetCost () const;
+
+
     struct LocationSelected {
         LocationSelected ( int y, int x ) : y(y), x(x) {}
 
@@ -40,27 +42,26 @@ class SpaceMap {
     };
 
 
+  protected:
+
     PlanetsMap planets_;
 
     std::stack< LocationSelected > route_;
+    std::vector< std::string >     planets_str_;
 
-    std::vector< std::string > planets_str_;
+    int map_height_ { 20 };
+    int map_width_ { 100 };
+    int max_route_length_ = 5;
+
+  private:
 
     logger_t logger_;
 
     WINDOW *main_;
 
-  public:
-    [[nodiscard]] double GetCost () const;
-
-  private:
-
-    int          max_route_length_    = 5;
     const double max_travel_distance_ = 30;
     const int    map_init_y_;
     const int    map_init_x_;
-    const int    map_height_ { 20 };
-    const int    map_width_ { 100 };
     const double planet_probability_ { 0.12 };
     double       cost_ { 0 };
 

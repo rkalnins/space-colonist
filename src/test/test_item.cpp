@@ -37,7 +37,7 @@ TEST_CASE("2.2: Item quantity updates", "[multi-file:2") {
     Item item(category, name, quantity, weight, cost);
 
 
-    SECTION("2.1.2: Hard Quantity update positive") {
+    SECTION("2.2.2: Hard Quantity update positive") {
         const int update_pos   = 2;
         const int new_quantity = 3;
         REQUIRE(item.HardUpdateQuantity(update_pos));
@@ -45,33 +45,33 @@ TEST_CASE("2.2: Item quantity updates", "[multi-file:2") {
 
     }
 
-    SECTION("2.1.3: Hard Quantity update negative") {
+    SECTION("2.2.3: Hard Quantity update negative") {
         const int update_neg   = -5;
         const int new_quantity = 0;
         REQUIRE_FALSE(item.HardUpdateQuantity(update_neg));
         REQUIRE(item.GetQuantity() == new_quantity);
     }
 
-    SECTION("2.1.4: Soft Quantity update positive") {
+    SECTION("2.2.4: Soft Quantity update positive") {
         const int update_pos = -5;
         REQUIRE_FALSE(item.SoftUpdateQuantity(update_pos));
         REQUIRE(item.GetQuantity() == quantity);
     }
 
-    SECTION("2.1.5: Soft Quantity update negative") {
+    SECTION("2.2.5: Soft Quantity update negative") {
         const int update_neg = -5;
         REQUIRE_FALSE(item.SoftUpdateQuantity(update_neg));
         REQUIRE(item.GetQuantity() == quantity);
     }
 
-    SECTION("2.1.6: Soft Quantity update negative to 0") {
+    SECTION("2.2.6: Soft Quantity update negative to 0") {
         const int update_neg   = -1;
         const int new_quantity = 0;
         REQUIRE(item.SoftUpdateQuantity(update_neg));
         REQUIRE(item.GetQuantity() == new_quantity);
     }
 
-    SECTION("2.1.7: Partial Quantity update negative no remains") {
+    SECTION("2.2.7: Partial Quantity update negative no remains") {
         const int update_neg   = -1;
         const int remaining    = 0;
         const int new_quantity = 0;
@@ -80,7 +80,7 @@ TEST_CASE("2.2: Item quantity updates", "[multi-file:2") {
         REQUIRE(item.GetQuantity() == new_quantity);
     }
 
-    SECTION("2.1.8: Partial Quantity update negative with remains") {
+    SECTION("2.2.8: Partial Quantity update negative with remains") {
         const int update_neg   = -5;
         const int remaining    = 4;
         const int new_quantity = 0;
@@ -89,7 +89,7 @@ TEST_CASE("2.2: Item quantity updates", "[multi-file:2") {
         REQUIRE(item.GetQuantity() == new_quantity);
     }
 
-    SECTION("2.1.9: Partial Quantity update positive") {
+    SECTION("2.2.9: Partial Quantity update positive") {
         const int update_pos   = 5;
         const int remaining    = 0;
         const int new_quantity = 6;

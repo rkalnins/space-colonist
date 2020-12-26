@@ -18,7 +18,8 @@ set(TEST_FILES
         src/test/test_crew_member.cpp
         src/test/test_flying_debris.cpp
         src/test/test_spaceship_handler.cpp
-        src/test/test_spaceship_factory.cpp)
+        src/test/test_spaceship_factory.cpp
+        src/test/test_space_map.cpp)
 
 set(MAIN src/main.cpp)
 

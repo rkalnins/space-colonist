@@ -14,7 +14,7 @@
 using namespace sc::play;
 
 
-TEST_CASE("6.1 Spaceship Handler", "[multi-file:5]") {
+TEST_CASE("6.1 Spaceship Handler", "[multi-file:6]") {
     shared_spaceship_factory_t spaceship_factory = std::make_shared< SpaceshipFactory >();
 
     CrewMemberFactory crew_factory;
