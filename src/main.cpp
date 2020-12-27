@@ -2,6 +2,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
+#include "config/config.h"
 #include "game.h"
 #include "windows/intro.h"
 #include "input_listener.h"
@@ -14,6 +15,11 @@ int main () {
 
     using namespace sc;
     logger->info("++++++++++++++++++++++++++++++++++++++++++++++");
+
+
+    Config &config = Config::GetInstance();
+
+    logger->debug("test: {}", config.GetConfig< int >("test", -1));
 
     initscr();
     noecho();
@@ -51,7 +57,8 @@ int main () {
     getmaxyx(main, y, x);
 
     y /= 2;
-    x                                            = x / 2 - 4;
+
+    x = x / 2 - 4;
 
     werase(main);
 
