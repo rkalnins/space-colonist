@@ -6,7 +6,7 @@
 
 #include <ncurses.h>
 #include <string>
-#include <vector>
+#include <map>
 
 #include "../logging/logging.h"
 #include "crew_member.h"
@@ -31,15 +31,12 @@ class CrewMemberFactory {
     static void PrintCharacter ( WINDOW *window, int y, int x,
                                  const std::string &code );
 
-  private:
+  protected:
 
     static char GetFaceChar ( char c );
 
-  private:
-    logger_t logger_;
-
-
-    std::vector< std::pair< std::string, bool>> names_ = {
+  protected:
+    std::map< std::string, bool > names_ = {
             { "Dex",      false },
             { "Maia",     false },
             { "Margo",    false },
@@ -49,7 +46,8 @@ class CrewMemberFactory {
             { "Roberts",  false },
             { "Max",      false }};
 
-    std::vector< std::pair< std::string, bool>> skills_ = {
+
+    std::map< std::string, bool > skills_ = {
             { "Fix",        false },
             { "Fight",      false },
             { "Speed",      false },
@@ -58,13 +56,16 @@ class CrewMemberFactory {
             { "Creativity", false }};
 
     int max_health_ { 10 };
+
     int min_health_ { 5 };
     int min_skill_count_ { 2 };
-
     int min_skill_range_ { 1 };
-    int max_skill_range_ { 10 };
 
+    int max_skill_range_ { 10 };
     int skill_count_ { 3 };
+
+  private:
+    logger_t logger_;
 
 };
 

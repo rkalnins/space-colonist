@@ -29,8 +29,7 @@ CrewMember CrewMemberFactory::Create () {
 
     name->second = true;
 
-    int health = Random::get(min_health_, max_health_);
-
+    int  health         = Random::get(min_health_, max_health_);
     auto possible_skill = skills_.begin();
 
     std::map< std::string, int > skills;
@@ -43,7 +42,6 @@ CrewMember CrewMemberFactory::Create () {
         } while ( possible_skill->second );
 
         possible_skill->second = true;
-
         int skill_strength = Random::get(min_skill_range_,
                                          max_skill_range_);
 

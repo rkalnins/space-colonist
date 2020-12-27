@@ -8,7 +8,7 @@
 #include <catch2/catch.hpp>
 
 
-TEST_CASE("1: Main. All tests reside in other test files",
+TEST_CASE("1 Main. All tests reside in other test files",
           "[multi-file:1]") {}
 
 
