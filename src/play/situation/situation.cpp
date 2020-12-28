@@ -7,6 +7,7 @@
 #include <utility>
 #include <effolkronium/random.hpp>
 
+#include "../../config/situation_source.h"
 
 namespace sc::play {
 
@@ -19,7 +20,12 @@ Situation::Situation ( shared_spaceship_t spaceship,
         : spaceship_(std::move(spaceship)),
           pause_menu_(std::move(pause_menu)) {
     logger->set_level(spdlog::level::debug);
-    logger->debug("Situation constructor");
+
+    SituationSource &source = SituationSource::GetInstance();
+
+    successful_distress_ = source.GetValue("distress-success-p", 0.0);
+
+    max_situation_time_ = source.GetValue("max-time", 0);
 }
 
 void Situation::SituationCycle () {

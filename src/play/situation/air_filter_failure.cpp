@@ -17,10 +17,14 @@ AirFilterFailure::AirFilterFailure (
         std::shared_ptr< PauseMenu > pauseMenu ) : MajorSituation(
         std::move(spaceship), std::move(pauseMenu)) {
 
+    static const std::vector< std::string > issue_choices = SituationSource::GetInstance().GetList< std::string >(
+            "major.air-filter.failures");
+
     issue_         = std::make_unique< std::string >(
-            *Random::get(issue_choices_));
+            *Random::get(issue_choices));
     type_          = SituationType::AIR_FILTER_FAILURE;
-    response_time_ = 15; // sec
+    response_time_ = SituationSource::GetInstance().GetValue(
+            "major.air-filter.response-time", 0); // sec
 }
 
 void AirFilterFailure::SituationCycleOverride () {

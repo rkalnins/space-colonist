@@ -20,7 +20,23 @@ SituationManager::SituationManager ( WINDOW *main,
           spaceship_(spaceship),
           pause_menu_(pause_menu),
           situation_factory_(pause_menu,
-                             spaceship) {}
+                             spaceship) {
+
+
+    for ( auto &t : sit_types_ ) {
+
+        std::string path = GetTypePath(t);
+
+        std::vector< std::string > options = SituationSource::GetInstance().GetList< std::string >(
+                path + ".options");
+
+        sitrep_options_.insert(std::make_pair(t, options));
+    }
+
+    pause_y_ = Config::GetInstance().GetValue("pause.y", 0);
+    pause_x_ = Config::GetInstance().GetValue("pause.x", 0);
+
+}
 
 
 void SituationManager::ShowSituationReport () {

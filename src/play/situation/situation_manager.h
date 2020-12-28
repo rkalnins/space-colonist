@@ -62,11 +62,12 @@ class SituationManager {
 
     SituationFactory situation_factory_;
 
-    std::map< SituationType, std::vector< std::string>> sitrep_options_ {
-            { SituationType::MINOR,              { "1. Ignore", "2. Attempt fix" }},
-            { SituationType::ENGINE_FAILURE,     { "1. Attempt fix" }},
-            { SituationType::AIR_FILTER_FAILURE, { "1. Attempt fix" }}
+    std::vector< SituationType > sit_types_ {
+            SituationType::MINOR, SituationType::ENGINE_FAILURE,
+            SituationType::AIR_FILTER_FAILURE
     };
+
+    std::map< SituationType, std::vector< std::string>> sitrep_options_;
 
     std::queue< std::shared_ptr< Situation > > situations_;
 
@@ -74,8 +75,8 @@ class SituationManager {
 
     WINDOW *main_;
 
-    const int pause_y_ { 32 };
-    const int pause_x_ { 30 };
+    int pause_y_;
+    int pause_x_;
 };
 
 }

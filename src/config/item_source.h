@@ -30,6 +30,10 @@ class ItemSource {
         return instance;
     }
 
+    ItemSource ( ItemSource const & ) = delete;
+
+    void operator= ( ItemSource const & ) = delete;
+
     cat_vec_t GetCategories () {
         cat_vec_t result = std::make_unique< std::vector< std::string>>();
 

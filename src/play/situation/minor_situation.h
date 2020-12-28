@@ -13,21 +13,7 @@ class MinorSituation : public Situation {
   public:
 
     MinorSituation ( shared_spaceship_t spaceship,
-                     std::shared_ptr< PauseMenu > pauseMenu );
-
-  private:
-
-    const std::vector< const std::string > issue_choices_ = {
-            "Toilet control shorting out",
-            "Bridge door control browning out",
-            "Loose cabling below deck", "Minor coolant leak",
-            "Dirty air filter", "Exception thrown by navigation software",
-            "Flickering cargo hold power", "High amp draw by HVAC system",
-            "Unstable voltage in emergency breach containment system"
-    };
-
-    const std::vector< int > components_used_choices_ = { 1, 2 };
-    const std::vector< int > cabling_used_choices_    = { 1, 2 };
+                     std::shared_ptr< PauseMenu > pause_menu );
 
 };
 

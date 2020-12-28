@@ -9,6 +9,7 @@
 #include "situation_type.h"
 #include "../ui/pause_menu.h"
 #include "../spaceship.h"
+#include "../../config/situation_source.h"
 
 
 namespace sc::play {
@@ -75,12 +76,12 @@ class Situation {
     int required_cables_ { 0 };
     int required_components_ { 0 };
 
-    const double successful_distress_ { 0.008 };
+    double successful_distress_;
 
   private:
 
-    const int max_situation_time_ = 90; // sec
-    const int cycles_per_second_  = 60;
+    int max_situation_time_; // sec
+    int cycles_per_second_ { 60 };
 
     int counter_ { 0 };
 };

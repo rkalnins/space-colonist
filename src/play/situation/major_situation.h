@@ -14,15 +14,10 @@ class MajorSituation : public Situation {
 
   public:
     MajorSituation ( shared_spaceship_t spaceship,
-                     std::shared_ptr< PauseMenu > pauseMenu );
+                     std::shared_ptr< PauseMenu > pause_menu );
 
   protected:
     void SituationCycleOverride () override;
-
-  private:
-    const std::vector< int > components_used_choices_ = { 2, 3, 5 };
-    const std::vector< int > cabling_used_choices_    = { 2, 3, 5 };
-
 };
 
 }

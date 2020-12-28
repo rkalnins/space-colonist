@@ -1,0 +1,76 @@
+{
+  "max-time": 90,
+  "distress-success-p": 0.008,
+  "factory": {},
+  "manager": {
+  },
+  "major": {
+    "fix-p": 0.003,
+    "failure-p": 0.0002,
+    "spares": {
+      "components": [
+        2,
+        3,
+        5
+      ],
+      "cables": [
+        2,
+        3,
+        5
+      ]
+    },
+    "air-filter": {
+      "response-time": 15,
+      "options": [
+        "1. Attempt fix"
+      ],
+      "failures": [
+        "Air filter pump failed. Cannot recycle Oxygen.",
+        "Air filter clogged. Cannot recycle Oxygen",
+        "Air filter unresponsive. Cannot recycle Oxygen."
+      ]
+    },
+    "standard-engine": {
+      "options": [
+        "1. Attempt fix"
+      ],
+      "failures": [
+        "Engine coolant system failed. Cannot fire engines.",
+        "Engine fuel leak. Cannot fire engines.",
+        "Engine control system failed. Cannot fire engines."
+      ]
+    },
+    "unexpected-engine": {
+      "failure-p": 0.0002
+    }
+  },
+  "minor": {
+    "failure-p": 0.001,
+    "fix-p": 0.01,
+    "options": [
+      "1. Ignore",
+      "2. Attempt fix"
+    ],
+    "failures": [
+      "Toilet control shorting out",
+      "Bridge door control browning out",
+      "Loose cabling below deck",
+      "Minor coolant leak",
+      "Dirty air filter",
+      "Exception thrown by navigation software",
+      "Flickering cargo hold power",
+      "High amp draw by HVAC system",
+      "Unstable voltage in emergency breach containment system"
+    ],
+    "spares": {
+      "components": [
+        1,
+        2
+      ],
+      "cables": [
+        1,
+        2
+      ]
+    }
+  }
+}

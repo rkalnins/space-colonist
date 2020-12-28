@@ -37,7 +37,7 @@ class Config {
     }
 
     template < typename T >
-    T GetValue ( const std::string &path, T default_value ) {
+    const T GetValue ( const std::string &path, T default_value ) {
         auto res = config_.get< T >(path, default_value);
 
         logger_->debug("{}: {}", path, res);
@@ -73,7 +73,6 @@ class Config {
     }
 
     Config ( Config const & ) = delete;
-
 
     void operator= ( Config const & ) = delete;
 

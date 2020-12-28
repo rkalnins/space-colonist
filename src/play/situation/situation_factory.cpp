@@ -12,8 +12,6 @@
 #include "minor_situation.h"
 #include "standard_engine_failure.h"
 #include "air_filter_failure.h"
-#include "../../config/config.h"
-#include "../../logging/logging.h"
 
 
 namespace sc::play {
@@ -21,11 +19,20 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 SituationFactory::SituationFactory (
-        std::shared_ptr< PauseMenu > pauseMenu,
+        std::shared_ptr< PauseMenu > pause_menu,
         shared_spaceship_t spaceship ) : pause_menu_(std::move(
-        pauseMenu)), spaceship_(std::move(spaceship)),
+        pause_menu)), spaceship_(std::move(spaceship)),
                                          logger_(CreateLogger(
-                                                 "sit_factory")) {}
+                                                 "sit_factory")) {
+
+    SituationSource &source = SituationSource::GetInstance();
+
+    minor_failure_prob_     = source.GetValue("minor.failure-p", 0.0);
+    major_failure_prob_     = source.GetValue("major.failure-p", 0.0);
+    unexpected_engine_prob_ = source.GetValue(
+            "major.unexpected-engine.failure-p", 0.0);
+
+}
 
 std::unique_ptr< Situation > SituationFactory::GetSituation () {
 

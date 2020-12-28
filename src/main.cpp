@@ -105,7 +105,7 @@ int main () {
         double distance_traveled =
                        deps->nav_manager_->GetInitialDistance() -
                        deps->nav_manager_->GetDistanceRemaining();
-        disp << "Distance remaining: " << distance_traveled;
+        disp << "Distance traveled: " << distance_traveled;
         mvwaddstr(main, y++, x + horizontal_move, disp.str().c_str());
         disp.str("");
 

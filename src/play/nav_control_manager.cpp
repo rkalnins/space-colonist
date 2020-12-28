@@ -53,9 +53,9 @@ GameState NavigationControlManager::OnLoop ( GameState state ) {
     if ( !spaceship_ ) {
         spaceship_ = spaceship_handler_->GetSpaceship();
     } else if ( state != GameState::SETUP ) {
-        distance_traveled_ += velocity_;
 
         if ( !spaceship_->IsPaused()) {
+            distance_traveled_ += velocity_;
             spaceship_->UseFuel(fuel_trickle_);
         }
     }

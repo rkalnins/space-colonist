@@ -15,7 +15,7 @@ namespace sc::play {
 
 class SituationFactory {
   public:
-    SituationFactory ( std::shared_ptr< PauseMenu > pauseMenu,
+    SituationFactory ( std::shared_ptr< PauseMenu > pause_menu,
                        shared_spaceship_t spaceship );
 
     std::unique_ptr< Situation > GetSituation ();
@@ -30,9 +30,9 @@ class SituationFactory {
     std::shared_ptr< PauseMenu > pause_menu_;
     shared_spaceship_t           spaceship_;
 
-    const double minor_failure_prob_ { 0.001 };
-    const double major_failure_prob_ { 0.0002 };
-    const double unexpected_engine_prob_ { 0.0002 };
+    double minor_failure_prob_;
+    double major_failure_prob_;
+    double unexpected_engine_prob_;
 
 };
 

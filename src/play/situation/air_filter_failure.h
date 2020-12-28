@@ -21,12 +21,6 @@ class AirFilterFailure : public MajorSituation {
 
   private:
 
-    const std::vector< const std::string > issue_choices_ = {
-            "Air filter pump failed. Cannot recycle Oxygen.",
-            "Air filter clogged. Cannot recycle Oxygen",
-            "Air filter unresponsive. Cannot recycle Oxygen.",
-    };
-
     bool is_air_poisoned_ { false };
 
 };
