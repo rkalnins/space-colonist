@@ -40,14 +40,15 @@ Spaceship::AddCrewMember ( const CrewMember &crew_member ) {
 }
 
 bool Spaceship::CanAddItem ( Item &item ) {
-    if ( money_ - item.GetCost() < 0 ) {
+    if ( money_ - ( item.GetCost() * item.GetQuantity()) < 0 ) {
         logger_->debug("Not enough money to purchase {} for {}",
                        item.GetName(), item.GetCost());
 
         return false;
     }
 
-    if ( weight_ + item.GetWeight() > max_weight_ ) {
+    if ( weight_ + ( item.GetQuantity() * item.GetWeight()) >
+         max_weight_ ) {
         logger_->debug("Unable to add item because of weight");
         return false;
     }
@@ -62,8 +63,8 @@ bool Spaceship::AddFuel ( Item &item ) {
     }
 
     fuel_ += item.GetQuantity();
-    money_ -= item.GetCost();
-    weight_ += item.GetWeight();
+    money_ -= item.GetCost() * item.GetQuantity();
+    weight_ += item.GetWeight() * item.GetQuantity();
 
     return true;
 }
@@ -95,8 +96,8 @@ bool Spaceship::AddItem ( Item &item ) {
         items.push_back(item);
     }
 
-    money_ -= item.GetCost();
-    weight_ += item.GetWeight();
+    money_ -= item.GetCost() * item.GetQuantity();
+    weight_ += item.GetWeight() * item.GetQuantity();
 
     return true;
 }
@@ -106,8 +107,8 @@ bool Spaceship::RemoveFuel ( Item &item ) {
         return false;
     }
 
-    UpdateWeight(-1 * item.GetWeight());
-    money_ += item.GetCost();
+    UpdateWeight(-1 * item.GetQuantity() * item.GetWeight());
+    money_ += item.GetCost() * item.GetQuantity();
     fuel_ -= item.GetQuantity();
 
     return true;
@@ -129,9 +130,9 @@ bool Spaceship::RemoveItem ( Item &item ) {
     auto item_it = std::find_if(items.begin(), items.end(), cmp);
 
     if ( item_it != items.end()) {
-        if ( item_it->SoftUpdateQuantity(-1)) {
-            UpdateWeight(-1 * item.GetWeight());
-            money_ += item.GetCost();
+        if ( item_it->SoftUpdateQuantity(-1 * item.GetQuantity())) {
+            UpdateWeight(-1 * item.GetQuantity() * item.GetWeight());
+            money_ += item.GetCost() * item.GetQuantity();
 
             if ( item.GetCategory() == "Food" ) {
                 food_ -= item.GetQuantity();

@@ -10,6 +10,7 @@
 
 #include "../logging/logging.h"
 
+
 namespace sc {
 
 namespace pt = boost::property_tree;
@@ -18,7 +19,7 @@ namespace pt = boost::property_tree;
 class SituationSource {
   public:
 
-    static SituationSource &GetInstance() {
+    static SituationSource &GetInstance () {
         static SituationSource instance;
 
         return instance;

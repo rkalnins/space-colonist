@@ -9,6 +9,7 @@
 
 #include "../../config/situation_source.h"
 
+
 namespace sc::play {
 
 using Random = effolkronium::random_static;

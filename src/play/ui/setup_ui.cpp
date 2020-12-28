@@ -194,6 +194,28 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     break;
             }
             break;
+        case 'a': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION: {
+                    if ( trading_post_view_ ==
+                         TradingPostCategory::ALL ) { break; }
+
+                    Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
+                    if ( item.GetQuantity() < 10 ) { break; }
+                    item.SetQuantity(10);
+                    bool success = spaceship_handler_->GetSpaceship()->AddItem(
+                            item);
+                    if ( success ) {
+                        ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
+                                -10);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        }
         case KEY_RIGHT: {
             switch ( state_ ) {
                 case SetupState::INVENTORY_SELECTION: {
@@ -201,13 +223,33 @@ GameState SetupUI::OnLoop ( GameState state ) {
                          TradingPostCategory::ALL ) { break; }
 
                     Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
-                    if ( item.GetQuantity() <= 0 ) { break; }
+                    if ( item.GetQuantity() < 1 ) { break; }
                     item.SetQuantity(1);
                     bool success = spaceship_handler_->GetSpaceship()->AddItem(
                             item);
                     if ( success ) {
                         ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
                                 -1);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        }
+        case 'b': {
+            switch ( state_ ) {
+                case SetupState::INVENTORY_SELECTION: {
+                    if ( trading_post_view_ ==
+                         TradingPostCategory::ALL ) { break; }
+                    Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
+                    item.SetQuantity(10);
+                    bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
+                            item);
+                    if ( success ) {
+                        ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
+                                10);
                     }
                     break;
                 }

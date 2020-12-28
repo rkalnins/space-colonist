@@ -7,6 +7,7 @@
 
 #include <string>
 
+
 enum class SituationType {
     NONE,
     MINOR,

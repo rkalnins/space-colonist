@@ -31,7 +31,7 @@ FlyingDebris::FlyingDebris ( WINDOW *main )
 
     static const std::vector< double > choices = config_.GetList< double >(
             "play.debris.speed-options");
-    
+
     static const Range end_pts = config_.GetRange(
             "play.debris.end-range");
 
