@@ -54,17 +54,18 @@ class HUDDisplay : public Task {
 
     MousePosition mpos_ { 0, 0 };
 
-    const int item_init_y_ { 7 };
-    const int item_init_x_ { 30 };
-    const int details_init_y_ { 17 };
-    const int details_init_x_ { 70 };
-    const int spaceship_display_x_ { 10 };
-    const int spaceship_display_y_ { 4 };
+    int item_init_y_;
+    int item_init_x_;
+    int details_init_y_;
+    int details_init_x_;
+    int spaceship_display_y_;
+    int spaceship_display_x_;
 
-    const int rows_per_details_pg_ { 10 };
-    const int cat_per_page_ { 10 };
-    int       details_page_id_ { 0 };
-    int       item_page_id_ { 0 };
+    int rows_per_details_pg_;
+    int cat_per_page_;
+
+    int details_page_id_ { 0 };
+    int item_page_id_ { 0 };
 
     bool show_crew_ { false };
     bool show_items_ { false };

@@ -44,14 +44,13 @@ class PauseMenu {
 
     logger_t logger_;
 
-    shared_spaceship_t spaceship_ { nullptr };
-
+    shared_spaceship_t   spaceship_ { nullptr };
     shared_nav_manager_t nav_manager_ { nullptr };
 
     WINDOW *main_;
 
-    const int pause_y_ { 32 };
-    const int pause_x_ { 30 };
+    int pause_y_;
+    int pause_x_;
 
 
 };

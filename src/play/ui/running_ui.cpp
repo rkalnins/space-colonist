@@ -29,7 +29,7 @@ RunningUI::RunningUI ( const std::string &name, TaskType taskType,
 
     Config &config = Config::GetInstance();
 
-    flying_object_prob_ = config.GetValue("running-ui.flying-object-p", 0);
+    flying_object_prob_ = config.GetValue("running-ui.flying-object-p", 0.0);
 
     dist_disp_y_ = config.GetValue("running-ui.distance-disp-y", 0);
     dist_disp_x_ = config.GetValue("running-ui.distance-disp-x", 0);

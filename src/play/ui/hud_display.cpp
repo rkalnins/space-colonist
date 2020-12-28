@@ -21,7 +21,21 @@ HUDDisplay::HUDDisplay ( const std::string &name,
           spaceship_handler_(std::move(spaceship_handler)),
           nav_manager_(std::move(nav_manager)),
           listener_(std::move(listener)),
-          main_(main), logger_(CreateLogger(name)) {}
+          main_(main), logger_(CreateLogger(name)) {
+
+    Config &config = Config::GetInstance();
+
+    item_init_y_    = config.GetValue("hud.item-y", 0);
+    item_init_x_    = config.GetValue("hud.item-x", 0);
+    details_init_y_ = config.GetValue("hud.details-y", 0);
+    details_init_x_ = config.GetValue("hud.details-x", 0);;
+    spaceship_display_y_ = config.GetValue("hud.disp-y", 0);
+    spaceship_display_x_ = config.GetValue("hud.disp-x", 0);;
+
+    rows_per_details_pg_ = config.GetValue("hud.rows-per-details-pg", 0);
+    cat_per_page_        = config.GetValue("hud.cat-per-pg", 0);
+
+}
 
 
 void HUDDisplay::Init () {

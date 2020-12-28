@@ -11,6 +11,20 @@
     "help-start-y": 10,
     "left-bar-start": 2
   },
+  "hud": {
+    "item-y": 7,
+    "item-x": 30,
+    "details-y": 17,
+    "details-x": 70,
+    "disp-y": 4,
+    "disp-x": 10,
+    "rows-per-details-pg": 10,
+    "cat-per-pg": 10
+  },
+  "pause": {
+    "y": 32,
+    "x": 30
+  },
   "running-ui": {
     "flying-object-p": 0.1,
     "distance-disp-y": 20,

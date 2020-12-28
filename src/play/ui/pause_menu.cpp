@@ -16,7 +16,13 @@ PauseMenu::PauseMenu ( shared_spaceship_t spaceship,
                                         nav_manager_(
                                                 std::move(nav_manager)),
                                         main_(main), logger_(CreateLogger(
-                "pause_menu")) {}
+                "pause_menu")) {
+
+    Config &config = Config::GetInstance();
+
+    pause_y_ = config.GetValue("pause.y", 0);
+    pause_x_ = config.GetValue("pause.x", 0);
+}
 
 void PauseMenu::ShowChangeRationsOptions () {
 

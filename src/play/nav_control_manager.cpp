@@ -29,7 +29,7 @@ NavigationControlManager::NavigationControlManager (
     stop_vel_      = config.GetValue("play.nav.stop-v", 0.0);
     slow_vel_      = config.GetValue("play.nav.slow-v", 0.0);
     velocity_      = slow_vel_;
-    moderate_vel_  = config.GetValue("play.nav.moderate-v", 0);
+    moderate_vel_  = config.GetValue("play.nav.moderate-v", 0.0);
     fast_vel_      = config.GetValue("play.nav.fast-v", 0.0);
     dangerous_vel_ = config.GetValue("play.nav.dangerous-v", 0.0);
 
