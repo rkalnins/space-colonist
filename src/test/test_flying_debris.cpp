@@ -13,7 +13,7 @@ TEST_CASE("3.1 Flying Debris basic tests ", "[multi-file:3]") {
     const int    end_pt = 10;
     const double speed  = 0.5;
 
-    FlyingDebris flying_debris(nullptr, speed, end_pt);
+    FlyingDebris flying_debris(speed, end_pt);
 
     // end one short
     for ( int i = 0; i < end_pt * 2 - 1; ++i ) {

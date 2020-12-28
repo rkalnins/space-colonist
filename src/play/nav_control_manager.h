@@ -8,6 +8,7 @@
 #include "../logging/logging.h"
 #include "spaceship_handler.h"
 #include "spaceship.h"
+#include "../config/config.h"
 
 
 namespace sc::play {
@@ -62,17 +63,16 @@ class NavigationControlManager : public Task {
     Velocity  velocity_state_ { Velocity::SLOW };
     PowerMode power_mode_ { PowerMode::NORMAL };
 
-    double       fuel_trickle_    = 0.0004; // trickle
-    const double low_e_trickle_   = 0.00015; // trickle
-    const double nominal_trickle_ = 0.0003; // trickle
+    double fuel_trickle_;
+    double low_e_trickle_;
+    double nominal_trickle_;
 
-    const double velocity_to_fuel_ratio_ = 1000;
-
-    const double stop_vel_      = 0.0;
-    const double slow_vel_      = 0.0005;
-    const double moderate_vel_  = 0.001;
-    const double fast_vel_      = 0.005;
-    const double dangerous_vel_ = 0.01;
+    double velocity_to_fuel_ratio_;
+    double stop_vel_;
+    double slow_vel_;
+    double moderate_vel_;
+    double fast_vel_;
+    double dangerous_vel_;
 
     double stop_fuel_ {};
     double slow_fuel_ {};

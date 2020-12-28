@@ -8,6 +8,7 @@
 
 #include "../logging/logging.h"
 #include "spaceship.h"
+#include "../config/config.h"
 
 
 namespace sc::play {
@@ -23,7 +24,7 @@ class SpaceshipFactory {
     void PrintSpaceship ( WINDOW *window, int y, int x,
                           const std::string &code );
 
-    static int GetInitialMoney ();
+    [[nodiscard]] int GetInitialMoney () const;
 
   private:
 
@@ -50,19 +51,12 @@ class SpaceshipFactory {
 
     logger_t logger_;
 
-    static const int min_max_weight_ { 1500 };
-    static const int max_max_weight_ { 1500 };
+    Range max_weight_;
+    Range max_fuel_;
+    Range max_hull_;
+    Range max_crew_;
 
-    static const int min_max_fuel_ { 5 };
-    static const int max_max_fuel_ { 10 };
-
-    static const int min_max_hull_ { 150 };
-    static const int max_max_hull_ { 150 };
-
-    static const int min_max_crew_ { 2 };
-    static const int max_max_crew_ { 3 };
-
-    static const int initial_money_ { 3000 };
+    int initial_money_ { 3000 };
 };
 
 

@@ -2,36 +2,48 @@
 // Created by Roberts Kalnins on 22/12/2020.
 //
 
+#include <catch2/catch.hpp>
 #include "flying_debris.h"
 
 
 namespace sc::play {
 
+
 FlyingDebris::FlyingDebris ( WINDOW *main, double travel_speed,
                              int end_pt )
         : main_(main), travel_speed_(travel_speed), end_pt_(end_pt) {
+    std::vector< char > appearances = config_.GetList< char >(
+            "play.debris.style");
 
-    appearance = Random::get({ '*', '.', '`', 'o', 'x' });
-    x_         = 0;
-    y_         = Random::get< int >(min_y_, max_y_);
+    static const Range y_bounds = config_.GetRange("play.debris.y-range");
+
+    appearance = *Random::get(appearances);
+
+    x_ = 0;
+    y_ = Random::get< int >(y_bounds.min, y_bounds.max);
 }
 
-FlyingDebris::FlyingDebris ( WINDOW *main ) : main_(main) {
-    appearance    = Random::get({ '*', '.', '`', 'o', 'x' });
-    x_            = 0;
-    y_            = Random::get< int >(min_y_, max_y_);
-    travel_speed_ = Random::get({ 0.5, 0.25, 0.17 });
-    end_pt_       = Random::get< int >(90, 100);
+FlyingDebris::FlyingDebris ( double travel_speed, int end_pt )
+        : FlyingDebris(nullptr, travel_speed, end_pt) {}
+
+FlyingDebris::FlyingDebris ( WINDOW *main )
+        : FlyingDebris(main, 0, 0) {
+
+    static const std::vector< double > choices = config_.GetList< double >(
+            "play.debris.speed-options");
+    
+    static const Range end_pts = config_.GetRange(
+            "play.debris.end-range");
+
+    travel_speed_ = *Random::get(choices);
+    end_pt_       = Random::get(end_pts.min, end_pts.max);
+
+
 }
 
 bool FlyingDebris::IsDone () const {
     return ( x_ >= end_pt_ );
 }
-
-FlyingDebris::FlyingDebris () : main_(nullptr), x_(0), y_(0),
-                                travel_speed_(0),
-                                appearance(' '),
-                                end_pt_(0) {}
 
 void FlyingDebris::Move () {
     x_ = static_cast<int>(++( counter_ ) * travel_speed_);

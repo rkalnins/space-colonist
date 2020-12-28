@@ -23,8 +23,27 @@ SetupUI::SetupUI ( const std::string &name, TaskType taskType,
           listener_(std::move(listener)),
           spaceship_factory_(std::move(spaceship_factory)),
           main_(main),
-          logger_(CreateLogger("name")) {
+          logger_(CreateLogger("setup_ui")) {
     logger_ = CreateLogger(name);
+
+
+    logger_->debug("Getting categories");
+    cat_vec_t categories = ItemSource::GetInstance().GetCategories();
+    logger_->debug("Got categories");
+
+    for ( auto &c : *categories ) {
+        items_for_sale_.insert(
+                std::make_pair(c, ItemSource::GetInstance().GetItems(c)));
+    }
+
+    Config &config = Config::GetInstance();
+
+    ui_init_y_ = config.GetValue("setup-ui.init-y", 0);
+    ui_init_x_ = config.GetValue("setup-ui.init-x", 0);
+
+    crew_choices_count_     = config.GetValue("setup-ui.crew-choices", 0);
+    spaceship_choice_count_ = config.GetValue("setup-ui.spaceship-choices",
+                                              0);
 
     map_generator_ = std::make_unique< SpaceMap >(main, ui_init_y_,
                                                   ui_init_x_);
@@ -152,7 +171,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     current_selected_item_ = std::min(
                             current_selected_item_ + 1,
                             static_cast<int>(
-                                    items_for_sale_[current_category_].size() -
+                                    items_for_sale_[current_category_]->size() -
                                     1));
                     break;
                 }
@@ -181,13 +200,13 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     if ( trading_post_view_ ==
                          TradingPostCategory::ALL ) { break; }
 
-                    Item item = *items_for_sale_[current_category_][current_selected_item_];
+                    Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
                     if ( item.GetQuantity() <= 0 ) { break; }
                     item.SetQuantity(1);
                     bool success = spaceship_handler_->GetSpaceship()->AddItem(
                             item);
                     if ( success ) {
-                        items_for_sale_[current_category_][current_selected_item_]->HardUpdateQuantity(
+                        ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
                                 -1);
                     }
                     break;
@@ -202,12 +221,12 @@ GameState SetupUI::OnLoop ( GameState state ) {
                 case SetupState::INVENTORY_SELECTION: {
                     if ( trading_post_view_ ==
                          TradingPostCategory::ALL ) { break; }
-                    Item item = *items_for_sale_[current_category_][current_selected_item_];
+                    Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
                     item.SetQuantity(1);
                     bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
                             item);
                     if ( success ) {
-                        items_for_sale_[current_category_][current_selected_item_]->HardUpdateQuantity(
+                        ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
                                 1);
                     }
                     break;
@@ -362,8 +381,9 @@ void SetupUI::SpaceshipSelection () {
 
     int i = 1;
 
-    disp << "Money available: " << ( SpaceshipFactory::GetInitialMoney() -
-                                     spaceship_choices_[selected_spaceship_]->GetCost());
+    disp << "Money available: "
+         << ( spaceship_factory_->GetInitialMoney() -
+              spaceship_choices_[selected_spaceship_]->GetCost());
     mvwaddstr(main_, y - 2, x, disp.str().c_str());
     disp.str("");
 
@@ -481,7 +501,7 @@ void SetupUI::InventorySelection () {
 
     ++y;
 
-    for ( auto &item : items_for_sale_[current_category_] ) {
+    for ( auto &item : *items_for_sale_[current_category_] ) {
         if ( current_selected_item_ == i ) {
             row << "> ";
         } else {

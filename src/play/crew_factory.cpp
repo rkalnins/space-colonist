@@ -17,6 +17,31 @@ namespace sc::play {
 
 CrewMemberFactory::CrewMemberFactory () : logger_(
         CreateLogger("crew_factory")) {
+
+    Config &config = Config::GetInstance();
+
+
+    skill_strength_range_ = config.GetRange(
+            "play.crew-factory.skill-strength-range");
+    health_range_         = config.GetRange(
+            "play.crew-factory.health-range");
+    skill_count_range_    = config.GetRange(
+            "play.crew-factory.skill-count-range");
+
+
+    std::vector< std::string > names  = config.GetList< std::string >(
+            "play.crew-factory.names");
+    std::vector< std::string > skills = config.GetList< std::string >(
+            "play.crew-factory.skills");
+
+    for ( auto &n: names ) {
+        names_.insert(std::make_pair(n, false));
+    }
+
+    for ( auto &s: skills ) {
+        skills_.insert(std::make_pair(s, false));
+    }
+
 }
 
 
@@ -29,12 +54,14 @@ CrewMember CrewMemberFactory::Create () {
 
     name->second = true;
 
-    int  health         = Random::get(min_health_, max_health_);
+    int  health         = Random::get(health_range_.min,
+                                      health_range_.max);
     auto possible_skill = skills_.begin();
 
     std::map< std::string, int > skills;
 
-    int skill_count = Random::get(min_skill_count_, skill_count_);
+    int skill_count = Random::get(skill_count_range_.min,
+                                  skill_count_range_.max);
 
     for ( int i = 0; i < skill_count; ++i ) {
         do {
@@ -42,8 +69,8 @@ CrewMember CrewMemberFactory::Create () {
         } while ( possible_skill->second );
 
         possible_skill->second = true;
-        int skill_strength = Random::get(min_skill_range_,
-                                         max_skill_range_);
+        int skill_strength = Random::get(skill_strength_range_.min,
+                                         skill_strength_range_.max);
 
         skills[possible_skill->first] = skill_strength;
     }

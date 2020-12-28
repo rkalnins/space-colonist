@@ -10,6 +10,8 @@
 #include <queue>
 #include <sstream>
 
+#include "../../config/config.h"
+
 
 namespace sc::play {
 
@@ -23,13 +25,44 @@ RunningUI::RunningUI ( const std::string &name, TaskType taskType,
           spaceship_handler_(std::move(spaceship_handler)),
           nav_manager_(std::move(nav_manager)),
           listener_(std::move(listener)),
-          main_(main), logger_(CreateLogger(name)) {}
+          main_(main), logger_(CreateLogger(name)) {
+
+    Config &config = Config::GetInstance();
+
+    flying_object_prob_ = config.GetValue("running-ui.flying-object-p", 0);
+
+    dist_disp_y_ = config.GetValue("running-ui.distance-disp-y", 0);
+    dist_disp_x_ = config.GetValue("running-ui.distance-disp-x", 0);
+
+    health_update_period_ = config.GetValue(
+            "running-ui.health-update-period", 0);
+
+    filling_ration_health_change_prob_ = config.GetValue(
+            "running-ui.filling-ration-health-p", 0.0);
+    normal_ration_health_change_prob_  = config.GetValue(
+            "running-ui.normal-ration-health-p", 0.0);
+    half_ration_health_change_prob_    = config.GetValue(
+            "running-ui.half-ration-health-p", 0.0);
+
+    ss_mvmt_period_       = config.GetValue("running-ui.ss-mvmt-period",
+                                            0);
+    ss_food_usage_period_ = config.GetValue(
+            "running-ui.ss-food-usage-period", 0);
+    starve_period_        = config.GetValue("running-ui.ss-starve-period",
+                                            0);
+
+    ss_half_rations_    = config.GetValue("running-ui.ss-half-rations", 0);
+    ss_normal_rations_  = config.GetValue("running-ui.ss-normal-rations",
+                                          0);
+    ss_filling_rations_ = config.GetValue("running-ui.ss-filling-rations",
+                                          0);
+}
 
 void RunningUI::Init () {
     logger_->debug("Running UI init");
     spaceship_ = spaceship_handler_->GetSpaceship();
     logger_->debug("Got spaceship");
-    nav_manager_->SetVelocity(Velocity::STOP);
+    nav_manager_->SetVelocity(Velocity::SLOW);
     pause_menu_ = std::make_shared< PauseMenu >(spaceship_,
                                                 nav_manager_,
                                                 main_);
@@ -38,6 +71,7 @@ void RunningUI::Init () {
                                                               spaceship_,
                                                               pause_menu_);
     logger_->debug("Created situation manager");
+    logger_->debug("Running UI init finished");
 }
 
 // FIXME please
@@ -341,11 +375,13 @@ void RunningUI::Pause () {
 void RunningUI::MoveFlyingObject () {
 
     if ( !flying_debris_ && Random::get< bool >(flying_object_prob_)) {
+        logger_->debug("Creating new flying object");
         flying_debris_ = std::make_unique< FlyingDebris >(main_);
     } else {
         if ( !flying_debris_ ) { return; }
 
         if ( flying_debris_->IsDone()) {
+            logger_->debug("Destroying new flying object");
             flying_debris_.reset();
             return;
         }

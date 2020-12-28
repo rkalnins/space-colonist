@@ -1,3 +1,145 @@
 {
-  "test": 320
+  "version": "v20.0.0a",
+  "title": "Space Colonist",
+  "window": {
+    "intro-y": 10,
+    "main-y": 0,
+    "main-x": 31,
+    "title-y": 5,
+    "title-x": 2,
+    "left-bar-width": 32,
+    "help-start-y": 10,
+    "left-bar-start": 2
+  },
+  "running-ui": {
+    "flying-object-p": 0.1,
+    "distance-disp-y": 20,
+    "distance-disp-x": 4,
+    "health-update-period": 200,
+    "filling-ration-health-p": 0.6,
+    "normal-ration-health-p": 0.4,
+    "half-ration-health-p": 0.2,
+    "ss-mvmt-period": 80,
+    "ss-food-usage-period": 120,
+    "ss-starve-period": 100,
+    "ss-half-rations": 240,
+    "ss-normal-rations": 120,
+    "ss-filling-rations": 80
+  },
+  "setup-ui": {
+    "init-y": 17,
+    "init-x": 4,
+    "crew-choices": 5,
+    "spaceship-choices": 3
+  },
+  "end": {
+    "horizontal-move": -10,
+    "score": {
+      "crew": 500.0,
+      "food": 100.0,
+      "distance": 150.0
+    }
+  },
+  "play": {
+    "spaceship-handler": {
+      "mvmt-x-p": 0.75,
+      "mvmt-y-p": 0.75,
+      "max-y": 37,
+      "max-x": 55,
+      "min-y": 24,
+      "min-x": 45,
+      "init-y": 27,
+      "init-x": 50
+    },
+    "spaceship-factory": {
+      "max-weight": [
+        1500,
+        1500
+      ],
+      "max-fuel": [
+        5,
+        10
+      ],
+      "max-hull": [
+        150,
+        150
+      ],
+      "max-crew": [
+        2,
+        3
+      ],
+      "init-money": 3000
+    },
+    "map": {
+      "height": 20,
+      "width": 100,
+      "max-route-length": 5,
+      "max-distance": 35,
+      "planet-p": 0.12
+    },
+    "nav": {
+      "low-e-trickle": 0.00015,
+      "nominal-trickle": 0.0003,
+      "velocity-fuel-ratio": 1000,
+      "stop-v": 0.0,
+      "slow-v": 0.0005,
+      "moderate-v": 0.001,
+      "fast-v": 0.005,
+      "dangerous-v": 0.01
+    },
+    "debris": {
+      "y-range": [
+        25,
+        45
+      ],
+      "style": [
+        "*",
+        ".",
+        "`",
+        "o",
+        "x"
+      ],
+      "end-range": [
+        90,
+        100
+      ],
+      "speed-options": [
+        0.5,
+        0.25,
+        0.17
+      ]
+    },
+    "crew-factory": {
+      "skill-strength-range": [
+        4,
+        10
+      ],
+      "health-range": [
+        5,
+        10
+      ],
+      "skill-count-range": [
+        2,
+        3
+      ],
+      "names": [
+        "Dex",
+        "Maia",
+        "Margo",
+        "Tejal",
+        "Kierstan",
+        "Annica",
+        "Roberts",
+        "Max"
+      ],
+      "skills": [
+        "Fix",
+        "Fight",
+        "Speed",
+        "Stomach",
+        "Plan",
+        "Creativity"
+      ]
+    }
+  }
 }

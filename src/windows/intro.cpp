@@ -17,11 +17,17 @@ IntroWindow::IntroWindow () {
     box(stdscr, 0, 0);
 
     std::string welcome = "Welcome! You're a Space Colonist colonizing space!";
-    std::string l1      = "Choose your crew, your supplies, and destination. Good luck!";
+    std::string l1      = "Choose your ship, destination, crew, and supplies. Good luck!";
     std::string l2      = "Hit [ENTER] to continue.";
-    mvaddstr(10, ( COLS - welcome.length()) / 2, welcome.c_str());
-    mvaddstr(12, ( COLS - l1.length()) / 2, l1.c_str());
-    mvaddstr(16, ( COLS - l2.length()) / 2, l2.c_str());
+
+    int intro_y = Config::GetInstance().GetValue< int >("window.intro-y",
+                                                        10);
+
+    mvaddstr(intro_y, ( COLS - welcome.length()) / 2, welcome.c_str());
+    intro_y += 2;
+    mvaddstr(intro_y, ( COLS - l1.length()) / 2, l1.c_str());
+    intro_y += 2;
+    mvaddstr(intro_y, ( COLS - l2.length()) / 2, l2.c_str());
 
 
     logger_->debug("Setup intro window");

@@ -18,6 +18,16 @@ SpaceMap::SpaceMap ( WINDOW *main, int map_init_y, int map_init_x )
         : main_(main), map_init_y_(map_init_y), map_init_x_(map_init_x),
           logger_(CreateLogger("map")) {
 
+    Config &config = Config::GetInstance();
+
+    map_height_       = config.GetValue("play.map.height", 0);
+    map_width_        = config.GetValue("play.map.width", 0);
+    max_route_length_ = config.GetValue("play.map.height", 0);
+
+    max_travel_distance_ = config.GetValue("play.map.max-distance", 0);
+    planet_probability_  = config.GetValue("play.map.planet-p", 0.0);
+    max_route_length_    = config.GetValue("play.map.max-route-length", 2);
+
     planets_.resize(map_height_, std::vector< bool >(map_width_, false));
     planets_str_.resize(map_height_, std::string(map_width_, ' '));
 }
@@ -33,7 +43,6 @@ void SpaceMap::SeedMap () {
 //            double z = ( std::sin(
 //                    0.8 / map_height_ * (( r ) * ( r ) + ( c / 3.0 ) * ( c / 3.0))) +
 //                         1.0 ) / 2.0;
-
 
             double z = ((( r * 3.5 ) * ( r * 3.5 ) + ( c ) * ( c )) /
                         3.0 ) /

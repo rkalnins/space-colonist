@@ -10,6 +10,8 @@
 
 #include "../logging/logging.h"
 #include "crew_member.h"
+#include "../config/config.h"
+#include "../config/item_source.h"
 
 
 namespace sc::play {
@@ -36,33 +38,12 @@ class CrewMemberFactory {
     static char GetFaceChar ( char c );
 
   protected:
-    std::map< std::string, bool > names_ = {
-            { "Dex",      false },
-            { "Maia",     false },
-            { "Margo",    false },
-            { "Tejal",    false },
-            { "Kierstan", false },
-            { "Annica",   false },
-            { "Roberts",  false },
-            { "Max",      false }};
+    std::map< std::string, bool > names_;
+    std::map< std::string, bool > skills_;
 
-
-    std::map< std::string, bool > skills_ = {
-            { "Fix",        false },
-            { "Fight",      false },
-            { "Speed",      false },
-            { "Stomach",    false },
-            { "Plan",       false },
-            { "Creativity", false }};
-
-    int max_health_ { 10 };
-
-    int min_health_ { 5 };
-    int min_skill_count_ { 2 };
-    int min_skill_range_ { 1 };
-
-    int max_skill_range_ { 10 };
-    int skill_count_ { 3 };
+    Range health_range_;
+    Range skill_count_range_;
+    Range skill_strength_range_;
 
   private:
     logger_t logger_;

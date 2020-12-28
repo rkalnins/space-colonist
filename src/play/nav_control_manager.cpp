@@ -15,6 +15,34 @@ NavigationControlManager::NavigationControlManager (
         : Task(name, taskType),
           spaceship_handler_(std::move(spaceship_handler)),
           logger_(CreateLogger(name)) {
+
+    Config &config = Config::GetInstance();
+
+
+    low_e_trickle_   = config.GetValue("play.nav.low-e-trickle", 0.0);
+    nominal_trickle_ = config.GetValue("play.nav.nominal-trickle", 0.0);
+    fuel_trickle_    = nominal_trickle_;
+
+    velocity_to_fuel_ratio_ = config.GetValue(
+            "play.nav.velocity-fuel-ratio", 0);
+
+    stop_vel_      = config.GetValue("play.nav.stop-v", 0.0);
+    slow_vel_      = config.GetValue("play.nav.slow-v", 0.0);
+    velocity_      = slow_vel_;
+    moderate_vel_  = config.GetValue("play.nav.moderate-v", 0);
+    fast_vel_      = config.GetValue("play.nav.fast-v", 0.0);
+    dangerous_vel_ = config.GetValue("play.nav.dangerous-v", 0.0);
+
+    stop_fuel_      = std::abs(( stop_vel_ - velocity_ )) *
+                      velocity_to_fuel_ratio_;
+    slow_fuel_      = std::abs(( slow_vel_ - velocity_ )) *
+                      velocity_to_fuel_ratio_;
+    moderate_fuel_  = std::abs(( moderate_vel_ - velocity_ )) *
+                      velocity_to_fuel_ratio_;
+    fast_fuel_      = std::abs(( fast_vel_ - velocity_ )) *
+                      velocity_to_fuel_ratio_;
+    dangerous_fuel_ = std::abs(( dangerous_vel_ - velocity_ )) *
+                      velocity_to_fuel_ratio_;
 }
 
 void NavigationControlManager::Init () {

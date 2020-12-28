@@ -13,6 +13,7 @@
 
 
 #include "../logging/logging.h"
+#include "../config/config.h"
 
 
 namespace sc::play {
@@ -49,9 +50,9 @@ class SpaceMap {
     std::stack< LocationSelected > route_;
     std::vector< std::string >     planets_str_;
 
-    int map_height_ { 20 };
-    int map_width_ { 100 };
-    int max_route_length_ = 5;
+    int map_height_;
+    int map_width_;
+    int max_route_length_;
 
   private:
 
@@ -59,11 +60,11 @@ class SpaceMap {
 
     WINDOW *main_;
 
-    const double max_travel_distance_ = 30;
-    const int    map_init_y_;
-    const int    map_init_x_;
-    const double planet_probability_ { 0.12 };
-    double       cost_ { 0 };
+    double max_travel_distance_;
+    double planet_probability_;
+    int    map_init_y_;
+    int    map_init_x_;
+    double cost_ { 0 };
 
     bool toggle_end_ { false };
 

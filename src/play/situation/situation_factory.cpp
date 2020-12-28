@@ -12,6 +12,8 @@
 #include "minor_situation.h"
 #include "standard_engine_failure.h"
 #include "air_filter_failure.h"
+#include "../../config/config.h"
+#include "../../logging/logging.h"
 
 
 namespace sc::play {

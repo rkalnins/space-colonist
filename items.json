@@ -1,0 +1,175 @@
+{
+  "categories": [
+    "Tools",
+    "Fuel",
+    "Weapons",
+    "Food",
+    "Spare parts",
+    "Infrastructure",
+    "Supplies"
+  ],
+  "Tools": [
+    {
+      "name": "Basic toolset",
+      "quantity": 2,
+      "weight": 15,
+      "cost": 20
+    },
+    {
+      "name": "Standard toolset",
+      "quantity": 2,
+      "weight": 20,
+      "cost": 25
+    },
+    {
+      "name": "Enhanced toolset",
+      "quantity": 2,
+      "weight": 25,
+      "cost": 35
+    },
+    {
+      "name": "Full toolset",
+      "quantity": 1,
+      "weight": 45,
+      "cost": 50
+    }
+  ],
+  "Spare parts": [
+    {
+      "name": "Engine",
+      "quantity": 3,
+      "weight": 30,
+      "cost": 90
+    },
+    {
+      "name": "Gyroscope",
+      "quantity": 1,
+      "weight": 20,
+      "cost": 120
+    },
+    {
+      "name": "Cables",
+      "quantity": 20,
+      "weight": 1,
+      "cost": 1
+    },
+    {
+      "name": "Communications",
+      "quantity": 3,
+      "weight": 15,
+      "cost": 75
+    },
+    {
+      "name": "Electronic components",
+      "quantity": 50,
+      "weight": 1,
+      "cost": 2
+    },
+    {
+      "name": "Hull plating",
+      "quantity": 5,
+      "weight": 20,
+      "cost": 50
+    }
+  ],
+  "Fuel": [
+    {
+      "name": "Basic Fuel",
+      "quantity": 100,
+      "weight": 10,
+      "cost": 20
+    }
+  ],
+  "Weapons": [
+    {
+      "name": "Rifle",
+      "quantity": 5,
+      "weight": 4,
+      "cost": 20
+    },
+    {
+      "name": "Sidearm",
+      "quantity": 5,
+      "weight": 2,
+      "cost": 10
+    },
+    {
+      "name": "Body Armor",
+      "quantity": 5,
+      "weight": 8,
+      "cost": 15
+    },
+    {
+      "name": "Torpedoes",
+      "quantity": 10,
+      "weight": 30,
+      "cost": 40
+    },
+    {
+      "name": "Defence Cannons",
+      "quantity": 2,
+      "weight": 150,
+      "cost": 200
+    },
+    {
+      "name": "Cannon ammo",
+      "quantity": 100,
+      "weight": 3,
+      "cost": 2
+    },
+    {
+      "name": "Rifle ammo",
+      "quantity": 100,
+      "weight": 1,
+      "cost": 1
+    },
+    {
+      "name": "Sidearm ammo",
+      "quantity": 100,
+      "weight": 1,
+      "cost": 1
+    }
+  ],
+  "Food": [
+    {
+      "name": "Rations",
+      "quantity": 100,
+      "weight": 2,
+      "cost": 2
+    },
+    {
+      "name": "Fruits",
+      "quantity": 20,
+      "weight": 5,
+      "cost": 3
+    },
+    {
+      "name": "Vegetables",
+      "quantity": 20,
+      "weight": 5,
+      "cost": 3
+    }
+  ],
+  "Infrastructure": [
+    {
+      "name": "Workshop",
+      "quantity": 1,
+      "weight": 600,
+      "cost": 400
+    },
+    {
+      "name": "Medical Bay",
+      "quantity": 1,
+      "weight": 600,
+      "cost": 500
+    }
+  ],
+  "Supplies": [
+    {
+      "name": "Medical supplies",
+      "quantity": 10,
+      "weight": 3,
+      "cost": 10
+    }
+  ]
+}

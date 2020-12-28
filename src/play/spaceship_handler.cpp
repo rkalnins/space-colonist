@@ -17,7 +17,30 @@ using Random = effolkronium::random_static;
 SpaceshipHandler::SpaceshipHandler (
         shared_spaceship_factory_t spaceship_factory )
         : spaceship_factory_(std::move(spaceship_factory)), logger_(
-        CreateLogger("ss_handler")) {}
+        CreateLogger("ss_handler")) {
+
+    Config &config = Config::GetInstance();
+
+    ss_mvmt_y_prob_ = config.GetValue< double >(
+            "play.spaceship-handler.mvmt-y-p", 0.75);
+    ss_mvmt_x_prob_ = config.GetValue< double >(
+            "play.spaceship-handler.mvmt-x-p", 0.75);
+
+    ss_max_y_ = config.GetValue< int >("play.spaceship-handler.max-y",
+                                       0);
+    ss_min_y_ = config.GetValue< int >("play.spaceship-handler.min-y",
+                                       0);
+    ss_max_x_ = config.GetValue< int >("play.spaceship-handler.max-x",
+                                       0);
+    ss_min_x_ = config.GetValue< int >("play.spaceship-handler.min-x",
+                                       0);
+
+    ss_pos_y_ = config.GetValue< int >("play.spaceship-handler.init-y",
+                                       0);
+    ss_pos_x_ = config.GetValue< int >("play.spaceship-handler.init-x",
+                                       0);
+
+}
 
 const std::shared_ptr< play::Spaceship > &
 SpaceshipHandler::GetSpaceship () const {

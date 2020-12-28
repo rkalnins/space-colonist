@@ -12,6 +12,16 @@ namespace sc::play {
 
 SpaceshipFactory::SpaceshipFactory () : logger_(
         CreateLogger("ss_factory")) {
+
+    Config &config = Config::GetInstance();
+
+    max_weight_ = config.GetRange("play.spaceship-factory.max-weight");
+    max_fuel_   = config.GetRange("play.spaceship-factory.max-fuel");
+    max_hull_   = config.GetRange("play.spaceship-factory.max-hull");
+    max_crew_   = config.GetRange("play.spaceship-factory.max-crew");
+
+    initial_money_ = config.GetValue("play.spaceship-factory.init-money",
+                                     0);
 }
 
 std::unique_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
@@ -29,10 +39,10 @@ std::unique_ptr< Spaceship > SpaceshipFactory::CreateSpaceship () {
 
     std::unique_ptr< Spaceship > s = std::make_unique< Spaceship >(code);
 
-    double weight = Random::get(min_max_weight_, max_max_weight_);
-    int    fuel   = Random::get(min_max_fuel_, max_max_fuel_);
-    int    hull   = Random::get(min_max_hull_, max_max_hull_);
-    int    crew   = Random::get(min_max_crew_, max_max_crew_);
+    double weight = Random::get(max_weight_.min, max_weight_.max);
+    int    fuel   = Random::get(max_fuel_.min, max_fuel_.max);
+    int    hull   = Random::get(max_hull_.min, max_hull_.max);
+    int    crew   = Random::get(max_crew_.min, max_crew_.max);
     int    cost   = ( crew * 300 ) + (int) weight + (int) fuel + hull;
 
     s->SpaceshipInitConfig(weight, fuel, hull, crew, initial_money_ - cost,
@@ -64,7 +74,7 @@ void SpaceshipFactory::PrintSpaceship ( WINDOW *window, int y, int x,
     }
 }
 
-int SpaceshipFactory::GetInitialMoney () {
+int SpaceshipFactory::GetInitialMoney () const {
     return initial_money_;
 }
 

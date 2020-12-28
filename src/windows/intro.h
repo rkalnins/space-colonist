@@ -7,6 +7,7 @@
 #include <ncurses.h>
 
 #include "../logging/logging.h"
+#include "../config/config.h"
 
 
 namespace sc {

@@ -10,6 +10,7 @@
 #include "../input_listener.h"
 #include "../logging/logging.h"
 #include "spaceship_factory.h"
+#include "../config/config.h"
 
 
 namespace sc::play {
@@ -52,16 +53,16 @@ class SpaceshipHandler {
     shared_spaceship_t         spaceship_ { nullptr };
     shared_spaceship_factory_t spaceship_factory_ { nullptr };
 
-    double ss_mvmt_x_prob_ { 0.75 };
-    double ss_mvmt_y_prob_ { 0.75 };
+    double ss_mvmt_x_prob_;
+    double ss_mvmt_y_prob_;
 
-    const int ss_max_y_ { 37 };
-    const int ss_min_y_ { 24 };
-    const int ss_max_x_ { 55 };
-    const int ss_min_x_ { 45 };
+    int ss_max_y_;
+    int ss_min_y_;
+    int ss_max_x_;
+    int ss_min_x_;
 
-    int ss_pos_y_ { 25 };
-    int ss_pos_x_ { 50 };
+    int ss_pos_y_;
+    int ss_pos_x_;
 };
 
 

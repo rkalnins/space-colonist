@@ -14,15 +14,16 @@ namespace sc {
 
 using logger_t = std::shared_ptr< spdlog::logger >;
 
-static std::map< std::string, logger_t > loggers;
 
 static logger_t CreateLogger ( const std::string &name ) {
+    static std::map< std::string, logger_t > loggers;
 
     auto logger_found = loggers.find(name);
 
     if ( logger_found != loggers.end()) {
         return logger_found->second;
     }
+
 
     logger_t logger = spdlog::basic_logger_mt(name,
                                               "logs/space-colonist-log.log");

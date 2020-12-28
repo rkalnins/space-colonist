@@ -2,9 +2,9 @@
 // Created by Roberts Kalnins on 15/12/2020.
 //
 
-#include "../game.h"
-#include <thread>
 #include "task_pool.h"
+
+#include <thread>
 
 
 namespace sc {

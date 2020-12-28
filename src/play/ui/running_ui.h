@@ -83,28 +83,29 @@ class RunningUI : public Task {
 
     WINDOW *main_;
 
-    const double flying_object_prob_ { 0.1 };
-
     const std::string distance_remaining_ = "Distance remaining: ";
     const std::string velocity_name_      = "Velocity: ";
 
-    const int dist_disp_y_ { 20 };
-    const int dist_disp_x_ { 4 };
+    double flying_object_prob_;
 
-    const int health_update_period_ { 200 };
-    int       health_update_counter_ { 0 };
+    int dist_disp_y_;
+    int dist_disp_x_;
 
-    const double filling_ration_health_change_prob_ { 0.6 };
-    const double normal_ration_health_change_prob_ { 0.4 };
-    const double half_ration_health_change_prob_ { 0.2 };
+    int health_update_period_;
 
-    const int ss_mvmt_period_ { 80 };
-    int       ss_food_usage_period_ { 120 };
-    const int starve_period_ { 100 };
+    double filling_ration_health_change_prob_;
+    double normal_ration_health_change_prob_;
+    double half_ration_health_change_prob_;
 
-    const int ss_half_rations_ { 240 };
-    const int ss_normal_rations_ { 120 };
-    const int ss_filling_rations_ { 80 };
+    int ss_mvmt_period_;
+    int ss_food_usage_period_;
+    int starve_period_;
+
+    int ss_half_rations_;
+    int ss_normal_rations_;
+    int ss_filling_rations_;
+
+    int health_update_counter_ { 0 };
 
     std::string rations_ = "Normal";
 

@@ -3,8 +3,10 @@
 //
 
 #include "minor_situation.h"
+
 #include <effolkronium/random.hpp>
 #include <utility>
+#include "../../logging/logging.h"
 
 
 namespace sc::play {
