@@ -15,7 +15,14 @@
 
 namespace sc::play {
 
-enum class SpaceshipState { NONE, PAUSED, MOVING, FIXING, OTHER };
+enum class SpaceshipState {
+    NONE,
+    DEPARTING,
+    PAUSED,
+    MOVING,
+    FIXING,
+    OTHER
+};
 
 
 class Spaceship {
@@ -100,6 +107,8 @@ class Spaceship {
 
     void Unpause ();
 
+    [[nodiscard]] bool IsDeparting () const;
+
     void Pause ();
 
     [[nodiscard]] bool HasFuel () const;
@@ -143,7 +152,7 @@ class Spaceship {
 
     std::string appearance_code_;
 
-    SpaceshipState state_ { SpaceshipState::NONE };
+    SpaceshipState state_ { SpaceshipState::DEPARTING };
 
     double full_fuel_ { 0 };
     double fuel_ { 0 };

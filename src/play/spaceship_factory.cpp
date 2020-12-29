@@ -5,6 +5,9 @@
 #include "spaceship_factory.h"
 #include <effolkronium/random.hpp>
 
+#include "ncurses.h"
+#include "curses.h"
+
 
 using Random = effolkronium::random_static;
 
@@ -76,6 +79,17 @@ void SpaceshipFactory::PrintSpaceship ( WINDOW *window, int y, int x,
 
 int SpaceshipFactory::GetInitialMoney () const {
     return initial_money_;
+}
+
+bool SpaceshipFactory::PrintStation ( WINDOW *window, int cycle ) {
+    int        y = station_init_y_;
+    for ( auto &s : station_dep_ ) {
+
+        mvwaddnstr(window, y++, station_init_x_ + cycle, s.c_str(),
+                   s.length() - cycle);
+    }
+    return station_init_x_ + cycle ==
+           getmaxx(window) - 8; // weird offset to make things work
 }
 
 }

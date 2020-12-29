@@ -42,6 +42,8 @@ class SpaceshipHandler {
 
     void PrintSpaceship ( WINDOW *main );
 
+    bool PrintDeparture ( WINDOW *main );
+
     void MoveSpaceship ();
 
     void BoundSpaceshipPosition ();
@@ -61,8 +63,10 @@ class SpaceshipHandler {
     int ss_max_x_;
     int ss_min_x_;
 
-    int ss_pos_y_;
-    int ss_pos_x_;
+    int    ss_pos_y_;
+    int    ss_pos_x_;
+    int    departure_cycle { 0 };
+    double departure_speed = 1.0 / 15.0;
 };
 
 

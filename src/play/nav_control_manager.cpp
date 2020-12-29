@@ -26,12 +26,13 @@ NavigationControlManager::NavigationControlManager (
     velocity_to_fuel_ratio_ = config.GetValue(
             "play.nav.velocity-fuel-ratio", 0);
 
-    stop_vel_      = config.GetValue("play.nav.stop-v", 0.0);
-    slow_vel_      = config.GetValue("play.nav.slow-v", 0.0);
-    velocity_      = slow_vel_;
-    moderate_vel_  = config.GetValue("play.nav.moderate-v", 0.0);
-    fast_vel_      = config.GetValue("play.nav.fast-v", 0.0);
-    dangerous_vel_ = config.GetValue("play.nav.dangerous-v", 0.0);
+    stop_vel_       = config.GetValue("play.nav.stop-v", 0.0);
+    slow_vel_       = config.GetValue("play.nav.slow-v", 0.0);
+    moderate_vel_   = config.GetValue("play.nav.moderate-v", 0.0);
+    fast_vel_       = config.GetValue("play.nav.fast-v", 0.0);
+    dangerous_vel_  = config.GetValue("play.nav.dangerous-v", 0.0);
+    velocity_       = slow_vel_;
+    velocity_state_ = Velocity::SLOW;
 
     stop_fuel_      = std::abs(( stop_vel_ - velocity_ )) *
                       velocity_to_fuel_ratio_;
@@ -54,7 +55,7 @@ GameState NavigationControlManager::OnLoop ( GameState state ) {
         spaceship_ = spaceship_handler_->GetSpaceship();
     } else if ( state != GameState::SETUP ) {
 
-        if ( !spaceship_->IsPaused()) {
+        if ( !spaceship_->IsPaused() && !spaceship_->IsDeparting()) {
             distance_traveled_ += velocity_;
             spaceship_->UseFuel(fuel_trickle_);
         }

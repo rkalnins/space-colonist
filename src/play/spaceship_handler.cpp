@@ -101,4 +101,14 @@ void SpaceshipHandler::MoveSpaceship () {
 
 }
 
+bool SpaceshipHandler::PrintDeparture ( WINDOW *main ) {
+    bool ret = spaceship_factory_->PrintStation(main, static_cast<int>(
+            departure_cycle++ * departure_speed));
+
+    spaceship_factory_->PrintSpaceship(main, ss_pos_y_, ss_pos_x_,
+                                       spaceship_->GetAppearanceCode());
+
+    return ret;
+}
+
 }

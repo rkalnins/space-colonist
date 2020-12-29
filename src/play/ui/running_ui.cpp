@@ -63,7 +63,6 @@ void RunningUI::Init () {
     logger_->debug("Running UI init");
     spaceship_ = spaceship_handler_->GetSpaceship();
     logger_->debug("Got spaceship");
-    nav_manager_->SetVelocity(Velocity::SLOW);
     pause_menu_ = std::make_shared< PauseMenu >(spaceship_,
                                                 nav_manager_,
                                                 main_);
@@ -81,7 +80,8 @@ void RunningUI::ProcessInput () {
     int c = listener_->GetCh();
 
     switch ( running_state_ ) {
-
+        case RunningState::DEPARTING:
+            break;
         case RunningState::FLYING: {
             if ( c == 32 ) { Pause(); }
             break;
@@ -205,31 +205,42 @@ void RunningUI::Unpause () {
 
 GameState RunningUI::OnLoop ( GameState state ) {
 
-    ProcessInput();
+    if ( running_state_ != RunningState::DEPARTING ) {
+        ProcessInput();
 
-    std::stringstream disp;
-    disp.precision(3);
-    disp << distance_remaining_
-         << nav_manager_->GetDistanceRemaining() << "\t"
-         << velocity_name_ << ( nav_manager_->GetVelocity() * 100.0 )
-         << "\tRations: "
-         << rations_;
-    mvwaddstr(main_, dist_disp_y_, dist_disp_x_, disp.str().c_str());
+        std::stringstream disp;
+        disp.precision(3);
+        disp << distance_remaining_
+             << nav_manager_->GetDistanceRemaining() << "\t"
+             << velocity_name_ << ( nav_manager_->GetVelocity() * 100.0 )
+             << "\tRations: "
+             << rations_;
+        mvwaddstr(main_, dist_disp_y_, dist_disp_x_, disp.str().c_str());
 
-    disp.str("");
-
-    spaceship_handler_->PrintSpaceship(main_);
+        disp.str("");
+    }
 
     if ( nav_manager_->GetDistanceRemaining() <= 0 ) {
         return GameState::EXITING;
     }
 
     switch ( running_state_ ) {
+        case RunningState::DEPARTING: {
+
+            if ( spaceship_handler_->PrintDeparture(main_)) {
+                logger_->debug("Done departing");
+                running_state_ = RunningState::FLYING;
+                spaceship_->Unpause(); // sets state correctly
+            }
+            break;
+        }
         case RunningState::FLYING:
             if ( situation_manager_->CheckNewSituation()) {
                 running_state_ = RunningState::SITUATION;
                 logger_->debug("New situation");
             }
+
+            spaceship_handler_->PrintSpaceship(main_);
 
             situation_manager_->FixMinorIgnored();
 
@@ -240,6 +251,8 @@ GameState RunningUI::OnLoop ( GameState state ) {
             pause_menu_->OnLoop(menu_options_,
                                 situation_manager_->GetSituationType(),
                                 situation_manager_->GetIgnoredFailures());
+
+            spaceship_handler_->PrintSpaceship(main_);
             break;
         case RunningState::SITUATION:
             if ( situation_manager_->UpdateSituation()) {
@@ -247,6 +260,8 @@ GameState RunningUI::OnLoop ( GameState state ) {
             } else {
                 StandardLoopUpdate();
             }
+
+            spaceship_handler_->PrintSpaceship(main_);
             break;
     }
 

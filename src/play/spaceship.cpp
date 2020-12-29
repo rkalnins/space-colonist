@@ -279,4 +279,8 @@ void Spaceship::Unpause () { state_ = SpaceshipState::OTHER; }
 
 bool Spaceship::IsPaused () { return state_ == SpaceshipState::PAUSED; }
 
+bool Spaceship::IsDeparting () const {
+    return state_ == SpaceshipState::DEPARTING;
+}
+
 }

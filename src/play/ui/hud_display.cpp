@@ -52,6 +52,9 @@ GameState HUDDisplay::OnLoop ( GameState state ) {
 
     if ( spaceship_ ) {
 
+        if ( state != GameState::SETUP &&
+             spaceship_->IsDeparting()) { return state; }
+
         PrintHUD();
 
         if ( show_crew_ ) {

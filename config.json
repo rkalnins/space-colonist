@@ -56,14 +56,14 @@
   },
   "play": {
     "spaceship-handler": {
-      "mvmt-x-p": 0.75,
-      "mvmt-y-p": 0.75,
+      "mvmt-x-p": 0.3,
+      "mvmt-y-p": 0.1,
       "max-y": 37,
-      "max-x": 55,
+      "max-x": 81,
       "min-y": 24,
-      "min-x": 45,
+      "min-x": 65,
       "init-y": 27,
-      "init-x": 50
+      "init-x": 80
     },
     "spaceship-factory": {
       "max-weight": [

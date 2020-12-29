@@ -24,6 +24,7 @@ namespace sc::play {
 using Random = effolkronium::random_static;
 
 enum class RunningState {
+    DEPARTING,
     FLYING,
     PAUSED,
     SITUATION,
@@ -105,19 +106,18 @@ class RunningUI : public Task {
     int ss_normal_rations_;
     int ss_filling_rations_;
 
-    int health_update_counter_ { 0 };
 
     std::string rations_ = "Normal";
 
+    int health_update_counter_ { 0 };
     int ss_food_usage_counter_ { 0 };
-
     int ss_mvmt_counter_ { 0 };
 
     bool notified_no_food_ = false;
 
     GameState    ret_state { GameState::RUNNING };
     MenuOptions  menu_options_ { MenuOptions::MAIN };
-    RunningState running_state_ { RunningState::FLYING };
+    RunningState running_state_ { RunningState::DEPARTING };
 };
 
 }
