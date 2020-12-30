@@ -20,6 +20,7 @@
 #include "../space_map.h"
 #include "../nav_control_manager.h"
 #include "../../config/item_source.h"
+#include "inventory_ui.h"
 
 
 namespace sc::play {
@@ -32,25 +33,14 @@ enum class SetupState {
     DONE,
 };
 
-enum class TradingPostCategory {
-    ALL,
-    TOOLS,
-    SPARE_PARTS,
-    FUEL,
-    WEAPONS,
-    FOOD,
-    SUPPLIES,
-    INFRASTRUCTURE
-};
-
 
 class SetupUI : public Task {
   public:
 
     SetupUI ( const std::string &name, TaskType taskType,
-              shared_spaceship_handler_t spaceship_handler,
+              const shared_spaceship_handler_t &spaceship_handler,
               shared_nav_manager_t nav_manager_,
-              shared_input_listener_t listener,
+              const shared_input_listener_t &listener,
               shared_spaceship_factory_t spaceship_factory,
               WINDOW *main );
 
@@ -70,11 +60,7 @@ class SetupUI : public Task {
 
     void SpaceshipSelection ();
 
-    void InventorySelection ();
-
     void ProcessMousePlanetSelect ( MousePosition &mpos );
-
-    static std::string GetCategoryStr ( TradingPostCategory category );
 
   private:
     logger_t logger_;
@@ -101,18 +87,15 @@ class SetupUI : public Task {
 
     SetupState state_ { SetupState::SPACESHIP_SETUP };
 
-    TradingPostCategory trading_post_view_ { TradingPostCategory::ALL };
-
-    std::string current_category_;
-    int         current_selected_item_ {};
-
-    std::map< std::string, items_vector_ptr_t > items_for_sale_;
+    InventoryUI inventory_ui_;
 
     int ui_init_y_;
     int ui_init_x_;
 
     int crew_choices_count_;
     int spaceship_choice_count_;
+
+    int selected_crew_count_ { 0 };
 
     int selected_spaceship_ { 0 };
 };

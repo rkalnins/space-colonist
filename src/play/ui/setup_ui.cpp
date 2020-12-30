@@ -12,29 +12,22 @@ namespace sc::play {
 
 
 SetupUI::SetupUI ( const std::string &name, TaskType taskType,
-                   shared_spaceship_handler_t spaceship_handler,
+                   const shared_spaceship_handler_t &spaceship_handler,
                    shared_nav_manager_t nav_manager_,
-                   shared_input_listener_t listener,
+                   const shared_input_listener_t &listener,
                    shared_spaceship_factory_t spaceship_factory,
                    WINDOW *main )
         : Task(name, taskType),
-          spaceship_handler_(std::move(spaceship_handler)),
+          spaceship_handler_(spaceship_handler),
           nav_manager_(std::move(nav_manager_)),
-          listener_(std::move(listener)),
+          listener_(listener),
           spaceship_factory_(std::move(spaceship_factory)),
           main_(main),
-          logger_(CreateLogger("setup_ui")) {
+          logger_(CreateLogger("setup_ui")),
+          inventory_ui_(main, "setup", nullptr, listener,
+                        spaceship_handler) {
     logger_ = CreateLogger(name);
 
-
-    logger_->debug("Getting categories");
-    cat_vec_t categories = ItemSource::GetInstance().GetCategories();
-    logger_->debug("Got categories");
-
-    for ( auto &c : *categories ) {
-        items_for_sale_.insert(
-                std::make_pair(c, ItemSource::GetInstance().GetItems(c)));
-    }
 
     Config &config = Config::GetInstance();
 
@@ -47,6 +40,7 @@ SetupUI::SetupUI ( const std::string &name, TaskType taskType,
 
     map_generator_ = std::make_unique< SpaceMap >(main, ui_init_y_,
                                                   ui_init_x_);
+
 }
 
 void SetupUI::Init () {
@@ -84,8 +78,8 @@ void SetupUI::Init () {
 
 
 void SetupUI::ProcessMouseCheckboxInput ( MousePosition &mpos ) {
-    int checked_count = 0;
-    int index         = 0;
+    selected_crew_count_ = 0;
+    int index = 0;
 
     for ( auto &box : selected_crew_ ) {
         if ( box.y == mpos.y &&
@@ -100,16 +94,16 @@ void SetupUI::ProcessMouseCheckboxInput ( MousePosition &mpos ) {
                            box.checked);
         }
 
-        if ( box.checked ) { ++checked_count; }
+        if ( box.checked ) { ++selected_crew_count_; }
 
-        while ( checked_count >
+        while ( selected_crew_count_ >
                 spaceship_handler_->GetSpaceship()->GetMaxCrew()) {
             size_t top = select_order_.front();
             select_order_.pop();
 
             if ( selected_crew_[top].checked ) {
                 selected_crew_[top].checked = false;
-                --checked_count;
+                --selected_crew_count_;
             }
 
         }
@@ -137,7 +131,7 @@ GameState SetupUI::OnLoop ( GameState state ) {
             CrewSelection();
             break;
         case SetupState::INVENTORY_SELECTION:
-            InventorySelection();
+            inventory_ui_.OnLoop();
             break;
         case SetupState::DONE:
             return GameState::RUNNING;
@@ -160,119 +154,25 @@ GameState SetupUI::OnLoop ( GameState state ) {
             }
             break;
         }
-        case KEY_DOWN:
+        case KEY_DOWN: {
             switch ( state_ ) {
-                case SetupState::SPACESHIP_SETUP:
+                case SetupState::SPACESHIP_SETUP: {
                     selected_spaceship_ = std::min(selected_spaceship_ + 1,
                                                    spaceship_choice_count_ -
                                                    1);
-                    break;
-                case SetupState::INVENTORY_SELECTION: {
-                    current_selected_item_ = std::min(
-                            current_selected_item_ + 1,
-                            static_cast<int>(
-                                    items_for_sale_[current_category_]->size() -
-                                    1));
                     break;
                 }
                 default:
                     break;
             }
             break;
-        case KEY_UP:
+        }
+        case KEY_UP: {
             switch ( state_ ) {
                 case SetupState::SPACESHIP_SETUP:
                     selected_spaceship_ = std::max(selected_spaceship_ - 1,
                                                    0);
                     break;
-                case SetupState::INVENTORY_SELECTION: {
-                    current_selected_item_ = std::max(
-                            current_selected_item_ - 1, 0);
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        case 'a': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION: {
-                    if ( trading_post_view_ ==
-                         TradingPostCategory::ALL ) { break; }
-
-                    Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
-                    if ( item.GetQuantity() < 10 ) { break; }
-                    item.SetQuantity(10);
-                    bool success = spaceship_handler_->GetSpaceship()->AddItem(
-                            item);
-                    if ( success ) {
-                        ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
-                                -10);
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case KEY_RIGHT: {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION: {
-                    if ( trading_post_view_ ==
-                         TradingPostCategory::ALL ) { break; }
-
-                    Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
-                    if ( item.GetQuantity() < 1 ) { break; }
-                    item.SetQuantity(1);
-                    bool success = spaceship_handler_->GetSpaceship()->AddItem(
-                            item);
-                    if ( success ) {
-                        ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
-                                -1);
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case 'b': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION: {
-                    if ( trading_post_view_ ==
-                         TradingPostCategory::ALL ) { break; }
-                    Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
-                    item.SetQuantity(10);
-                    bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
-                            item);
-                    if ( success ) {
-                        ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
-                                10);
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case KEY_LEFT: {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION: {
-                    if ( trading_post_view_ ==
-                         TradingPostCategory::ALL ) { break; }
-                    Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
-                    item.SetQuantity(1);
-                    bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
-                            item);
-                    if ( success ) {
-                        ( *items_for_sale_[current_category_] )[current_selected_item_]->HardUpdateQuantity(
-                                1);
-                    }
-                    break;
-                }
                 default:
                     break;
             }
@@ -287,14 +187,19 @@ GameState SetupUI::OnLoop ( GameState state ) {
                     spaceship_handler_->GetSpaceship()->LoggingInit();
                     break;
                 case SetupState::DESTINATION_SELECTION:
+                    if ( map_generator_->GetCost() < 1.0 ) { break; }
+
                     state_ = SetupState::CREW_SELECTION;
                     nav_manager_->SetInitialDistance(
                             map_generator_->GetCost());
                     break;
                 case SetupState::CREW_SELECTION:
+                    if ( selected_crew_count_ == 0 ) { break; }
+
                     state_ = SetupState::INVENTORY_SELECTION;
                     spaceship_handler_->SetCrew(crew_choices_,
                                                 selected_crew_);
+                    logger_->debug("Starting inventory selection");
                     break;
                 case SetupState::INVENTORY_SELECTION:
                     state_ = SetupState::DONE;
@@ -303,108 +208,6 @@ GameState SetupUI::OnLoop ( GameState state ) {
                 default:
                     break;
             }
-        }
-        case '0': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_     = TradingPostCategory::ALL;
-                    current_selected_item_ = 0;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '1': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_     = TradingPostCategory::FOOD;
-                    current_category_      = GetCategoryStr(
-                            trading_post_view_);
-                    current_selected_item_ = 0;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '2': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_     = TradingPostCategory::FUEL;
-                    current_category_      = GetCategoryStr(
-                            trading_post_view_);
-                    current_selected_item_ = 0;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '3': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_     = TradingPostCategory::INFRASTRUCTURE;
-                    current_category_      = GetCategoryStr(
-                            trading_post_view_);
-                    current_selected_item_ = 0;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '4': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_     = TradingPostCategory::SPARE_PARTS;
-                    current_category_      = GetCategoryStr(
-                            trading_post_view_);
-                    current_selected_item_ = 0;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '5': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_     = TradingPostCategory::SUPPLIES;
-                    current_category_      = GetCategoryStr(
-                            trading_post_view_);
-                    current_selected_item_ = 0;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '6': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_     = TradingPostCategory::TOOLS;
-                    current_category_      = GetCategoryStr(
-                            trading_post_view_);
-                    current_selected_item_ = 0;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case '7': {
-            switch ( state_ ) {
-                case SetupState::INVENTORY_SELECTION:
-                    trading_post_view_     = TradingPostCategory::WEAPONS;
-                    current_category_      = GetCategoryStr(
-                            trading_post_view_);
-                    current_selected_item_ = 0;
-                    break;
-                default:
-                    break;
-            }
-            break;
         }
         default:
             break;
@@ -508,92 +311,8 @@ void SetupUI::CrewSelection () {
     }
 }
 
-void SetupUI::InventorySelection () {
-    int y = ui_init_y_;
-    int x = ui_init_x_;
-
-    mvwaddstr(main_, y++, x,
-              "Trading Post (Use $ to buy supplies, 0 to go to categories)");
-
-    std::stringstream row;
-
-    int i = 1;
-
-    if ( trading_post_view_ == TradingPostCategory::ALL ) {
-        mvwaddstr(main_, y++, x, "Categories:");
-
-        for ( auto &c : items_for_sale_ ) {
-            row << i << ": " << c.first.c_str();
-            mvwaddstr(main_, y++, x, row.str().c_str());
-            row.str("");
-
-            ++i;
-        }
-        return;
-    }
-
-    i = 0;
-
-    mvwaddstr(main_, y++, x, current_category_.c_str());
-    mvwaddstr(main_, y, x + 4, "Item");
-    mvwaddstr(main_, y, x + 28, "Available");
-    mvwaddstr(main_, y, x + 39, "Weight");
-    mvwaddstr(main_, y, x + 46, "Cost");
-
-    ++y;
-
-    for ( auto &item : *items_for_sale_[current_category_] ) {
-        if ( current_selected_item_ == i ) {
-            row << "> ";
-        } else {
-            row << "  ";
-        }
-
-        row << i << ":\t" << item->GetName();
-        mvwaddstr(main_, y, x - 2, row.str().c_str());
-        row.str("");
-
-        row << item->GetQuantity();
-        mvwaddstr(main_, y, x + 28, row.str().c_str());
-        row.str("");
-
-        row << item->GetWeight();
-        mvwaddstr(main_, y, x + 39, row.str().c_str());
-        row.str("");
-
-        row << item->GetCost();
-        mvwaddstr(main_, y, x + 46, row.str().c_str());
-        row.str("");
-
-        ++y;
-        ++i;
-    }
-
-}
-
 bool SetupUI::IsFinished () {
     return state_ == SetupState::DONE;
-}
-
-std::string SetupUI::GetCategoryStr ( TradingPostCategory category ) {
-    switch ( category ) {
-        case TradingPostCategory::ALL:
-            return "";
-        case TradingPostCategory::TOOLS:
-            return "Tools";
-        case TradingPostCategory::SPARE_PARTS:
-            return "Spare parts";
-        case TradingPostCategory::FUEL:
-            return "Fuel";
-        case TradingPostCategory::WEAPONS:
-            return "Weapons";
-        case TradingPostCategory::FOOD:
-            return "Food";
-        case TradingPostCategory::SUPPLIES:
-            return "Supplies";
-        case TradingPostCategory::INFRASTRUCTURE:
-            return "Infrastructure";
-    }
 }
 
 }

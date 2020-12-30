@@ -34,11 +34,11 @@ class ItemSource {
 
     void operator= ( ItemSource const & ) = delete;
 
-    cat_vec_t GetCategories () {
+    cat_vec_t GetCategories ( const std::string &source ) {
         cat_vec_t result = std::make_unique< std::vector< std::string>>();
 
         logger_->debug("Getting category children");
-        pt::ptree t = items_.get_child("categories");
+        pt::ptree t = items_.get_child(source + ".categories");
         logger_->debug("Got category children");
         result->reserve(t.size());
 
@@ -52,10 +52,11 @@ class ItemSource {
     }
 
 
-    items_vector_ptr_t GetItems ( const std::string &category ) {
+    items_vector_ptr_t
+    GetItems ( const std::string &source, const std::string &category ) {
         items_vector_ptr_t vec = std::make_unique< std::vector< std::shared_ptr< Item>> >();
 
-        pt::ptree t = items_.get_child(category);
+        pt::ptree t = items_.get_child(source + "." + category);
         vec->reserve(t.size());
 
         std::string name;
