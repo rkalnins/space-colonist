@@ -83,7 +83,26 @@ void RunningUI::ProcessInput () {
         case RunningState::DEPARTING:
             break;
         case RunningState::FLYING: {
-            if ( c == 32 ) { Pause(); }
+            switch ( c ) {
+                case 32:
+                    Pause();
+                    break;
+                case 't':
+                    Store();
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case RunningState::STORE: {
+            switch ( c ) {
+                case 't':
+                    ExitStore();
+                    break;
+                default:
+                    break;
+            }
             break;
         }
         case RunningState::PAUSED: {
@@ -190,6 +209,25 @@ void RunningUI::ProcessInput () {
     }
 }
 
+void RunningUI::Pause () {
+    running_state_ = RunningState::PAUSED;
+    menu_options_  = MenuOptions::MAIN;
+    spaceship_->Pause();
+    logger_->debug("Pausing");
+}
+
+void RunningUI::Store () {
+    running_state_ = RunningState::STORE;
+    spaceship_->Pause();
+    logger_->debug("Store");
+}
+
+void RunningUI::ExitStore () {
+    running_state_ = RunningState::FLYING;
+    spaceship_->Unpause();
+    logger_->debug("Exiting store");
+}
+
 void RunningUI::Unpause () {
     spaceship_->Unpause();
     if ( situation_manager_->IsSituation()) {
@@ -234,7 +272,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
             }
             break;
         }
-        case RunningState::FLYING:
+        case RunningState::FLYING: {
             if ( situation_manager_->CheckNewSituation()) {
                 running_state_ = RunningState::SITUATION;
                 logger_->debug("New situation");
@@ -247,14 +285,19 @@ GameState RunningUI::OnLoop ( GameState state ) {
             StandardLoopUpdate();
 
             break;
-        case RunningState::PAUSED:
+        }
+        case RunningState::STORE: {
+            break;
+        }
+        case RunningState::PAUSED: {
             pause_menu_->OnLoop(menu_options_,
                                 situation_manager_->GetSituationType(),
                                 situation_manager_->GetIgnoredFailures());
 
             spaceship_handler_->PrintSpaceship(main_);
             break;
-        case RunningState::SITUATION:
+        }
+        case RunningState::SITUATION: {
             if ( situation_manager_->UpdateSituation()) {
                 running_state_ = RunningState::FLYING;
             } else {
@@ -263,6 +306,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
 
             spaceship_handler_->PrintSpaceship(main_);
             break;
+        }
     }
 
     if ( running_state_ != RunningState::PAUSED &&
@@ -379,13 +423,6 @@ void RunningUI::UpdateCrewFood () {
     }
 
     spaceship_->RemoveDeadCrew();
-}
-
-void RunningUI::Pause () {
-    running_state_ = RunningState::PAUSED;
-    menu_options_  = MenuOptions::MAIN;
-    spaceship_->Pause();
-    logger_->debug("Pausing");
 }
 
 void RunningUI::MoveFlyingObject () {

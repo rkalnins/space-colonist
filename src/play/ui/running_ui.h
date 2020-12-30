@@ -28,6 +28,7 @@ enum class RunningState {
     FLYING,
     PAUSED,
     SITUATION,
+    STORE,
 };
 
 
@@ -58,6 +59,10 @@ class RunningUI : public Task {
     void UpdateCrewFood ();
 
     void Pause ();
+
+    void Store ();
+
+    void ExitStore ();
 
     bool UpdateVelocity ( Velocity new_velocity );
 

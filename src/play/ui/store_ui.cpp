@@ -2,17 +2,17 @@
 // Created by Roberts Kalnins on 29/12/2020.
 //
 
-#include "inventory_ui.h"
+#include "store_ui.h"
 
 #include <utility>
 
 
 namespace sc::play {
 
-InventoryUI::InventoryUI ( WINDOW *main, const std::string &source,
-                           shared_spaceship_t spaceship,
-                           shared_input_listener_t listener,
-                           shared_spaceship_handler_t spaceship_handler )
+StoreUI::StoreUI ( WINDOW *main, const std::string &source,
+                   shared_spaceship_t spaceship,
+                   shared_input_listener_t listener,
+                   shared_spaceship_handler_t spaceship_handler )
         : main_(main), source_(source),
           spaceship_(std::move(spaceship)),
           listener_(std::move(listener)),
@@ -38,7 +38,7 @@ InventoryUI::InventoryUI ( WINDOW *main, const std::string &source,
     logger_->debug("Created inventory selection");
 }
 
-void InventoryUI::OnLoop () {
+void StoreUI::OnLoop () {
 
     if ( !spaceship_ ) {
         spaceship_ = spaceship_handler_->GetSpaceship();
@@ -50,8 +50,10 @@ void InventoryUI::OnLoop () {
     ShowInventoryInterface();
 }
 
-void InventoryUI::ProcessInput () {
-    switch ( listener_->GetCh()) {
+void StoreUI::ProcessInput () {
+
+    int ch = listener_->GetCh();
+    switch ( ch ) {
         case KEY_DOWN: {
             current_selected_item_ = std::min(
                     current_selected_item_ + 1,
@@ -66,8 +68,8 @@ void InventoryUI::ProcessInput () {
             break;
         }
         case 'a': {
-            if ( trading_post_view_ ==
-                 TradingPostCategory::ALL ) { break; }
+            if ( store_view_ ==
+                 StoreCategory::ALL ) { break; }
 
             Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
             if ( item.GetQuantity() < 10 ) { break; }
@@ -81,8 +83,8 @@ void InventoryUI::ProcessInput () {
             break;
         }
         case KEY_RIGHT: {
-            if ( trading_post_view_ ==
-                 TradingPostCategory::ALL ) { break; }
+            if ( store_view_ ==
+                 StoreCategory::ALL ) { break; }
 
             Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
             if ( item.GetQuantity() < 1 ) { break; }
@@ -96,8 +98,8 @@ void InventoryUI::ProcessInput () {
             break;
         }
         case 'b': {
-            if ( trading_post_view_ ==
-                 TradingPostCategory::ALL ) { break; }
+            if ( store_view_ ==
+                 StoreCategory::ALL ) { break; }
             Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
             item.SetQuantity(10);
             bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
@@ -109,8 +111,8 @@ void InventoryUI::ProcessInput () {
             break;
         }
         case KEY_LEFT: {
-            if ( trading_post_view_ ==
-                 TradingPostCategory::ALL ) { break; }
+            if ( store_view_ ==
+                 StoreCategory::ALL ) { break; }
             Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
             item.SetQuantity(1);
             bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
@@ -122,64 +124,32 @@ void InventoryUI::ProcessInput () {
             break;
         }
         case '0': {
-            trading_post_view_     = TradingPostCategory::ALL;
+            store_view_            = StoreCategory::ALL;
             current_selected_item_ = 0;
             break;
         }
-        case '1': {
-            trading_post_view_     = TradingPostCategory::FOOD;
-            current_category_      = GetCategoryStr(
-                    trading_post_view_);
-            current_selected_item_ = 0;
-            break;
-        }
-        case '2': {
-            trading_post_view_     = TradingPostCategory::FUEL;
-            current_category_      = GetCategoryStr(
-                    trading_post_view_);
-            current_selected_item_ = 0;
-            break;
-        }
-        case '3': {
-            trading_post_view_     = TradingPostCategory::INFRASTRUCTURE;
-            current_category_      = GetCategoryStr(
-                    trading_post_view_);
-            current_selected_item_ = 0;
-            break;
-        }
-        case '4': {
-            trading_post_view_     = TradingPostCategory::SPARE_PARTS;
-            current_category_      = GetCategoryStr(
-                    trading_post_view_);
-            current_selected_item_ = 0;
-            break;
-        }
-        case '5': {
-            trading_post_view_     = TradingPostCategory::SUPPLIES;
-            current_category_      = GetCategoryStr(
-                    trading_post_view_);
-            current_selected_item_ = 0;
-            break;
-        }
-        case '6': {
-            trading_post_view_     = TradingPostCategory::TOOLS;
-            current_category_      = GetCategoryStr(
-                    trading_post_view_);
-            current_selected_item_ = 0;
-            break;
-        }
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
         case '7': {
-            trading_post_view_     = TradingPostCategory::WEAPONS;
-            current_category_      = GetCategoryStr(
-                    trading_post_view_);
+            auto it = items_for_sale_.begin();
+            std::advance(it, ch - '1');
+
+            store_view_            = GetCategory(it->first);
+            current_category_      = GetCategoryStr(store_view_);
             current_selected_item_ = 0;
+            break;
         }
+        default:
             break;
     }
 }
 
 
-void InventoryUI::ShowInventoryInterface () {
+void StoreUI::ShowInventoryInterface () {
     int y = ui_init_y_;
     int x = ui_init_x_;
 
@@ -190,7 +160,7 @@ void InventoryUI::ShowInventoryInterface () {
 
     int i = 1;
 
-    if ( trading_post_view_ == TradingPostCategory::ALL ) {
+    if ( store_view_ == StoreCategory::ALL ) {
         mvwaddstr(main_, y++, x, "Categories:");
 
         for ( auto &c : items_for_sale_ ) {
@@ -243,24 +213,46 @@ void InventoryUI::ShowInventoryInterface () {
 }
 
 
-std::string InventoryUI::GetCategoryStr ( TradingPostCategory category ) {
+std::string StoreUI::GetCategoryStr ( StoreCategory category ) {
     switch ( category ) {
-        case TradingPostCategory::ALL:
+        case StoreCategory::ALL:
             return "";
-        case TradingPostCategory::TOOLS:
+        case StoreCategory::TOOLS:
             return "Tools";
-        case TradingPostCategory::SPARE_PARTS:
+        case StoreCategory::SPARE_PARTS:
             return "Spare parts";
-        case TradingPostCategory::FUEL:
+        case StoreCategory::FUEL:
             return "Fuel";
-        case TradingPostCategory::WEAPONS:
+        case StoreCategory::WEAPONS:
             return "Weapons";
-        case TradingPostCategory::FOOD:
+        case StoreCategory::FOOD:
             return "Food";
-        case TradingPostCategory::SUPPLIES:
+        case StoreCategory::SUPPLIES:
             return "Supplies";
-        case TradingPostCategory::INFRASTRUCTURE:
+        case StoreCategory::INFRASTRUCTURE:
             return "Infrastructure";
+    }
+}
+
+StoreCategory StoreUI::GetCategory ( const std::string &category ) {
+    if ( category.empty()) {
+        return StoreCategory::ALL;
+    } else if ( category == "Tools" ) {
+        return StoreCategory::TOOLS;
+    } else if ( category == "Spare parts" ) {
+        return StoreCategory::SPARE_PARTS;
+    } else if ( category == "Fuel" ) {
+        return StoreCategory::FUEL;
+    } else if ( category == "Weapons" ) {
+        return StoreCategory::WEAPONS;
+    } else if ( category == "Food" ) {
+        return StoreCategory::FOOD;
+    } else if ( category == "Supplies" ) {
+        return StoreCategory::SUPPLIES;
+    } else if ( category == "Infrastructure" ) {
+        return StoreCategory::INFRASTRUCTURE;
+    } else {
+        return StoreCategory::ALL;
     }
 }
 

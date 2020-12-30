@@ -30,7 +30,7 @@ class SituationSource {
     void operator= ( SituationSource const & ) = delete;
 
     template < typename T >
-    const T GetValue ( const std::string &path, T default_value ) {
+    T GetValue ( const std::string &path, T default_value ) {
         auto res = situation_tree_.get< T >(path, default_value);
 
         logger_->debug("{}: {}", path, res);

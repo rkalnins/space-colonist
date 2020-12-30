@@ -20,7 +20,7 @@
 #include "../space_map.h"
 #include "../nav_control_manager.h"
 #include "../../config/item_source.h"
-#include "inventory_ui.h"
+#include "store_ui.h"
 
 
 namespace sc::play {
@@ -87,7 +87,7 @@ class SetupUI : public Task {
 
     SetupState state_ { SetupState::SPACESHIP_SETUP };
 
-    InventoryUI inventory_ui_;
+    StoreUI inventory_ui_;
 
     int ui_init_y_;
     int ui_init_x_;

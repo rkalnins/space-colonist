@@ -13,7 +13,7 @@
 
 namespace sc::play {
 
-enum class TradingPostCategory {
+enum class StoreCategory {
     ALL,
     TOOLS,
     SPARE_PARTS,
@@ -25,18 +25,20 @@ enum class TradingPostCategory {
 };
 
 
-class InventoryUI {
+class StoreUI {
 
   public:
-    InventoryUI ( WINDOW *main, const std::string &source,
-                  shared_spaceship_t spaceship,
-                  shared_input_listener_t listener,
-                  shared_spaceship_handler_t spaceship_handler );
+    StoreUI ( WINDOW *main, const std::string &source,
+              shared_spaceship_t spaceship,
+              shared_input_listener_t listener,
+              shared_spaceship_handler_t spaceship_handler );
 
     void OnLoop ();
 
   private:
-    static std::string GetCategoryStr ( TradingPostCategory category );
+    static std::string GetCategoryStr ( StoreCategory category );
+
+    static StoreCategory GetCategory ( const std::string &category );
 
     void ProcessInput ();
 
@@ -50,7 +52,7 @@ class InventoryUI {
     shared_input_listener_t    listener_;
     shared_spaceship_handler_t spaceship_handler_;
 
-    TradingPostCategory trading_post_view_ { TradingPostCategory::ALL };
+    StoreCategory store_view_ { StoreCategory::ALL };
 
     std::string current_category_;
     int         current_selected_item_ {};
