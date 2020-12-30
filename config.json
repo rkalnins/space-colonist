@@ -66,6 +66,7 @@
       "init-x": 80
     },
     "spaceship-factory": {
+      "max-burn-time": 240,
       "max-weight": [
         1500,
         1500

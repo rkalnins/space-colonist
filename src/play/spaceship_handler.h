@@ -48,6 +48,10 @@ class SpaceshipHandler {
 
     void BoundSpaceshipPosition ();
 
+    void StartFlip ();
+
+    void Burn ();
+
   private:
 
     logger_t logger_;
@@ -67,6 +71,10 @@ class SpaceshipHandler {
     int    ss_pos_x_;
     int    departure_cycle { 0 };
     double departure_speed = 1.0 / 15.0;
+
+    bool start_flip_ { false };
+
+    bool burn_ { false };
 };
 
 

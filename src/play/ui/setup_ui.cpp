@@ -449,8 +449,7 @@ void SetupUI::SpaceshipSelection () {
         mvwaddstr(main_, y, x, disp.str().c_str());
         disp.str("");
 
-        spaceship_factory_->PrintSpaceship(main_, y - 1, x + 70,
-                                           s->GetAppearanceCode());
+        // print spaceship here
 
         mvwaddstr(main_, y + 3, x,
                   "-----------------------------------------------------------------------------------------");

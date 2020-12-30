@@ -62,9 +62,24 @@ SpaceshipHandler::SetCrew ( const std::vector< CrewMember > &crew_choices,
     }
 }
 
+void SpaceshipHandler::StartFlip () {
+    start_flip_ = true;
+}
+
+void SpaceshipHandler::Burn () {
+    burn_ = true;
+}
+
 void SpaceshipHandler::PrintSpaceship ( WINDOW *main ) {
-    spaceship_factory_->PrintSpaceship(main, ss_pos_y_, ss_pos_x_,
-                                       spaceship_->GetAppearanceCode());
+
+    spaceship_factory_->PrintSpaceship(main, ss_pos_y_,
+                                       ss_pos_x_,
+                                       start_flip_,
+                                       !spaceship_->IsPaused(),
+                                       burn_);
+
+    burn_       = false;
+    start_flip_ = false;
 }
 
 void SpaceshipHandler::BoundSpaceshipPosition () {
@@ -106,7 +121,7 @@ bool SpaceshipHandler::PrintDeparture ( WINDOW *main ) {
             departure_cycle++ * departure_speed));
 
     spaceship_factory_->PrintSpaceship(main, ss_pos_y_, ss_pos_x_,
-                                       spaceship_->GetAppearanceCode());
+                                       false, false, false);
 
     return ret;
 }

@@ -83,6 +83,8 @@ class NavigationControlManager : public Task {
     double initial_distance_ { 0 };
     double distance_traveled_ { 0 };
     double velocity_ { 0 };
+
+    bool reversed { false };
 };
 
 

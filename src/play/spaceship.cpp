@@ -28,6 +28,7 @@ void Spaceship::SpaceshipInitConfig ( double max_weight, double full_fuel,
     max_weight_ = max_weight;
     full_fuel_  = full_fuel;
     full_hull_  = full_hull;
+    hull_       = full_hull;
     max_crew_   = max_crew;
     money_      = init_money;
     cost_       = cost;

@@ -107,6 +107,22 @@ void NavigationControlManager::SetVelocity ( Velocity velocity ) {
         return;
     }
 
+    if ( !reversed && temp_vel < velocity_ ) {
+        logger_->debug("Flipping to burn to slow down");
+        spaceship_handler_->StartFlip();
+        reversed = true;
+    }
+
+    if ( reversed && temp_vel > velocity_ ) {
+        logger_->debug("Flipping to burn to speed up");
+        spaceship_handler_->StartFlip();
+        reversed = false;
+    }
+
+    if ( velocity != velocity_state_ ) {
+        spaceship_handler_->Burn();
+    }
+
 
     velocity_state_ = velocity;
     velocity_       = temp_vel;
