@@ -10,8 +10,6 @@
 #include <queue>
 #include <sstream>
 
-#include "../../config/config.h"
-
 
 namespace sc::play {
 
@@ -57,6 +55,53 @@ RunningUI::RunningUI ( const std::string &name, TaskType taskType,
                                           0);
     ss_filling_rations_ = config.GetValue("running-ui.ss-filling-rations",
                                           0);
+
+    pause_tasks_[MenuOptions::MAIN].emplace('1', [this] {
+        if ( !situation_manager_->IsEngineFailure()) {
+            menu_options_ = MenuOptions::VELOCITY_CHANGE;
+        }
+    });
+    pause_tasks_[MenuOptions::MAIN].emplace('2',
+                                            [this] { menu_options_ = MenuOptions::RATION_CHANGE; });
+    pause_tasks_[MenuOptions::MAIN].emplace('3',
+                                            [this] { nav_manager_->TogglePowerMode(); });
+    pause_tasks_[MenuOptions::MAIN].emplace('4', [this] {
+        if ( situation_manager_->CanFixMinorIgnoredIssue()) {
+            running_state_ = RunningState::FLYING;
+        }
+    });
+
+    pause_tasks_[MenuOptions::VELOCITY_CHANGE].emplace('1', [this] {
+        UpdateVelocity(Velocity::STOP);
+    });
+    pause_tasks_[MenuOptions::VELOCITY_CHANGE].emplace('2', [this] {
+        UpdateVelocity(Velocity::SLOW);
+    });
+    pause_tasks_[MenuOptions::VELOCITY_CHANGE].emplace('3', [this] {
+        UpdateVelocity(Velocity::MODERATE);
+    });
+    pause_tasks_[MenuOptions::VELOCITY_CHANGE].emplace('4', [this] {
+        UpdateVelocity(Velocity::FAST);
+    });
+    pause_tasks_[MenuOptions::VELOCITY_CHANGE].emplace('5', [this] {
+        UpdateVelocity(Velocity::DANGEROUS);
+    });
+
+    pause_tasks_[MenuOptions::RATION_CHANGE].emplace('1', [this] {
+        ss_food_usage_period_ = ss_half_rations_;
+        rations_              = "Half";
+        menu_options_         = MenuOptions::MAIN;
+    });
+    pause_tasks_[MenuOptions::RATION_CHANGE].emplace('2', [this] {
+        ss_food_usage_period_ = ss_normal_rations_;
+        rations_              = "Normal";
+        menu_options_         = MenuOptions::MAIN;
+    });
+    pause_tasks_[MenuOptions::RATION_CHANGE].emplace('3', [this] {
+        ss_food_usage_period_ = ss_filling_rations_;
+        rations_              = "Filling";
+        menu_options_         = MenuOptions::MAIN;
+    });
 }
 
 void RunningUI::Init () {
@@ -110,92 +155,21 @@ void RunningUI::ProcessInput () {
                 case 32:
                     Unpause();
                     break;
-                case '1': {
-                    switch ( menu_options_ ) {
-                        case MenuOptions::MAIN:
-                            if ( !situation_manager_->IsEngineFailure()) {
-                                menu_options_ = MenuOptions::VELOCITY_CHANGE;
-                            }
-                            break;
-                        case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(Velocity::STOP);
-                            break;
-                        case MenuOptions::RATION_CHANGE:
-                            ss_food_usage_period_ = ss_half_rations_;
-                            rations_              = "Half";
-                            menu_options_         = MenuOptions::MAIN;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                case '2': {
-                    switch ( menu_options_ ) {
-                        case MenuOptions::MAIN:
-                            menu_options_ = MenuOptions::RATION_CHANGE;
-                            break;
-                        case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(Velocity::SLOW);
-                            break;
-                        case MenuOptions::RATION_CHANGE:
-                            ss_food_usage_period_ = ss_normal_rations_;
-                            rations_              = "Normal";
-                            menu_options_         = MenuOptions::MAIN;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                case '3': {
-                    switch ( menu_options_ ) {
-                        case MenuOptions::MAIN:
-                            nav_manager_->TogglePowerMode();
-                            break;
-                        case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(Velocity::MODERATE);
-                            break;
-                        case MenuOptions::RATION_CHANGE:
-                            ss_food_usage_period_ = ss_filling_rations_;
-                            rations_              = "Filling";
-                            menu_options_         = MenuOptions::MAIN;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                case '4': {
-                    switch ( menu_options_ ) {
-                        case MenuOptions::MAIN: {
-
-                            if ( situation_manager_->CanFixMinorIgnoredIssue()) {
-                                running_state_ = RunningState::FLYING;
-                            }
-                            break;
-                        }
-                        case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(Velocity::FAST);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
+                case '1':
+                case '2':
+                case '3':
+                case '4':
                 case '5': {
-                    switch ( menu_options_ ) {
-                        case MenuOptions::VELOCITY_CHANGE:
-                            UpdateVelocity(Velocity::DANGEROUS);
-                            break;
-                        default:
-                            break;
+                    auto f_it = pause_tasks_[menu_options_].find(c);
+                    if ( f_it != pause_tasks_[menu_options_].end()) {
+                        f_it->second();
                     }
                     break;
                 }
                 default:
                     break;
             }
+
             break;
         }
         case RunningState::SITUATION: {

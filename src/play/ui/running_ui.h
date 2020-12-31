@@ -31,6 +31,8 @@ enum class RunningState {
     STORE,
 };
 
+using pause_menu_tasks_t = std::map< MenuOptions, std::map< int, std::function< void ()>> >;
+
 
 class RunningUI : public Task {
 
@@ -73,6 +75,8 @@ class RunningUI : public Task {
     void Unpause ();
 
   private:
+
+    pause_menu_tasks_t pause_tasks_;
 
     logger_t logger_;
 
