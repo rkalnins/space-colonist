@@ -19,7 +19,8 @@ using Random = effolkronium::random_static;
 Situation::Situation ( shared_spaceship_t spaceship,
                        std::shared_ptr< PauseMenu > pause_menu )
         : spaceship_(std::move(spaceship)),
-          pause_menu_(std::move(pause_menu)), logger_(CreateLogger("situation")) {
+          pause_menu_(std::move(pause_menu)),
+          logger_(CreateLogger("situation")) {
 
     SituationSource &source = SituationSource::GetInstance();
 

@@ -90,7 +90,7 @@ class SituationManager {
     };
 
     std::vector< std::string > sitrep_options_;
-    std::vector< bool > sitrep_options_used_;
+    std::vector< bool >        sitrep_options_used_;
 
     std::queue< std::shared_ptr< Situation > > situations_;
 

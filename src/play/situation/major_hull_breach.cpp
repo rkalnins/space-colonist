@@ -50,7 +50,7 @@ MajorHullBreach::MajorHullBreach ( shared_spaceship_t spaceship,
         is_crew_escaped_ = Random::get< bool >(1.0 - stuck_p);
     }
 
-    if (is_crew_escaped_) {
+    if ( is_crew_escaped_ ) {
         pause_menu_->PushNotification(
                 "Hull breach: Zone is clear of crew members. Ready to seal");
     } else {

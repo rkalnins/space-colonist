@@ -317,7 +317,7 @@ GameState RunningUI::OnLoop ( GameState state ) {
          pause_menu_->HasNotifications()) {
         Pause();
         return GameState::RUNNING; // clear queue before exiting
-    } else if (running_state_ == RunningState::PAUSED) {
+    } else if ( running_state_ == RunningState::PAUSED ) {
         return GameState::RUNNING;
     }
 

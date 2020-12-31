@@ -29,7 +29,7 @@ class MajorHullBreach : public MajorSituation {
 
     double unsealed_fix_death_p_;
 
-    int crew_escape_time_;
+    int  crew_escape_time_;
     bool is_crew_escaped_;
     bool update_health_ { false };
     bool is_breach_open_ { true };

@@ -51,7 +51,7 @@ class Situation {
     [[nodiscard]] const std::unique_ptr< const std::string > &
     GetIssue () const;
 
-    std::string GetSitrepText();
+    std::string GetSitrepText ();
 
   protected:
 
@@ -61,7 +61,7 @@ class Situation {
 
     virtual void SituationCycleOverride ();
 
-    std::string KillRandomCrew();
+    std::string KillRandomCrew ();
 
   protected:
     logger_t logger_;
