@@ -153,25 +153,42 @@ std::string Situation::KillRandomCrew () {
     return name;
 }
 
-void Situation::UseMenuOption ( int option ) {
+menu_tasks_t &Situation::GetMenuTasks () {
+    return menu_tasks_;
+}
 
+void Situation::UseMenuOption ( int option ) {
     logger_->debug("Using menu option {}", option);
     if ( option >= menu_tasks_.size() || option < 0 ) { return; }
 
-    OptionComparator cmp(option);
+    OptionIdComparator cmp(option);
+    UseMenuOptionCmp(cmp);
 
-    menu_tasks_.erase(
-            std::remove_if(menu_tasks_.begin(), menu_tasks_.end(), cmp),
-            menu_tasks_.end());
-    int       index = 0;
-    for ( int i     = 1; i <= menu_tasks_.size(); ++i ) {
+}
+
+void Situation::UseMenuOption ( const std::string &action ) {
+    logger_->debug("Using menu option {}", action);
+
+    OptionNameComparator cmp(action);
+    UseMenuOptionCmp(cmp);
+}
+
+template < typename Comparator >
+void Situation::UseMenuOptionCmp ( Comparator &cmp ) {
+    auto remove_it = std::remove_if(menu_tasks_.begin(), menu_tasks_.end(),
+                                    cmp);
+    if ( remove_it != menu_tasks_.end()) {
+        logger_->debug("Found option");
+    }
+
+    menu_tasks_.erase(remove_it, menu_tasks_.end());
+
+    int index = 0;
+
+    for ( int i = 1; i <= menu_tasks_.size(); ++i ) {
         logger_->debug("Option {} is now {}", menu_tasks_[index].id, i);
         menu_tasks_[index++].id = i;
     }
-}
-
-menu_tasks_t &Situation::GetMenuTasks () {
-    return menu_tasks_;
 }
 
 }

@@ -50,14 +50,6 @@ MajorHullBreach::MajorHullBreach ( shared_spaceship_t spaceship,
         is_crew_escaped_ = Random::get< bool >(1.0 - stuck_p);
     }
 
-    if ( is_crew_escaped_ ) {
-        pause_menu_->PushNotification(
-                "Hull breach: Zone is clear of crew members. Ready to seal");
-    } else {
-        pause_menu_->PushNotification(
-                "Hull breach: Zone is not clear of crew members.");
-    }
-
     timer_text_ = SituationSource::GetInstance().GetValue< std::string >(
             "major.hull.timer-text", "");
 
@@ -73,6 +65,16 @@ MajorHullBreach::MajorHullBreach ( shared_spaceship_t spaceship,
                              "Sealed breach", 2);
     menu_tasks_.emplace_back([this] { StartFix(); }, sitrep_options_[2],
                              "Fixing", 3);
+
+    if ( is_crew_escaped_ ) {
+        pause_menu_->PushNotification(
+                "Hull breach: Zone is clear of crew members. Ready to seal");
+        UseMenuOption("Waiting for crew to escape");
+
+    } else {
+        pause_menu_->PushNotification(
+                "Hull breach: Zone is not clear of crew members.");
+    }
 }
 
 void MajorHullBreach::SituationCycleOverride () {
@@ -127,6 +129,9 @@ void MajorHullBreach::SealBreach () {
         pause_menu_->PushNotification(KillRandomCrew() +
                                       " died after getting sealed in the breach zone");
     }
+
+    UseMenuOption("Waiting for crew to escape");
+    UseMenuOption("Sealed breach");
 }
 
 

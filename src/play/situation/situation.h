@@ -76,9 +76,14 @@ class Situation {
 
     void UseMenuOption ( int option );
 
+    void UseMenuOption ( const std::string &action );
+
     [[nodiscard]] menu_tasks_t &GetMenuTasks ();
 
   protected:
+
+    template < typename Comparator >
+    void UseMenuOptionCmp ( Comparator &cmp );
 
     bool UseGenericSpareParts ();
 
@@ -89,18 +94,32 @@ class Situation {
     std::string KillRandomCrew ();
 
 
-    class OptionComparator {
+    class OptionIdComparator {
       public:
-        explicit OptionComparator ( int option ) : option_(option) {
+        explicit OptionIdComparator ( int option ) : option_(option) {
         }
 
-        bool operator() (
-                const MenuTask &other ) const {
+        bool operator() ( const MenuTask &other ) const {
             return option_ == other.id;
         }
 
       private:
         int option_;
+    };
+
+
+    class OptionNameComparator {
+      public:
+        explicit OptionNameComparator ( const std::string &task ) : task_(
+                task) {
+        }
+
+        bool operator() ( const MenuTask &other ) const {
+            return task_ == other.current_action;
+        }
+
+      private:
+        const std::string &task_;
     };
 
 
