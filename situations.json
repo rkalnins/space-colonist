@@ -6,7 +6,7 @@
   },
   "major": {
     "fix-p": 0.003,
-    "failure-p": 0.0001,
+    "failure-p": 0.01,
     "spares": {
       "components": [
         2,
@@ -24,7 +24,7 @@
       "timer-text": " before poisoning begins",
       "health-update-text": "Crew is dying of poisoned air",
       "options": [
-        "1. Attempt fix"
+        "Attempt fix"
       ],
       "failures": [
         "Air filter pump failed. Cannot recycle Oxygen.",
@@ -44,9 +44,9 @@
         10
       ],
       "options": [
-        "1. Immediately seal off compartments",
-        "2. Wait for crew to escape",
-        "3. Start fix (hint: seal compartments first)"
+        "Wait for crew to escape",
+        "Immediately seal off compartments",
+        "Start fix (hint: seal compartments first)"
       ],
       "failures": [
         "Major hull breach."
@@ -54,7 +54,7 @@
     },
     "standard-engine": {
       "options": [
-        "1. Attempt fix"
+        "Attempt fix"
       ],
       "failures": [
         "Engine coolant system failed. Cannot fire engines.",
@@ -67,11 +67,11 @@
     }
   },
   "minor": {
-    "failure-p": 0.0005,
+    "failure-p": 0.005,
     "fix-p": 0.008,
     "options": [
-      "1. Ignore",
-      "2. Attempt fix"
+      "Ignore",
+      "Attempt fix"
     ],
     "failures": [
       "Toilet control shorting out",

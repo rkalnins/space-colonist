@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 #include "situation_type.h"
 #include "../ui/pause_menu.h"
@@ -23,10 +24,30 @@ enum class SituationState {
 };
 
 
+struct MenuTask {
+    MenuTask ( std::function< void () > task,
+               std::string message,
+               std::string current_action, int id )
+            : task(std::move(task)),
+              message(std::move(message)),
+              current_action(std::move(current_action)),
+              id(id) {}
+
+    std::function< void () > task;
+    std::string              message;
+    std::string              current_action;
+    int                      id;
+};
+
+
+using menu_tasks_t = std::vector< MenuTask >;
+
+
 class Situation {
   public:
     Situation ( shared_spaceship_t spaceship,
-                std::shared_ptr< PauseMenu > pause_menu );
+                std::shared_ptr< PauseMenu > pause_menu,
+                SituationType type );
 
     void SituationCycle ();
 
@@ -53,6 +74,10 @@ class Situation {
 
     std::string GetSitrepText ();
 
+    void UseMenuOption ( int option );
+
+    [[nodiscard]] menu_tasks_t &GetMenuTasks ();
+
   protected:
 
     bool UseGenericSpareParts ();
@@ -63,11 +88,29 @@ class Situation {
 
     std::string KillRandomCrew ();
 
+
+    class OptionComparator {
+      public:
+        explicit OptionComparator ( int option ) : option_(option) {
+        }
+
+        bool operator() (
+                const MenuTask &other ) const {
+            return option_ == other.id;
+        }
+
+      private:
+        int option_;
+    };
+
+
   protected:
     logger_t logger_;
 
     shared_spaceship_t           spaceship_ { nullptr };
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
+
+    menu_tasks_t menu_tasks_;
 
     std::unique_ptr< const std::string > issue_ { nullptr };
 

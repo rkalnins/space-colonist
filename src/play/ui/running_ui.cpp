@@ -265,16 +265,16 @@ GameState RunningUI::OnLoop ( GameState state ) {
     switch ( running_state_ ) {
         case RunningState::DEPARTING: {
 
+            running_state_ = RunningState::FLYING;
+            spaceship_->Unpause(); // sets state correctly
+            break;
+
+//            if ( spaceship_handler_->PrintDeparture(main_)) {
+//                logger_->debug("Done departing");
 //                running_state_ = RunningState::FLYING;
 //                spaceship_->Unpause(); // sets state correctly
-//                break;
-
-            if ( spaceship_handler_->PrintDeparture(main_)) {
-                logger_->debug("Done departing");
-                running_state_ = RunningState::FLYING;
-                spaceship_->Unpause(); // sets state correctly
-            }
-            break;
+//            }
+//            break;
         }
         case RunningState::FLYING: {
             if ( situation_manager_->CheckNewSituation()) {

@@ -16,7 +16,8 @@ using Random = effolkronium::random_static;
 
 MajorHullBreach::MajorHullBreach ( shared_spaceship_t spaceship,
                                    std::shared_ptr< PauseMenu > pause_menu )
-        : MajorSituation(std::move(spaceship), std::move(pause_menu)) {
+        : MajorSituation(std::move(spaceship), std::move(pause_menu),
+                         SituationType::MAJOR_HULL_BREACH) {
 
     SituationSource &source = SituationSource::GetInstance();
 
@@ -25,7 +26,6 @@ MajorHullBreach::MajorHullBreach ( shared_spaceship_t spaceship,
 
     issue_         = std::make_unique< std::string >(
             *Random::get(issue_choices));
-    type_          = SituationType::MAJOR_HULL_BREACH;
     response_time_ = SituationSource::GetInstance().GetValue(
             "major.hull.response-time", 0); // sec
 
@@ -63,6 +63,16 @@ MajorHullBreach::MajorHullBreach ( shared_spaceship_t spaceship,
 
     health_update_text_ = SituationSource::GetInstance().GetValue< std::string >(
             "major.hull.health-update-text", "");
+
+    std::vector< std::string > sitrep_options_ = SituationSource::GetInstance().GetList< std::string >(
+            GetTypePath(type_) + ".options");
+
+    menu_tasks_.emplace_back([this] {}, sitrep_options_[0],
+                             "Waiting for crew to escape", 1);
+    menu_tasks_.emplace_back([this] { SealBreach(); }, sitrep_options_[1],
+                             "Sealed breach", 2);
+    menu_tasks_.emplace_back([this] { StartFix(); }, sitrep_options_[2],
+                             "Fixing", 3);
 }
 
 void MajorHullBreach::SituationCycleOverride () {
@@ -117,10 +127,6 @@ void MajorHullBreach::SealBreach () {
         pause_menu_->PushNotification(KillRandomCrew() +
                                       " died after getting sealed in the breach zone");
     }
-}
-
-bool MajorHullBreach::IsCrewEscaped () const {
-    return is_crew_escaped_;
 }
 
 

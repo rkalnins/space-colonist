@@ -15,14 +15,14 @@ using Random = effolkronium::random_static;
 AirFilterFailure::AirFilterFailure (
         shared_spaceship_t spaceship,
         std::shared_ptr< PauseMenu > pauseMenu ) : MajorSituation(
-        std::move(spaceship), std::move(pauseMenu)) {
+        std::move(spaceship), std::move(pauseMenu),
+        SituationType::AIR_FILTER_FAILURE) {
 
     static const std::vector< std::string > issue_choices = SituationSource::GetInstance().GetList< std::string >(
             "major.air-filter.failures");
 
     issue_         = std::make_unique< std::string >(
             *Random::get(issue_choices));
-    type_          = SituationType::AIR_FILTER_FAILURE;
     response_time_ = SituationSource::GetInstance().GetValue(
             "major.air-filter.response-time", 0); // sec
 
@@ -31,6 +31,12 @@ AirFilterFailure::AirFilterFailure (
 
     health_update_text_ = SituationSource::GetInstance().GetValue< std::string >(
             "major.air-filter.health-update-text", "");
+
+    std::vector< std::string > sitrep_options_ = SituationSource::GetInstance().GetList< std::string >(
+            GetTypePath(type_) + ".options");
+
+    menu_tasks_.emplace_back([this] { StartFix(); }, sitrep_options_[1],
+                             "Fixing", 1);
 }
 
 void AirFilterFailure::SituationCycleOverride () {

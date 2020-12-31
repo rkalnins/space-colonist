@@ -20,8 +20,6 @@ class MajorHullBreach : public MajorSituation {
 
     void SealBreach ();
 
-    [[nodiscard]] bool IsCrewEscaped () const;
-
   protected:
     void SituationCycleOverride () override;
 

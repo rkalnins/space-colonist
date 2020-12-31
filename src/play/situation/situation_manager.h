@@ -53,28 +53,6 @@ class SituationManager {
 
     void ShowSituationReport ();
 
-    void UseMenuOption ( int option );
-
-
-    class OptionComparator {
-      public:
-        explicit OptionComparator ( int option ) {
-            option_ = '0' + option;
-        }
-
-        bool operator() ( const std::string &other ) {
-            return option_ == other[0];
-        }
-
-        char GetOption () const {
-            return option_;
-        }
-
-      private:
-        char option_;
-    };
-
-
   private:
 
     logger_t logger_;
@@ -83,14 +61,6 @@ class SituationManager {
     shared_spaceship_t           spaceship_ { nullptr };
 
     SituationFactory situation_factory_;
-
-    std::vector< SituationType > sit_types_ {
-            SituationType::MINOR, SituationType::ENGINE_FAILURE,
-            SituationType::AIR_FILTER_FAILURE
-    };
-
-    std::vector< std::string > sitrep_options_;
-    std::vector< bool >        sitrep_options_used_;
 
     std::queue< std::shared_ptr< Situation > > situations_;
 

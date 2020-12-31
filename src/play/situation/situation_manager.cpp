@@ -6,7 +6,6 @@
 
 #include <sstream>
 #include <effolkronium/random.hpp>
-#include <utility>
 
 #include "major_hull_breach.h"
 
@@ -47,8 +46,12 @@ void SituationManager::ShowSituationReport () {
                   "---------------------------------------------");
     }
 
-    for ( auto &o : sitrep_options_ ) {
-        mvwaddstr(main_, y++, x - 12, o.c_str());
+    std::stringstream disp;
+
+    for ( auto &t : situations_.front()->GetMenuTasks()) {
+        disp << t.id << ". " << t.message;
+        mvwaddstr(main_, y++, x - 12, disp.str().c_str());
+        disp.str("");
     }
 
     y++;
@@ -79,10 +82,7 @@ bool SituationManager::CheckNewSituation () {
     if ( tmp ) {
         current_action_ = "";
         logger_->debug("Got situation");
-        sitrep_options_ = SituationSource::GetInstance().GetList< std::string >(
-                GetTypePath(tmp->GetType()) + ".options");
-        sitrep_options_used_.clear();
-        sitrep_options_used_.resize(sitrep_options_.size(), false);
+
         situations_.push(tmp);
         return true;
     }
@@ -156,90 +156,44 @@ bool SituationManager::UpdateSituation () {
 }
 
 bool SituationManager::ProcessInput ( int c ) {
-    switch ( c ) {
-        case 32:
-            pause_menu_->PushNotification("Situation in Progress");
-            break;
-        case '1': {
-            switch ( situations_.front()->GetType()) {
-                case SituationType::MINOR: {
-                    logger_->debug("Ignoring minor");
-                    ignored_minor_issues_.push(situations_.front());
 
-                    if ( !situations_.empty()) {
-                        situations_.pop();
-                    }
-                    return true;
-                }
-                case SituationType::MAJOR_HULL_BREACH: {
-
-                    if ( !sitrep_options_used_[0] ) {
-                        std::shared_ptr< MajorHullBreach > breach = std::dynamic_pointer_cast< MajorHullBreach >(
-                                situations_.front());
-
-                        breach->SealBreach();
-                        logger_->debug("Sealing breach");
-                        current_action_ = "Sealed breach";
-
-                        UseMenuOption(1);
-                        UseMenuOption(2);
-                    }
-                    break;
-                }
-                default: {
-                    logger_->debug("Starting to fix");
-                    situations_.front()->StartFix();
-                    current_action_ = "Fixing";
-                    break;
-                }
-            }
-            break;
-        }
-        case '2': {
-            switch ( situations_.front()->GetType()) {
-                case SituationType::MAJOR_HULL_BREACH: {
-                    std::shared_ptr< MajorHullBreach > breach = std::dynamic_pointer_cast< MajorHullBreach >(
-                            situations_.front());
-
-                    UseMenuOption(2);
-
-                    if ( !sitrep_options_used_[1] &&
-                         !breach->IsCrewEscaped()) {
-                        current_action_ = "Waiting for crew to escape";
-                        logger_->debug("Start waiting for crew to escape");
-                    }
-                    break;
-                }
-                default:
-                    situations_.front()->StartFix();
-                    current_action_ = "Fixing";
-                    break;
-            }
-            break;
-        }
-        case '3': {
-            switch ( situations_.front()->GetType()) {
-                case SituationType::MAJOR_HULL_BREACH: {
-                    logger_->debug("Starting to fix");
-                    situations_.front()->StartFix();
-                    current_action_ = "Fixing";
-                    UseMenuOption(1);
-                    UseMenuOption(2);
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
-        case 'y': {
-            situations_.front()->StartWaitForHelp();
-            current_action_ = "Waiting for help";
-            break;
-        }
-        default:
-            break;
+    if ( c == 32 ) {
+        pause_menu_->PushNotification("Situation in Progress");
+        return false;
     }
+
+    menu_tasks_t &menu_tasks = situations_.front()->GetMenuTasks();
+
+    int index = c - '1';
+
+    if ( 0 <= index && index < menu_tasks.size()) {
+
+        if ( menu_tasks[index].task ) {
+            logger_->debug(
+                    "Executing task {} at tasks index {} and menu index {}",
+                    menu_tasks[index].current_action, index,
+                    menu_tasks[index].id);
+            menu_tasks[index].task();
+
+            current_action_ = menu_tasks[index].current_action;
+            situations_.front()->UseMenuOption(menu_tasks[index].id);
+        } else {
+            logger_->debug("Ignoring minor");
+
+            ignored_minor_issues_.push(situations_.front());
+
+            if ( !situations_.empty()) {
+                situations_.pop();
+            }
+        }
+
+    }
+
+    if ( c == 'y' && situations_.front()->PromptForHelp()) {
+        situations_.front()->StartWaitForHelp();
+        current_action_ = "Waiting for help";
+    }
+
 
     return false;
 }
@@ -261,32 +215,6 @@ void SituationManager::UpdateHealth () {
     if ( situations_.empty()) { return; }
 
     situations_.front()->HealthUpdate();
-}
-
-void SituationManager::UseMenuOption ( int option ) {
-
-    logger_->debug("Using menu option {}", option);
-    if ( option > 8 || option < 0 ) { return; }
-
-    OptionComparator cmp(option);
-
-    logger_->debug("Searching for {}", cmp.GetOption());
-
-    auto opt_at = std::find_if(sitrep_options_.begin(),
-                               sitrep_options_.end(), cmp);
-
-
-    if ( opt_at != sitrep_options_.end()) {
-        int i = std::distance(sitrep_options_.begin(), opt_at);
-        logger_->debug("Option at index {}", i);
-        sitrep_options_used_[i] = true;
-
-        // fix numbering
-        sitrep_options_[i]    = " ";
-        sitrep_options_[i][0] = ( '1' + i );
-        sitrep_options_[i].append(". n/a");
-    }
-
 }
 
 }
