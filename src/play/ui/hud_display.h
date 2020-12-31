@@ -67,8 +67,8 @@ class HUDDisplay : public Task {
     int details_page_id_ { 0 };
     int item_page_id_ { 0 };
 
-    bool show_crew_ { false };
-    bool show_items_ { false };
+    bool show_crew_ { true };
+    bool show_items_ { true };
     bool show_details_ { false };
 
 

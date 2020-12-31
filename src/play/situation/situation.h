@@ -42,8 +42,6 @@ class Situation {
 
     [[nodiscard]] bool IsFixing () const;
 
-    [[nodiscard]] bool IsWaitingForHelp () const;
-
     [[nodiscard]] bool PromptForHelp () const;
 
     [[nodiscard]] int GetRemainingResponseTime () const;
@@ -53,6 +51,8 @@ class Situation {
     [[nodiscard]] const std::unique_ptr< const std::string > &
     GetIssue () const;
 
+    std::string GetSitrepText();
+
   protected:
 
     bool UseGenericSpareParts ();
@@ -61,6 +61,11 @@ class Situation {
 
     virtual void SituationCycleOverride ();
 
+    std::string KillRandomCrew();
+
+  protected:
+    logger_t logger_;
+
     shared_spaceship_t           spaceship_ { nullptr };
     std::shared_ptr< PauseMenu > pause_menu_ { nullptr };
 
@@ -68,6 +73,9 @@ class Situation {
 
     SituationType  type_ { SituationType::NONE };
     SituationState state_ { SituationState::NEW };
+
+    std::string timer_text_;
+    std::string health_update_text_;
 
     double fix_prob_ { 0 };
     int    response_time_ { 0 };

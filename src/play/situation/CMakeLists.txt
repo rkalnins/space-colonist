@@ -4,6 +4,7 @@ set(SIT_SRC
         ${CMAKE_CURRENT_LIST_DIR}/major_situation.cpp
         ${CMAKE_CURRENT_LIST_DIR}/minor_situation.cpp
         ${CMAKE_CURRENT_LIST_DIR}/situation.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/major_hull_breach.cpp
         ${CMAKE_CURRENT_LIST_DIR}/situation_factory.cpp
         ${CMAKE_CURRENT_LIST_DIR}/situation_manager.cpp
         ${CMAKE_CURRENT_LIST_DIR}/standard_engine_failure.cpp)

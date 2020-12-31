@@ -124,6 +124,7 @@ bool PauseMenu::HasNotifications () {
 }
 
 void PauseMenu::PushNotification ( const std::string &notification ) {
+    logger_->debug(notification);
     notifications_.push(notification);
 }
 

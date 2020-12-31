@@ -25,6 +25,12 @@ AirFilterFailure::AirFilterFailure (
     type_          = SituationType::AIR_FILTER_FAILURE;
     response_time_ = SituationSource::GetInstance().GetValue(
             "major.air-filter.response-time", 0); // sec
+
+    timer_text_ = SituationSource::GetInstance().GetValue<std::string>(
+            "major.air-filter.timer-text", "");
+
+    health_update_text_ = SituationSource::GetInstance().GetValue<std::string>(
+            "major.air-filter.health-update-text", "");
 }
 
 void AirFilterFailure::SituationCycleOverride () {

@@ -5,6 +5,7 @@
 #include "situation.h"
 
 #include <utility>
+#include <sstream>
 #include <effolkronium/random.hpp>
 
 #include "../../config/situation_source.h"
@@ -14,13 +15,11 @@ namespace sc::play {
 
 using Random = effolkronium::random_static;
 
-static logger_t logger = CreateLogger("situation");
 
 Situation::Situation ( shared_spaceship_t spaceship,
                        std::shared_ptr< PauseMenu > pause_menu )
         : spaceship_(std::move(spaceship)),
-          pause_menu_(std::move(pause_menu)) {
-    logger->set_level(spdlog::level::debug);
+          pause_menu_(std::move(pause_menu)), logger_(CreateLogger("situation")) {
 
     SituationSource &source = SituationSource::GetInstance();
 
@@ -45,16 +44,16 @@ void Situation::SituationCycle () {
 SituationType Situation::GetType () const { return type_; }
 
 bool Situation::UseGenericSpareParts () {
-    logger->debug("Using spare parts");
+    logger_->debug("Using spare parts");
     if ( !spaceship_->UseSpareParts(required_cables_,
                                     required_components_)) {
-        logger->debug("Not enough spare parts");
+        logger_->debug("Not enough spare parts");
         pause_menu_->PushNotification("Not enough spare parts");
         state_ = SituationState::PROMPT_FOR_HELP;
         return false;
     }
 
-    logger->debug("Enough spare parts");
+    logger_->debug("Enough spare parts");
     return true;
 }
 
@@ -81,9 +80,9 @@ bool Situation::ResponseTimeExpired () const {
 }
 
 void Situation::StartFix () {
-    logger->debug("Attempting to start fix");
+    logger_->debug("Attempting to start fix");
     if ( UseGenericSpareParts()) {
-        logger->debug("Starting fix");
+        logger_->debug("Starting fix");
         state_ = SituationState::FIXING;
     }
 }
@@ -110,10 +109,6 @@ bool Situation::WaitForHelp () {
     return false;
 }
 
-bool Situation::IsWaitingForHelp () const {
-    return state_ == SituationState::WAITING_FOR_HELP;
-}
-
 bool Situation::PromptForHelp () const {
     return state_ == SituationState::PROMPT_FOR_HELP;
 }
@@ -125,5 +120,32 @@ int Situation::GetRemainingResponseTime () const {
 void Situation::SituationCycleOverride () {}
 
 void Situation::HealthUpdate () {}
+
+std::string Situation::GetSitrepText () {
+    if ( timer_text_.empty() || health_update_text_.empty()) {
+        return "";
+    }
+
+    std::stringstream disp;
+
+    if ( GetRemainingResponseTime() >= 0 ) {
+        disp << GetRemainingResponseTime() << timer_text_;
+        return disp.str();
+    }
+
+    return health_update_text_;
+}
+
+std::string Situation::KillRandomCrew () {
+    std::vector< CrewMember > &crew = spaceship_->GetCrew();
+
+    auto random_crew = Random::get(crew);
+    random_crew->UpdateHealth(-1 * random_crew->GetHealth());
+
+    std::string name = random_crew->GetName();
+    spaceship_->RemoveDeadCrew();
+
+    return name;
+}
 
 }

@@ -72,8 +72,6 @@ class Spaceship {
 
     void UseFuel ( double usage );
 
-    void UpdateMoney ( int change );
-
     [[nodiscard]] std::map< std::string, std::vector< Item>> &
     GetItems ();
 

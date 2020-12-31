@@ -36,7 +36,7 @@ static const std::string GetTypePath ( SituationType type ) {
         case SituationType::MINOR_HULL_BREACH:
             return "major.minor-hull";
         case SituationType::MAJOR_HULL_BREACH:
-            return "major.major-hull";
+            return "major.hull";
         case SituationType::APPROACHING_SHIP:
             return "major.approaching-ship";
     }

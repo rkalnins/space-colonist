@@ -265,6 +265,10 @@ GameState RunningUI::OnLoop ( GameState state ) {
     switch ( running_state_ ) {
         case RunningState::DEPARTING: {
 
+//                running_state_ = RunningState::FLYING;
+//                spaceship_->Unpause(); // sets state correctly
+//                break;
+
             if ( spaceship_handler_->PrintDeparture(main_)) {
                 logger_->debug("Done departing");
                 running_state_ = RunningState::FLYING;
@@ -313,6 +317,8 @@ GameState RunningUI::OnLoop ( GameState state ) {
          pause_menu_->HasNotifications()) {
         Pause();
         return GameState::RUNNING; // clear queue before exiting
+    } else if (running_state_ == RunningState::PAUSED) {
+        return GameState::RUNNING;
     }
 
     return ret_state;

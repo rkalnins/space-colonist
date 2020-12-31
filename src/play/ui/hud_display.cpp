@@ -189,11 +189,11 @@ void HUDDisplay::PrintItems () {
                                << ") ";
                 }
 
-                mvwaddnstr(main_, item_y, item_x + 13,
+                mvwaddnstr(main_, item_y, item_x + 16,
                            items_disp.str().c_str(), length);
 
                 if ( items_disp.str().length() > length ) {
-                    mvwaddstr(main_, item_y, item_x + 13 + length, " ...");
+                    mvwaddstr(main_, item_y, item_x + 16 + length, " ...");
                 }
 
                 cat_details_[item_y] = c.first;

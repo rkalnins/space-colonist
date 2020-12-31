@@ -52,6 +52,19 @@ class SituationSource {
         return result;
     }
 
+    Range GetRange ( const std::string &path ) {
+        pt::ptree t = situation_tree_.get_child(path);
+
+        auto min = t.begin();
+
+        Range r(min->second.get_value< int >(),
+                ( ++min )->second.get_value< int >());
+
+        logger_->debug("{}: {}, {}", path, r.min, r.max);
+
+        return r;
+    }
+
   private:
     SituationSource () {
         logger_ = CreateLogger("sitsrc");

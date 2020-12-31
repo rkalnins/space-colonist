@@ -1,12 +1,12 @@
 {
   "max-time": 90,
-  "distress-success-p": 0.008,
+  "distress-success-p": 0.006,
   "factory": {},
   "manager": {
   },
   "major": {
     "fix-p": 0.003,
-    "failure-p": 0.0002,
+    "failure-p": 0.0001,
     "spares": {
       "components": [
         2,
@@ -21,6 +21,8 @@
     },
     "air-filter": {
       "response-time": 15,
+      "timer-text": " before poisoning begins",
+      "health-update-text": "Crew is dying of poisoned air",
       "options": [
         "1. Attempt fix"
       ],
@@ -28,6 +30,26 @@
         "Air filter pump failed. Cannot recycle Oxygen.",
         "Air filter clogged. Cannot recycle Oxygen",
         "Air filter unresponsive. Cannot recycle Oxygen."
+      ]
+    },
+    "hull": {
+      "response-time": 30,
+      "timer-text": " before all oxygen escapes",
+      "health-update-text": "Crew is suffocating",
+      "crew-stuck-p": 0.5,
+      "death-if-not-sealed-p": 0.001,
+      "unlucky-crew-death": 0.1,
+      "crew-escape-time": [
+        6,
+        10
+      ],
+      "options": [
+        "1. Immediately seal off compartments",
+        "2. Wait for crew to escape",
+        "3. Start fix (hint: seal compartments first)"
+      ],
+      "failures": [
+        "Major hull breach."
       ]
     },
     "standard-engine": {
@@ -45,8 +67,8 @@
     }
   },
   "minor": {
-    "failure-p": 0.001,
-    "fix-p": 0.01,
+    "failure-p": 0.0005,
+    "fix-p": 0.008,
     "options": [
       "1. Ignore",
       "2. Attempt fix"

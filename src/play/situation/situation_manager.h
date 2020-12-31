@@ -53,6 +53,28 @@ class SituationManager {
 
     void ShowSituationReport ();
 
+    void UseMenuOption ( int option );
+
+
+    class OptionComparator {
+      public:
+        explicit OptionComparator ( int option ) {
+            option_ = '0' + option;
+        }
+
+        bool operator() ( const std::string &other ) {
+            return option_ == other[0];
+        }
+
+        char GetOption () const {
+            return option_;
+        }
+
+      private:
+        char option_;
+    };
+
+
   private:
 
     logger_t logger_;
@@ -67,7 +89,8 @@ class SituationManager {
             SituationType::AIR_FILTER_FAILURE
     };
 
-    std::map< SituationType, std::vector< std::string>> sitrep_options_;
+    std::vector< std::string > sitrep_options_;
+    std::vector< bool > sitrep_options_used_;
 
     std::queue< std::shared_ptr< Situation > > situations_;
 
@@ -75,8 +98,11 @@ class SituationManager {
 
     WINDOW *main_;
 
+    std::string current_action_;
+
     int pause_y_;
     int pause_x_;
+
 };
 
 }

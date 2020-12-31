@@ -8,6 +8,8 @@
 #include <effolkronium/random.hpp>
 #include <utility>
 
+#include "major_hull_breach.h"
+
 
 namespace sc::play {
 
@@ -21,17 +23,6 @@ SituationManager::SituationManager ( WINDOW *main,
           pause_menu_(pause_menu),
           situation_factory_(pause_menu,
                              spaceship) {
-
-
-    for ( auto &t : sit_types_ ) {
-
-        std::string path = GetTypePath(t);
-
-        std::vector< std::string > options = SituationSource::GetInstance().GetList< std::string >(
-                path + ".options");
-
-        sitrep_options_.insert(std::make_pair(t, options));
-    }
 
     pause_y_ = Config::GetInstance().GetValue("pause.y", 0);
     pause_x_ = Config::GetInstance().GetValue("pause.x", 0);
@@ -56,7 +47,7 @@ void SituationManager::ShowSituationReport () {
                   "---------------------------------------------");
     }
 
-    for ( auto &o : sitrep_options_[situations_.front()->GetType()] ) {
+    for ( auto &o : sitrep_options_ ) {
         mvwaddstr(main_, y++, x - 12, o.c_str());
     }
 
@@ -64,28 +55,18 @@ void SituationManager::ShowSituationReport () {
     if ( situations_.front()->PromptForHelp()) {
         mvwaddstr(main_, y++, x - 12,
                   "Not enough spares. Issue distress signal (y/n)?");
+    } else if ( !current_action_.empty()) {
+        std::string output = "Current Action: " + current_action_;
+        mvwaddstr(main_, y++, x - 12, output.c_str());
     }
 
-    if ( situations_.front()->IsFixing()) {
-        mvwaddstr(main_, y++, x - 12, "Current Action: Fixing");
+
+    std::string message = situations_.front()->GetSitrepText();
+
+    if ( !message.empty()) {
+        mvwaddstr(main_, y++, x - 12, message.c_str());
     }
 
-    if ( situations_.front()->IsWaitingForHelp()) {
-        mvwaddstr(main_, y++, x - 12, "Current Action: Waiting for help");
-    }
-
-    if ( situations_.front()->GetType() ==
-         SituationType::AIR_FILTER_FAILURE ) {
-        if ( situations_.front()->GetRemainingResponseTime() >= 0 ) {
-            std::stringstream disp;
-            disp << situations_.front()->GetRemainingResponseTime()
-                 << " before poisoning begins";
-            mvwaddstr(main_, y++, x - 12, disp.str().c_str());
-        } else {
-            mvwaddstr(main_, y++, x - 12,
-                      "Crew is dying of poisoned air.");
-        }
-    }
 }
 
 bool SituationManager::CheckNewSituation () {
@@ -96,7 +77,12 @@ bool SituationManager::CheckNewSituation () {
     std::shared_ptr< Situation > tmp = situation_factory_.GetSituation();
 
     if ( tmp ) {
+        current_action_ = "";
         logger_->debug("Got situation");
+        sitrep_options_ = SituationSource::GetInstance().GetList< std::string >(
+                GetTypePath(tmp->GetType()) + ".options");
+        sitrep_options_used_.clear();
+        sitrep_options_used_.resize(sitrep_options_.size(), false);
         situations_.push(tmp);
         return true;
     }
@@ -175,25 +161,80 @@ bool SituationManager::ProcessInput ( int c ) {
             pause_menu_->PushNotification("Situation in Progress");
             break;
         case '1': {
-            if ( situations_.front()->GetType() == SituationType::MINOR ) {
-                logger_->debug("Ignoring minor");
-                ignored_minor_issues_.push(situations_.front());
+            switch ( situations_.front()->GetType()) {
+                case SituationType::MINOR: {
+                    logger_->debug("Ignoring minor");
+                    ignored_minor_issues_.push(situations_.front());
 
-                if ( !situations_.empty()) {
-                    situations_.pop();
+                    if ( !situations_.empty()) {
+                        situations_.pop();
+                    }
+                    return true;
                 }
-                return true;
-            }
+                case SituationType::MAJOR_HULL_BREACH: {
 
-            logger_->debug("Starting to fix");
-            situations_.front()->StartFix();
+                    if ( !sitrep_options_used_[0] ) {
+                        std::shared_ptr< MajorHullBreach > breach = std::dynamic_pointer_cast< MajorHullBreach >(
+                                situations_.front());
+
+                        breach->SealBreach();
+                        logger_->debug("Sealing breach");
+                        current_action_ = "Sealed breach";
+
+                        UseMenuOption(1);
+                        UseMenuOption(2);
+                    }
+                    break;
+                }
+                default: {
+                    logger_->debug("Starting to fix");
+                    situations_.front()->StartFix();
+                    current_action_ = "Fixing";
+                    break;
+                }
+            }
             break;
         }
         case '2': {
-            situations_.front()->StartFix();
+            switch ( situations_.front()->GetType()) {
+                case SituationType::MAJOR_HULL_BREACH: {
+                    std::shared_ptr< MajorHullBreach > breach = std::dynamic_pointer_cast< MajorHullBreach >(
+                            situations_.front());
+
+                    UseMenuOption(2);
+
+                    if ( !sitrep_options_used_[1] &&
+                         !breach->IsCrewEscaped()) {
+                        current_action_ = "Waiting for crew to escape";
+                        logger_->debug("Start waiting for crew to escape");
+                    }
+                    break;
+                }
+                default:
+                    situations_.front()->StartFix();
+                    current_action_ = "Fixing";
+                    break;
+            }
+            break;
+        }
+        case '3': {
+            switch ( situations_.front()->GetType()) {
+                case SituationType::MAJOR_HULL_BREACH: {
+                    logger_->debug("Starting to fix");
+                    situations_.front()->StartFix();
+                    current_action_ = "Fixing";
+                    UseMenuOption(1);
+                    UseMenuOption(2);
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
         }
         case 'y': {
             situations_.front()->StartWaitForHelp();
+            current_action_ = "Waiting for help";
             break;
         }
         default:
@@ -220,6 +261,32 @@ void SituationManager::UpdateHealth () {
     if ( situations_.empty()) { return; }
 
     situations_.front()->HealthUpdate();
+}
+
+void SituationManager::UseMenuOption ( int option ) {
+
+    logger_->debug("Using menu option {}", option);
+    if ( option > 8 || option < 0 ) { return; }
+
+    OptionComparator cmp(option);
+
+    logger_->debug("Searching for {}", cmp.GetOption());
+
+    auto opt_at = std::find_if(sitrep_options_.begin(),
+                               sitrep_options_.end(), cmp);
+
+
+    if ( opt_at != sitrep_options_.end()) {
+        int i = std::distance(sitrep_options_.begin(), opt_at);
+        logger_->debug("Option at index {}", i);
+        sitrep_options_used_[i] = true;
+
+        // fix numbering
+        sitrep_options_[i]    = " ";
+        sitrep_options_[i][0] = ( '1' + i );
+        sitrep_options_[i].append(". n/a");
+    }
+
 }
 
 }

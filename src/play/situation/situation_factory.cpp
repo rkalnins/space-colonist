@@ -12,6 +12,7 @@
 #include "minor_situation.h"
 #include "standard_engine_failure.h"
 #include "air_filter_failure.h"
+#include "major_hull_breach.h"
 
 
 namespace sc::play {
@@ -39,14 +40,17 @@ std::unique_ptr< Situation > SituationFactory::GetSituation () {
     // FIXME make major dependent on number of minor failures
     if ( Random::get< bool >(major_failure_prob_)) {
         logger_->debug("Creating major failure");
-        char f = Random::get({ 'a', 'e' });
+        char f = Random::get({ 'h' });
         switch ( f ) {
-            case 'e':
-                return std::make_unique< StandardEngineFailure >(
-                        spaceship_, pause_menu_);
             case 'a':
                 return std::make_unique< AirFilterFailure >(spaceship_,
                                                             pause_menu_);
+            case 'e':
+                return std::make_unique< StandardEngineFailure >(
+                        spaceship_, pause_menu_);
+            case 'h':
+                return std::make_unique< MajorHullBreach >(spaceship_,
+                                                           pause_menu_);
             default:
                 return nullptr;
         }

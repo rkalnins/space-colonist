@@ -23,7 +23,7 @@
   },
   "pause": {
     "y": 32,
-    "x": 30
+    "x": 45
   },
   "running-ui": {
     "flying-object-p": 0.1,

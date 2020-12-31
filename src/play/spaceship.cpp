@@ -256,8 +256,6 @@ double Spaceship::GetMaxWeight () const { return max_weight_; }
 
 int Spaceship::GetMoney () const { return money_; }
 
-void Spaceship::UpdateMoney ( int change ) { money_ += change; }
-
 const std::string &Spaceship::GetAppearanceCode () const {
     return appearance_code_;
 }
