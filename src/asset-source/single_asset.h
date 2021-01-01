@@ -11,12 +11,13 @@
 
 #include "../logging/logging.h"
 #include "../assets/departure_station.h"
+#include "../assets/arrival_station.h"
 #include "../assets/ship_a.h"
 
 
 namespace sc {
 
-enum class Asset { DEPARTURE_STATION, SHIP_A };
+enum class Asset { DEPARTURE_STATION, ARRIVAL_STATION, SHIP_A };
 
 using SingleAsset = std::vector< const std::string >;
 using AnimationFrames = std::vector< const std::vector< const std::string >>;
@@ -30,6 +31,10 @@ static std::unique_ptr< SingleAsset > GetAsset ( Asset asset ) {
         case Asset::DEPARTURE_STATION: {
             assets::DepartureStation s;
             return std::make_unique< SingleAsset >(s.station_dep_);
+        }
+        case Asset::ARRIVAL_STATION: {
+            assets::ArrivalStation s;
+            return std::make_unique< SingleAsset >(s.station_arrival_);
         }
         default:
             return nullptr;

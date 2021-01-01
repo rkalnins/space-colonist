@@ -31,8 +31,9 @@ SpaceshipFactory::SpaceshipFactory () : logger_(
             "play.spaceship-factory.max-burn-time", 0);
 
 
-    station_dep_ = sc::GetAsset(Asset::DEPARTURE_STATION);
-    ship_        = sc::GetFrames(Asset::SHIP_A);
+    station_dep_     = sc::GetAsset(Asset::DEPARTURE_STATION);
+    station_arrival_ = sc::GetAsset(Asset::ARRIVAL_STATION);
+    ship_            = sc::GetFrames(Asset::SHIP_A);
 }
 
 
@@ -136,8 +137,10 @@ int SpaceshipFactory::GetInitialMoney () const {
     return initial_money_;
 }
 
-bool SpaceshipFactory::PrintStation ( WINDOW *window, int cycle ) {
-    int        y = station_init_y_;
+bool
+SpaceshipFactory::PrintStationDeparture ( WINDOW *window, int cycle ) {
+    int y = station_init_y_;
+
     for ( auto &s : *station_dep_ ) {
 
         mvwaddnstr(window, y++, station_init_x_ + cycle, s.c_str(),
@@ -145,6 +148,18 @@ bool SpaceshipFactory::PrintStation ( WINDOW *window, int cycle ) {
     }
     return station_init_x_ + cycle ==
            getmaxx(window) - 8; // weird offset to make things work
+}
+
+bool SpaceshipFactory::PrintStationArrival ( WINDOW *window, int cycle ) {
+    int y = station_init_y_;
+
+
+    for ( auto &s : *station_arrival_ ) {
+        if (s.length() < cycle) { return true; }
+        mvwaddstr(window, y++, 0,
+                  s.substr(s.length() - cycle, s.length()).c_str());
+    }
+    return cycle == 100;
 }
 
 }

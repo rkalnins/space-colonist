@@ -160,8 +160,6 @@ void Spaceship::UseFood () {
 
     auto food = Random::get(items_["Food"]);
 
-    // TODO bug when crew size > remaining value
-
     if ( food->HardUpdateQuantity(-1 * static_cast<int>(crew_.size()))) {
         UpdateWeight(
                 -1 * static_cast<int>(crew_.size()) * food->GetWeight());

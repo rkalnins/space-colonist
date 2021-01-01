@@ -21,7 +21,9 @@ class SpaceshipFactory {
 
     std::unique_ptr< Spaceship > CreateSpaceship ();
 
-    bool PrintStation ( WINDOW *window, int cycle );
+    bool PrintStationDeparture ( WINDOW *window, int cycle );
+
+    bool PrintStationArrival ( WINDOW *window, int cycle );
 
     bool PrintSpaceship ( WINDOW *window, int y, int x,
                           bool start_flip, bool can_flip,
@@ -34,6 +36,7 @@ class SpaceshipFactory {
     std::unique_ptr< std::vector< const std::vector< const std::string>> > ship_;
 
     std::unique_ptr< std::vector< const std::string >> station_dep_;
+    std::unique_ptr< std::vector< const std::string >> station_arrival_;
 
     logger_t logger_;
 

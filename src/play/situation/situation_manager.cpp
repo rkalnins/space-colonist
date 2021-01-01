@@ -185,6 +185,7 @@ bool SituationManager::ProcessInput ( int c ) {
             if ( !situations_.empty()) {
                 situations_.pop();
             }
+            return true;
         }
 
     }

@@ -43,8 +43,6 @@ RunningUI::RunningUI ( const std::string &name, TaskType taskType,
     half_ration_health_change_prob_    = config.GetValue(
             "running-ui.half-ration-health-p", 0.0);
 
-    ss_mvmt_period_       = config.GetValue("running-ui.ss-mvmt-period",
-                                            0);
     ss_food_usage_period_ = config.GetValue(
             "running-ui.ss-food-usage-period", 0);
     starve_period_        = config.GetValue("running-ui.ss-starve-period",
@@ -119,7 +117,6 @@ void RunningUI::Init () {
     logger_->debug("Running UI init finished");
 }
 
-// FIXME please
 void RunningUI::ProcessInput () {
 
     int c = listener_->GetCh();
@@ -180,6 +177,9 @@ void RunningUI::ProcessInput () {
 
             break;
         }
+        case RunningState::ARRIVING: {
+            break;
+        }
     }
 }
 
@@ -217,13 +217,21 @@ void RunningUI::Unpause () {
 
 GameState RunningUI::OnLoop ( GameState state ) {
 
-    if ( running_state_ != RunningState::DEPARTING ) {
+    if ( running_state_ != RunningState::DEPARTING &&
+         running_state_ != RunningState::ARRIVING ) {
         ProcessInput();
 
         std::stringstream disp;
         disp.precision(3);
+        double distance;
+        if ( nav_manager_->GetDistanceRemaining() <= 0.1 ) {
+            distance = 0.0;
+        } else {
+            distance = nav_manager_->GetDistanceRemaining();
+        }
+
         disp << distance_remaining_
-             << nav_manager_->GetDistanceRemaining() << "\t"
+             << distance << "\t"
              << velocity_name_ << ( nav_manager_->GetVelocity() * 100.0 )
              << "\tRations: "
              << rations_;
@@ -232,23 +240,27 @@ GameState RunningUI::OnLoop ( GameState state ) {
         disp.str("");
     }
 
-    if ( nav_manager_->GetDistanceRemaining() <= 0 ) {
-        return GameState::EXITING;
+    if (ret_state != GameState::EXITING && nav_manager_->GetStopFuel() > spaceship_->GetFuel()) {
+        logger_->debug("Not enough fuel to stop");
+        pause_menu_->PushNotification("Not enough fuel to stop");
+        ret_state = GameState::EXITING;
+    }
+
+    if ( running_state_ != RunningState::ARRIVING &&
+         nav_manager_->GetDistanceRemaining() <= 0 ) {
+        running_state_ = RunningState::ARRIVING;
+        logger_->debug("Beginning arrival");
     }
 
     switch ( running_state_ ) {
         case RunningState::DEPARTING: {
 
-            running_state_ = RunningState::FLYING;
-            spaceship_->Unpause(); // sets state correctly
+            if ( spaceship_handler_->PrintDeparture(main_)) {
+                logger_->debug("Done departing");
+                running_state_ = RunningState::FLYING;
+                spaceship_->Unpause(); // sets state correctly
+            }
             break;
-
-//            if ( spaceship_handler_->PrintDeparture(main_)) {
-//                logger_->debug("Done departing");
-//                running_state_ = RunningState::FLYING;
-//                spaceship_->Unpause(); // sets state correctly
-//            }
-//            break;
         }
         case RunningState::FLYING: {
             if ( situation_manager_->CheckNewSituation()) {
@@ -285,6 +297,14 @@ GameState RunningUI::OnLoop ( GameState state ) {
             spaceship_handler_->PrintSpaceship(main_);
             break;
         }
+        case RunningState::ARRIVING: {
+            if ( spaceship_handler_->PrintArrival(main_)) {
+                logger_->debug("Done arriving");
+                spaceship_->Unpause();
+                return GameState::EXITING;
+            }
+            break;
+        }
     }
 
     if ( running_state_ != RunningState::PAUSED &&
@@ -301,10 +321,6 @@ GameState RunningUI::OnLoop ( GameState state ) {
 void RunningUI::StandardLoopUpdate () {
     MoveFlyingObject();
 
-    if ( !nav_manager_->IsStopped()) {
-        MoveSpaceship();
-    }
-
     UpdateSpaceshipState();
     UpdateCrew();
 }
@@ -317,13 +333,6 @@ bool RunningUI::UpdateVelocity ( Velocity new_velocity ) {
         nav_manager_->SetVelocity(new_velocity);
         menu_options_ = MenuOptions::MAIN;
         return false;
-    }
-}
-
-void RunningUI::MoveSpaceship () {
-    if ( ss_mvmt_counter_++ > ss_mvmt_period_ ) {
-        spaceship_handler_->MoveSpaceship();
-        ss_mvmt_counter_ = 0;
     }
 }
 
@@ -383,7 +392,6 @@ void RunningUI::UpdateCrewFood () {
         if ( ss_food_usage_period_ == ss_filling_rations_ &&
              Random::get< bool >(filling_ration_health_change_prob_)) {
             Random::get(crew)->UpdateHealth(1);
-
         } else if ( ss_food_usage_period_ == ss_half_rations_ &&
                     Random::get< bool >(half_ration_health_change_prob_)) {
             Random::get(crew)->UpdateHealth(-1);

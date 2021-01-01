@@ -29,6 +29,7 @@ enum class RunningState {
     PAUSED,
     SITUATION,
     STORE,
+    ARRIVING
 };
 
 using pause_menu_tasks_t = std::map< MenuOptions, std::map< int, std::function< void ()>> >;
@@ -49,8 +50,6 @@ class RunningUI : public Task {
     GameState OnLoop ( GameState state ) override;
 
   private:
-
-    void MoveSpaceship ();
 
     void ProcessInput ();
 
@@ -107,7 +106,6 @@ class RunningUI : public Task {
     double normal_ration_health_change_prob_;
     double half_ration_health_change_prob_;
 
-    int ss_mvmt_period_;
     int ss_food_usage_period_;
     int starve_period_;
 

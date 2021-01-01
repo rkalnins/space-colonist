@@ -6,7 +6,7 @@
   },
   "major": {
     "fix-p": 0.003,
-    "failure-p": 0.01,
+    "failure-p": 0.0001,
     "spares": {
       "components": [
         2,
@@ -67,7 +67,7 @@
     }
   },
   "minor": {
-    "failure-p": 0.005,
+    "failure-p": 0.001,
     "fix-p": 0.008,
     "options": [
       "Ignore",

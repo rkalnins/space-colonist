@@ -132,8 +132,8 @@ void SpaceMap::ToggleSelection ( int y, int x ) {
 
         double dist;
         if ( route_.empty()) {
-            dist = std::hypot(map_init_y_ - 2 - y,
-                              map_init_x_ + map_width_ / 2 - x);
+            dist = std::hypot((map_init_y_ - 2) - y,
+                              (map_init_x_ + map_width_ / 2) - x);
             if ( dist > max_travel_distance_ ) {
                 return;
             }

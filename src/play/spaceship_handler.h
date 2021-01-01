@@ -44,9 +44,7 @@ class SpaceshipHandler {
 
     bool PrintDeparture ( WINDOW *main );
 
-    void MoveSpaceship ();
-
-    void BoundSpaceshipPosition ();
+    bool PrintArrival ( WINDOW *main );
 
     void StartFlip ();
 
@@ -59,18 +57,12 @@ class SpaceshipHandler {
     shared_spaceship_t         spaceship_ { nullptr };
     shared_spaceship_factory_t spaceship_factory_ { nullptr };
 
-    double ss_mvmt_x_prob_;
-    double ss_mvmt_y_prob_;
-
-    int ss_max_y_;
-    int ss_min_y_;
-    int ss_max_x_;
-    int ss_min_x_;
-
     int    ss_pos_y_;
     int    ss_pos_x_;
-    int    departure_cycle { 0 };
-    double departure_speed = 1.0 / 15.0;
+    int    departure_cycle_ { 0 };
+    double departure_speed_ = 1.0 / 10.0;
+    int    arrival_cycle_ { 0 };
+    double arrival_speed_ = 1.0 / 10.0;
 
     bool start_flip_ { false };
 
