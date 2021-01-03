@@ -55,21 +55,25 @@ void StoreUI::ProcessInput () {
     int ch = listener_->GetCh();
     switch ( ch ) {
         case KEY_DOWN: {
+            if ( store_view_ == StoreCategory::ALL ) { break; }
+
             current_selected_item_ = std::min(
                     current_selected_item_ + 1,
                     static_cast<int>(
                             items_for_sale_[current_category_]->size() -
                             1));
+
             break;
         }
         case KEY_UP: {
-            current_selected_item_ = std::max(
-                    current_selected_item_ - 1, 0);
+            if ( store_view_ == StoreCategory::ALL ) { break; }
+
+            current_selected_item_ = std::max(current_selected_item_ - 1,
+                                              0);
             break;
         }
         case 'a': {
-            if ( store_view_ ==
-                 StoreCategory::ALL ) { break; }
+            if ( store_view_ == StoreCategory::ALL ) { break; }
 
             Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
             if ( item.GetQuantity() < 10 ) { break; }
@@ -83,8 +87,7 @@ void StoreUI::ProcessInput () {
             break;
         }
         case KEY_RIGHT: {
-            if ( store_view_ ==
-                 StoreCategory::ALL ) { break; }
+            if ( store_view_ == StoreCategory::ALL ) { break; }
 
             Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
             if ( item.GetQuantity() < 1 ) { break; }
@@ -98,8 +101,7 @@ void StoreUI::ProcessInput () {
             break;
         }
         case 'b': {
-            if ( store_view_ ==
-                 StoreCategory::ALL ) { break; }
+            if ( store_view_ == StoreCategory::ALL ) { break; }
             Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
             item.SetQuantity(10);
             bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
@@ -111,8 +113,7 @@ void StoreUI::ProcessInput () {
             break;
         }
         case KEY_LEFT: {
-            if ( store_view_ ==
-                 StoreCategory::ALL ) { break; }
+            if ( store_view_ == StoreCategory::ALL ) { break; }
             Item item = *( *items_for_sale_[current_category_] )[current_selected_item_];
             item.SetQuantity(1);
             bool success = spaceship_handler_->GetSpaceship()->RemoveItem(
@@ -153,8 +154,22 @@ void StoreUI::ShowInventoryInterface () {
     int y = ui_init_y_;
     int x = ui_init_x_;
 
-    mvwaddstr(main_, y++, x,
+    mvwaddstr(main_, y - 3, x,
               "Space station (Use $ to buy supplies, 0 to go to categories)");
+
+    if ( store_view_ == StoreCategory::ALL ) {
+        mvwaddstr(main_, y - 1, x,
+                  "Use [1]-[9] to select category");
+        y++;
+    } else {
+        mvwaddstr(main_, y - 1, x,
+                  "[0] to view categories, [Up]/[Down] to select item.");
+        mvwaddstr(main_, y++, x,
+                  "[Right]/[Left] to add/remove 1x. [a]/[b] to add/remove 10x");
+    }
+
+
+    y++;
 
     std::stringstream row;
 

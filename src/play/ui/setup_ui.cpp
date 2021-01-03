@@ -226,6 +226,8 @@ void SetupUI::SpaceshipSelection () {
 
     int i = 1;
 
+    mvwaddstr(main_, y - 4, x, "Use [Up]/[Down] to choose a spaceship");
+
     disp << "Money available: "
          << ( spaceship_factory_->GetInitialMoney() -
               spaceship_choices_[selected_spaceship_]->GetCost());
@@ -274,7 +276,13 @@ void SetupUI::CrewSelection () {
     int health_y      = name_y + 1;
     int skills_init_y = health_y + 1;
 
-    mvwaddstr(main_, y, x, "Choose your crew:");
+    std::stringstream disp;
+    disp << "Choose your crew by clicking on the boxes below ("
+         << selected_crew_count_ << "/"
+         << spaceship_handler_->GetSpaceship()->GetMaxCrew()
+         << " selected):";
+
+    mvwaddstr(main_, y, x, disp.str().c_str());
     y += 2;
 
     std::stringstream stream;

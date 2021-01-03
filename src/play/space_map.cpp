@@ -77,6 +77,7 @@ void SpaceMap::PrintMap () {
     std::stringstream disp;
     disp << "Distance: " << cost_;
 
+    mvwaddstr(main_, y- 4, map_init_x_, "Click on * to add planet to route. Click again to deselect.");
     mvwaddstr(main_, y - 2, map_init_x_, disp.str().c_str());
     mvwaddstr(main_, y - 2, map_init_x_ + map_width_ / 2 - 8,
               "Start: (0)");

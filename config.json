@@ -68,12 +68,12 @@
     "spaceship-factory": {
       "max-burn-time": 240,
       "max-weight": [
-        1500,
-        1500
+        2000,
+        2000
       ],
       "max-fuel": [
-        5,
-        10
+        15,
+        20
       ],
       "max-hull": [
         150,
@@ -83,7 +83,7 @@
         2,
         3
       ],
-      "init-money": 3000
+      "init-money": 5000
     },
     "map": {
       "height": 20,
@@ -142,7 +142,7 @@
         "Maia",
         "Margo",
         "Tejal",
-        "Kierstan",
+        "Kiersten",
         "Annica",
         "Roberts",
         "Max"
