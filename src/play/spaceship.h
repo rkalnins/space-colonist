@@ -131,6 +131,7 @@ class Spaceship {
 
     bool CanAddItem ( Item &item );
 
+    bool HasWorkshop ();
 
     class RemoveDeadComp {
       public:
@@ -163,6 +164,8 @@ class Spaceship {
     int cost_ { 0 };
     int food_ { 0 };
     int max_crew_ { 0 };
+
+    double workshop_spare_part_scale_{};
 };
 
 

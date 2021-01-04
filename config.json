@@ -19,7 +19,7 @@
     "disp-y": 4,
     "disp-x": 10,
     "rows-per-details-pg": 10,
-    "cat-per-pg": 10
+    "cat-per-pg": 6
   },
   "pause": {
     "y": 32,
@@ -55,6 +55,9 @@
     }
   },
   "play": {
+    "spaceship": {
+      "workshop-scale": 0.25
+    },
     "spaceship-handler": {
       "mvmt-x-p": 0.3,
       "mvmt-y-p": 0.1,

@@ -120,6 +120,7 @@ int main () {
 
         double score = crew_left * crew_mult + food_left * food_mult +
                        distance_traveled * distance_mult;
+        disp.precision(7);
         disp << "Score: " << score;
         mvwaddstr(main, y, x + horizontal_move, disp.str().c_str());
 

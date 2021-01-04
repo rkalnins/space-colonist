@@ -7,6 +7,7 @@
 #include <effolkronium/random.hpp>
 #include <algorithm>
 
+#include "../config/config.h"
 #include "item.h"
 
 
@@ -16,6 +17,11 @@ namespace sc::play {
 
 Spaceship::Spaceship ( std::string &appearance_code ) {
     appearance_code_ = appearance_code;
+
+    Config &config = Config::GetInstance();
+
+    workshop_spare_part_scale_ = config.GetValue(
+            "play.spaceship.workshop-scale", 0.0);
 }
 
 void Spaceship::LoggingInit () {
@@ -201,11 +207,19 @@ bool Spaceship::UseSpareParts ( int cables, int components ) {
     auto spares = items_.find("Spare parts");
 
     if ( spares == items_.end()) {
-        logger_->debug("No spares not available");
+        logger_->debug("No spares available");
         return false;
     }
 
     auto &spares_v = spares->second;
+
+    if ( HasWorkshop()) {
+        cables     = (int) (static_cast<double>(cables) * workshop_spare_part_scale_);
+        components = (int) (static_cast<double>(components) * workshop_spare_part_scale_);
+        logger_->debug(
+                "Reducing spare parts cost to {} cables and {} components",
+                cables, components);
+    }
 
     Item::NameComparator cables_cmp("Cables");
     Item::NameComparator comp_cmp("Electronic components");
@@ -256,6 +270,17 @@ int Spaceship::GetMoney () const { return money_; }
 
 const std::string &Spaceship::GetAppearanceCode () const {
     return appearance_code_;
+}
+
+bool Spaceship::HasWorkshop () {
+    if ( items_.find("Infrastructure") == items_.end()) { return false; }
+
+    Item::NameComparator cmp("Workshop");
+
+    auto workshop_it = std::find_if(items_["Infrastructure"].begin(),
+                                    items_["Infrastructure"].end(), cmp);
+
+    return workshop_it != items_["Infrastructure"].end();
 }
 
 int Spaceship::GetCost () const { return cost_; }
