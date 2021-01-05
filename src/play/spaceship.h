@@ -113,6 +113,8 @@ class Spaceship {
 
     [[nodiscard]] bool HasFood () const;
 
+    double GetToolsetMultiplier();
+
   private:
 
     /**

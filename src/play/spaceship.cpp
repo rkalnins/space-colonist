@@ -283,6 +283,32 @@ bool Spaceship::HasWorkshop () {
     return workshop_it != items_["Infrastructure"].end();
 }
 
+double Spaceship::GetToolsetMultiplier () {
+
+    auto tools = items_.find("Tools");
+
+    if (tools == items_.end()) { return 1.0; }
+
+    Item::NameComparator basic("Basic toolset");
+    Item::NameComparator standard("Standard toolset");
+    Item::NameComparator enhanced("Enhanced toolset");
+    Item::NameComparator full("Full toolset");
+
+    static Config &config = Config::GetInstance();
+
+    auto basic_it = std::find_if(tools->second.begin(), tools->second.end(), basic);
+    auto std_it = std::find_if(tools->second.begin(), tools->second.end(), standard);
+    auto enhanced_it = std::find_if(tools->second.begin(), tools->second.end(), enhanced);
+    auto full_it = std::find_if(tools->second.begin(), tools->second.end(), full);
+
+    if (basic_it != tools->second.end()) { return config.GetValue("play.spaceship.toolset-scale.basic", 1.0); }
+    if (std_it != tools->second.end()) { return config.GetValue("play.spaceship.toolset-scale.basic", 1.0); }
+    if (enhanced_it != tools->second.end()) { return config.GetValue("play.spaceship.toolset-scale.basic", 1.0); }
+    if (full_it != tools->second.end()) { return config.GetValue("play.spaceship.toolset-scale.basic", 1.0); }
+
+    return 0;
+}
+
 int Spaceship::GetCost () const { return cost_; }
 
 int Spaceship::GetFullHull () const { return full_hull_; }

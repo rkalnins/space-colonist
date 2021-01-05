@@ -56,7 +56,13 @@
   },
   "play": {
     "spaceship": {
-      "workshop-scale": 0.25
+      "workshop-scale": 0.25,
+      "toolset-scale": {
+        "basic": 1.3,
+        "standard": 1.6,
+        "enhanced": 1.9,
+        "full": 2.2
+      }
     },
     "spaceship-handler": {
       "mvmt-x-p": 0.3,

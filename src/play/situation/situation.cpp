@@ -65,7 +65,7 @@ bool Situation::AttemptFix () const {
 
     if ( state_ != SituationState::FIXING ) { return false; }
 
-    if ( Random::get< bool >(fix_prob_)) {
+    if ( Random::get< bool >(fix_prob_ * spaceship_->GetToolsetMultiplier())) {
         const std::string &fixed = "Fixed \"" + *issue_ +
                                    "\"";
         pause_menu_->PushNotification(fixed);
